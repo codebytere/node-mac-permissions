@@ -11,6 +11,8 @@ This native Node.js module allows you to manage an app's access to:
 * Calendar
 * Reminders
 * Photos
+* Camera
+* Microphone
 
 ## API
 
@@ -35,7 +37,6 @@ Return Value Descriptions:
 ## `permissions.askForContactsAccess(callback)`
 
 * `callback` Function
-  * `error` String | null - An error in performing the request, if one occurred.
   * `status` String - Whether or not the request succeeded or failed; can be 'authorized' or 'denied'.
 
 Your app’s `Info.plist` file must provide a value for the `NSContactsUsageDescription` key that explains to the user why your app is requesting Contacts access.
@@ -51,8 +52,7 @@ Example:
 ```js
 const { askForContactsAccess } = require('node-mac-permissions')
 
-askForContactsAccess((err, status) => {
-  if (err) throw new Error(err)
+askForContactsAccess((status) => {
   console.log(`Access to Contacts is ${status}`)
 })
 ```
@@ -60,15 +60,13 @@ askForContactsAccess((err, status) => {
 ## `permissions.askForCalendarAccess(callback)`
 
 * `callback` Function
-  * `error` String | null - An error in performing the request, if one occurred.
   * `status` String - Whether or not the request succeeded or failed; can be 'authorized' or 'denied'.
 
 Example:
 ```js
 const { askForCalendarAccess } = require('node-mac-permissions')
 
-askForCalendarAccess((err, status) => {
-  if (err) throw new Error(err)
+askForCalendarAccess((status) => {
   console.log(`Access to Calendar is ${status}`)
 })
 ```
@@ -76,15 +74,13 @@ askForCalendarAccess((err, status) => {
 ## `permissions.askForRemindersAccess(callback)`
 
 * `callback` Function
-  * `error` String | null - An error in performing the request, if one occurred.
   * `status` String - Whether or not the request succeeded or failed; can be 'authorized' or 'denied'.
 
 Example:
 ```js
 const { askForRemindersAccess } = require('node-mac-permissions')
 
-askForRemindersAccess((err, status) => {
-  if (err) throw new Error(err)
+askForRemindersAccess((status) => {
   console.log(`Access to Reminders is ${status}`)
 })
 ```
@@ -105,7 +101,6 @@ askForFullDiskAccess()
 * `type` String - The type of media to which you are requesting access. Can be 'microphone' or 'camera'.
 
 * `callback` Function
-  * `error` String | null - An error in performing the request, if one occurred.
   * `status` String - Whether or not the request succeeded or failed; can be 'authorized' or 'denied'.
 
 Your app must provide an explanation for its use of capture devices using the `NSCameraUsageDescription` or `NSMicrophoneUsageDescription` `Info.plist` keys; Calling this method or attempting to start a capture session without a usage description raises an exception.
@@ -124,8 +119,7 @@ Example:
 const { askForMediaAccess } = require('node-mac-permissions')
 
 for (const type of ['microphone', 'camera']) {
-  askForMediaAccess(type, (err, status) => {
-    if (err) throw new Error(err)
+  askForMediaAccess(type, (status) => {
     console.log(`Access to media type ${type} is ${status}`)
   })
 }
