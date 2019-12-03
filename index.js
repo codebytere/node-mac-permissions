@@ -10,5 +10,6 @@ function getAuthStatus(type) {
 } 
 
 module.exports = {
-  getAuthStatus
+  getAuthStatus,
+  askForContactsAccess: permissions.askForContactsAccess
 }

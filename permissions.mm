@@ -42,7 +42,7 @@ std::string ContactAuthStatus() {
   return auth_status;
 }
 
-// Returns a status indicating whether or not the user has authorized Calendar access
+// Returns a status indicating whether or not the user has authorized Calendar/Reminders access
 std::string EventAuthStatus(std::string type) {
   std::string auth_status = "Not Determined";
 
@@ -125,10 +125,33 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
   return Napi::Value::From(env, auth_status);
 }
 
+// Request access to the Contacts store.
+void AskForContactsAccess(const Napi::CallbackInfo &info) {
+  Napi::Env env = info.Env();
+  Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(env, info[0].As<Napi::Function>(),
+                                                                "Resource Name", 0, 1, [](Napi::Env){});
+
+  if (@available(macOS 10.11, *)) {
+    CNContactStore *store = [CNContactStore new];
+    [store requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError* error) {
+      auto callback = [](Napi::Env env, Napi::Function js_cb, const char* granted) {
+        js_cb.Call({Napi::String::New(env, granted)});
+      };
+      ts_fn.BlockingCall(granted ? "authorized" : "denied", callback);
+    }];
+  } else {
+    Napi::FunctionReference fn = Napi::Persistent(info[0].As<Napi::Function>());
+    fn.Call({Napi::String::New(env, "authorized")});
+  }
+}
+
 // Initializes all functions exposed to JS
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
   exports.Set(
     Napi::String::New(env, "getAuthStatus"), Napi::Function::New(env, GetAuthStatus)
+  );
+  exports.Set(
+    Napi::String::New(env, "askForContactsAccess"), Napi::Function::New(env, AskForContactsAccess)
   );
 
   return exports;
