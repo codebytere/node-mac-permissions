@@ -16,7 +16,7 @@ This native Node.js module allows you to manage an app's access to:
 
 ## `permissions.getAuthStatus(type)`
 
-* `type` String - The type of system component to which you are requesting access. Can be one of 'contacts', 'full-disk-access', 'photos', 'reminders', 'camera', 'microphone', 'screen-capture', or 'calendar'.
+* `type` String - The type of system component to which you are requesting access. Can be one of 'contacts', 'full-disk-access', 'photos', 'reminders', 'camera', 'microphone', or 'calendar'.
 
 Returns `String` - Can be one of 'not determined', 'denied', 'authorized', or 'restricted'.
 

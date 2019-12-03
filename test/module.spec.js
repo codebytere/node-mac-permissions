@@ -12,7 +12,15 @@ describe('node-mac-permissions', () => {
     })
 
     it('should return a string', () => {
-      const types = ['contacts', 'calendar', 'reminders', 'full-disk-access']
+      const types = [
+        'contacts',
+        'calendar',
+        'reminders',
+        'full-disk-access',
+        'camera',
+        'microphone'
+      ]
+
       const statuses = ['not determined', 'denied', 'authorized', 'restricted']
       for (const type of types) {
         const status = getAuthStatus(type)

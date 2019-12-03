@@ -1,7 +1,15 @@
 const permissions = require('bindings')('permissions.node')
 
 function getAuthStatus(type) {
-  const validTypes = ['contacts', 'calendar', 'reminders', 'full-disk-access']
+  const validTypes = [
+    'contacts',
+    'calendar',
+    'reminders',
+    'full-disk-access',
+    'camera',
+    'microphone'
+  ]
+
   if (!validTypes.includes(type)) {
     throw new TypeError(`${type} is not a valid type`)
   }

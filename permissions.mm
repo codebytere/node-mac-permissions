@@ -30,8 +30,8 @@ NSString* GetUserHomeFolderPath() {
 std::string ContactAuthStatus() {
   std::string auth_status = "not determined";
 
-  CNEntityType entityType = CNEntityTypeContacts;
-  CNAuthorizationStatus status = [CNContactStore authorizationStatusForEntityType:entityType];
+  CNEntityType entity_type = CNEntityTypeContacts;
+  CNAuthorizationStatus status = [CNContactStore authorizationStatusForEntityType:entity_type];
 
   if (status == CNAuthorizationStatusAuthorized)
     auth_status = "authorized";
@@ -44,11 +44,11 @@ std::string ContactAuthStatus() {
 }
 
 // Returns a status indicating whether or not the user has authorized Calendar/Reminders access
-std::string EventAuthStatus(std::string type) {
+std::string EventAuthStatus(const std::string& type) {
   std::string auth_status = "not determined";
 
-  EKEntityType entityType = (type == "calendar") ? EKEntityTypeEvent : EKEntityTypeReminder;
-  EKAuthorizationStatus status = [EKEventStore authorizationStatusForEntityType:entityType];
+  EKEntityType entity_type = (type == "calendar") ? EKEntityTypeEvent : EKEntityTypeReminder;
+  EKAuthorizationStatus status = [EKEventStore authorizationStatusForEntityType:entity_type];
 
   if (status == EKAuthorizationStatusAuthorized)
     auth_status = "authorized";
@@ -60,6 +60,7 @@ std::string EventAuthStatus(std::string type) {
   return auth_status;
 }
 
+// Returns a status indicating whether or not the user has Full Disk Access
 std::string FDAAuthStatus() {
   std::string auth_status = "not determined";
   NSString *path;
@@ -83,6 +84,27 @@ std::string FDAAuthStatus() {
   return auth_status;
 }
 
+// Returns a status indicating whether or not the user has authorized Camera/Microphone access
+std::string MediaAuthStatus(const std::string& type) {
+  std::string auth_status = "not determined";
+
+  if (@available(macOS 10.14, *)) {
+    AVMediaType media_type = (type == "microphone") ? AVMediaTypeAudio : AVMediaTypeVideo;
+    AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:media_type];
+
+    if (status == AVAuthorizationStatusAuthorized)
+      auth_status = "authorized";
+    else if (status == AVAuthorizationStatusDenied)
+      auth_status = "denied";
+    else if (status == AVAuthorizationStatusRestricted)
+      auth_status = "restricted";
+  } else {
+    auth_status = "authorized";
+  }
+
+  return auth_status;
+}
+
 /***** EXPORTED FUNCTIONS *****/
 
 // Returns the user's access consent status as a string
@@ -99,6 +121,10 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
     auth_status = EventAuthStatus("reminders");
   } else if (type == "full-disk-access") {
     auth_status = FDAAuthStatus();
+  } else if (type == "microphone") {
+    auth_status = MediaAuthStatus("microphone");
+  } else if (type == "camera") {
+    auth_status = MediaAuthStatus("camera");
   }
 
   return Napi::Value::From(env, auth_status);
