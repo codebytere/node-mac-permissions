@@ -9,10 +9,22 @@ function getAuthStatus(type) {
   return permissions.getAuthStatus.call(this, type)
 } 
 
+function askForMediaAccess(type, callback) {
+  if (['microphone', 'camera'].includes(type)) {
+    throw new TypeError(`${type} must be either 'camera' or 'microphone'`)
+  }
+  if (typeof callback !== 'function') {
+    throw new TypeError(`callback must be a function`)
+  }
+
+  return permissions.askForMediaAccess.call(this, type, callback)
+}
+
 module.exports = {
-  getAuthStatus,
-  askForContactsAccess: permissions.askForContactsAccess,
   askForCalendarAccess: permissions.askForCalendarAccess,
+  askForContactsAccess: permissions.askForContactsAccess,
+  askForFullDiskAccess: permissions.askForFullDiskAccess,
   askForRemindersAccess: permissions.askForRemindersAccess,
-  askForFullDiskAccess: permissions.askForFullDiskAccess
+  askForMediaAccess,
+  getAuthStatus
 }

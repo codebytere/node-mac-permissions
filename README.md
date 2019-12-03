@@ -16,7 +16,7 @@ This native Node.js module allows you to manage an app's access to:
 
 ## `permissions.getAuthStatus(type)`
 
-* `type` String - The type of system component to which you are requesting access. Can be one of 'contacts', 'full-disk-access', 'photos', 'reminders', or 'calendar'.
+* `type` String - The type of system component to which you are requesting access. Can be one of 'contacts', 'full-disk-access', 'photos', 'reminders', 'camera', 'microphone', 'screen-capture', or 'calendar'.
 
 Returns `String` - Can be one of 'not determined', 'denied', 'authorized', or 'restricted'.
 
@@ -47,6 +47,7 @@ Your app’s `Info.plist` file must provide a value for the `NSContactsUsageDesc
 const { askForContactsAccess } = require('node-mac-permissions')
 
 askForContactsAccess((err, status) => {
+  if (err) throw new Error(err)
   console.log(`Access to Contacts is ${status}`)
 })
 ```
@@ -61,6 +62,7 @@ askForContactsAccess((err, status) => {
 const { askForCalendarAccess } = require('node-mac-permissions')
 
 askForCalendarAccess((err, status) => {
+  if (err) throw new Error(err)
   console.log(`Access to Calendar is ${status}`)
 })
 ```
@@ -75,6 +77,7 @@ askForCalendarAccess((err, status) => {
 const { askForRemindersAccess } = require('node-mac-permissions')
 
 askForRemindersAccess((err, status) => {
+  if (err) throw new Error(err)
   console.log(`Access to Reminders is ${status}`)
 })
 ```
@@ -85,4 +88,32 @@ askForRemindersAccess((err, status) => {
 const { askForFullAccess } = require('node-mac-permissions')
 
 askForRemindersAccess()
+```
+
+## `permissions.askForMediaAccess(type, callback)`
+
+* `type` String - The type of media to which you are requesting access. Can be 'microphone' or 'camera'.
+
+* `callback` Function
+  * `error` String | null - An error in performing the request, if one occurred.
+  * `status` String - Whether or not the request succeeded or failed; can be 'authorized' or 'denied'.
+
+Your app must provide an explanation for its use of capture devices using the `NSCameraUsageDescription` or `NSMicrophoneUsageDescription` `Info.plist` keys; Calling this method or attempting to start a capture session without a usage description raises an exception.
+
+```
+<key>`NSCameraUsageDescription</key>
+<string>Your reason for wanting to access the Camera</string>
+<key>`NSMicrophoneUsageDescription</key>
+<string>Your reason for wanting to access the Microphone</string>
+```
+
+```js
+const { askForMediaAccess } = require('node-mac-permissions')
+
+for (const type of ['microphone', 'camera']) {
+  askForMediaAccess(type, (err, status) => {
+    if (err) throw new Error(err)
+    console.log(`Access to media type ${type} is ${status}`)
+  })
+}
 ```
