@@ -28,7 +28,9 @@ Return Value Descriptions:
 * 'denied' - The user explicitly denied access to `type` data for the application.
 * 'authorized' - The application is authorized to access `type` data.
 
-**Note:** Access to 'contacts' will always return a status of 'Authorized' prior to macOS 10.13 High Sierra, as access to contacts was unilaterally allowed until that version.
+**Notes:**
+  * Access to 'contacts' will always return a status of 'Authorized' prior to macOS 10.11, as access to contacts was unilaterally allowed until that version.
+  * Access to 'camera' and 'microphone' will always return a status of 'Authorized' prior to macOS 10.14, as access to contacts was unilaterally allowed until that version.
 
 ## `permissions.askForContactsAccess(callback)`
 
@@ -43,6 +45,9 @@ Your app’s `Info.plist` file must provide a value for the `NSContactsUsageDesc
 <string>Your reason for wanting to access the Contact store</string>
 ```
 
+**Note:** `status` will be called back as 'authorized' prior to macOS 10.11, as access to contacts was unilaterally allowed until that version.
+
+Example:
 ```js
 const { askForContactsAccess } = require('node-mac-permissions')
 
@@ -58,6 +63,7 @@ askForContactsAccess((err, status) => {
   * `error` String | null - An error in performing the request, if one occurred.
   * `status` String - Whether or not the request succeeded or failed; can be 'authorized' or 'denied'.
 
+Example:
 ```js
 const { askForCalendarAccess } = require('node-mac-permissions')
 
@@ -73,6 +79,7 @@ askForCalendarAccess((err, status) => {
   * `error` String | null - An error in performing the request, if one occurred.
   * `status` String - Whether or not the request succeeded or failed; can be 'authorized' or 'denied'.
 
+Example:
 ```js
 const { askForRemindersAccess } = require('node-mac-permissions')
 
@@ -84,10 +91,13 @@ askForRemindersAccess((err, status) => {
 
 ## `permissions.askForFullDiskAccess()`
 
-```js
-const { askForFullAccess } = require('node-mac-permissions')
+There is no API for programmatically requesting Full Disk Access on macOS at this time, and so calling this method will trigger opening of System Preferences at the Full Disk pane of Security and Privacy.
 
-askForRemindersAccess()
+Example:
+```js
+const { askForFullDiskAccess } = require('node-mac-permissions')
+
+askForFullDiskAccess()
 ```
 
 ## `permissions.askForMediaAccess(type, callback)`
@@ -107,6 +117,9 @@ Your app must provide an explanation for its use of capture devices using the `N
 <string>Your reason for wanting to access the Microphone</string>
 ```
 
+**Note:** `status` will be called back as 'authorized' prior to macOS 10.14 High Sierra, as access to the camera and microphone was unilaterally allowed until that version.
+
+Example:
 ```js
 const { askForMediaAccess } = require('node-mac-permissions')
 
