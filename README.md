@@ -36,7 +36,7 @@ Return Value Descriptions:
 
 ## `permissions.askForContactsAccess(callback)`
 
-* `callback` Function
+* `callback` Function (optional, returns a Promise<String> if callback is not supplied)
   * `status` String - Whether or not the request succeeded or failed; can be 'authorized' or 'denied'.
 
 Your app’s `Info.plist` file must provide a value for the `NSContactsUsageDescription` key that explains to the user why your app is requesting Contacts access.
@@ -55,11 +55,16 @@ const { askForContactsAccess } = require('node-mac-permissions')
 askForContactsAccess((status) => {
   console.log(`Access to Contacts is ${status}`)
 })
+
+// Or as a Promise
+askForContactsAccess().then((status) => {
+  console.log(`Access to Contacts is ${status}`)
+})
 ```
 
 ## `permissions.askForCalendarAccess(callback)`
 
-* `callback` Function
+* `callback` Function (optional, returns a Promise<String> if callback is not supplied)
   * `status` String - Whether or not the request succeeded or failed; can be 'authorized' or 'denied'.
 
 Example:
@@ -69,11 +74,16 @@ const { askForCalendarAccess } = require('node-mac-permissions')
 askForCalendarAccess((status) => {
   console.log(`Access to Calendar is ${status}`)
 })
+
+// Or as a Promise
+askForCalendarAccess().then((status) => {
+  console.log(`Access to Calendar is ${status}`)
+})
 ```
 
 ## `permissions.askForRemindersAccess(callback)`
 
-* `callback` Function
+* `callback` Function (optional, returns a Promise<String> if callback is not supplied)
   * `status` String - Whether or not the request succeeded or failed; can be 'authorized' or 'denied'.
 
 Example:
@@ -81,6 +91,11 @@ Example:
 const { askForRemindersAccess } = require('node-mac-permissions')
 
 askForRemindersAccess((status) => {
+  console.log(`Access to Reminders is ${status}`)
+})
+
+// Or as a Promise
+askForRemindersAccess().then((status) => {
   console.log(`Access to Reminders is ${status}`)
 })
 ```
@@ -100,7 +115,7 @@ askForFullDiskAccess()
 
 * `type` String - The type of media to which you are requesting access. Can be 'microphone' or 'camera'.
 
-* `callback` Function
+* `callback` Function (optional, returns a Promise<String> if callback is not supplied)
   * `status` String - Whether or not the request succeeded or failed; can be 'authorized' or 'denied'.
 
 Your app must provide an explanation for its use of capture devices using the `NSCameraUsageDescription` or `NSMicrophoneUsageDescription` `Info.plist` keys; Calling this method or attempting to start a capture session without a usage description raises an exception.
@@ -114,7 +129,7 @@ Your app must provide an explanation for its use of capture devices using the `N
 
 **Note:** `status` will be called back as 'authorized' prior to macOS 10.14 High Sierra, as access to the camera and microphone was unilaterally allowed until that version.
 
-Example:
+Example using callback:
 ```js
 const { askForMediaAccess } = require('node-mac-permissions')
 
@@ -123,4 +138,12 @@ for (const type of ['microphone', 'camera']) {
     console.log(`Access to media type ${type} is ${status}`)
   })
 }
+
+Example using Promise:
+```js
+const { askForMediaAccess } = require('node-mac-permissions')
+
+askForMediaAccess('camera').then((status) => {
+  console.log(`Access to media type "camera" is ${status}`)
+})
 ```
