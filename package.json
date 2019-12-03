@@ -1,0 +1,36 @@
+{
+  "name": "node-mac-permissions",
+  "version": "1.0.0",
+  "description": "A native node module to manage system permissions on macOS",
+  "main": "index.js",
+  "scripts": {
+    "build": "node-gyp rebuild",
+    "clean": "node-gyp clean",
+    "test": "./node_modules/.bin/mocha --reporter spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codebytere/node-mac-permissions.git"
+  },
+  "keywords": [
+    "permissions",
+    "macos",
+    "node",
+    "native"
+  ],
+  "author": "Shelley Vohr <shelley.vohr@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/codebytere/node-mac-permissions/issues"
+  },
+  "homepage": "https://github.com/codebytere/node-mac-permissions#readme",
+  "dependencies": {
+    "bindings": "^1.5.0",
+    "node-addon-api": "^2.0.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.2.2",
+    "node-gyp": "^6.0.1"
+  }
+}
