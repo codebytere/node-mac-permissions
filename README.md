@@ -78,3 +78,11 @@ askForRemindersAccess((err, status) => {
   console.log(`Access to Reminders is ${status}`)
 })
 ```
+
+## `permissions.askForFullDiskAccess()`
+
+```js
+const { askForFullAccess } = require('node-mac-permissions')
+
+askForRemindersAccess()
+```

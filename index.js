@@ -13,5 +13,6 @@ module.exports = {
   getAuthStatus,
   askForContactsAccess: permissions.askForContactsAccess,
   askForCalendarAccess: permissions.askForCalendarAccess,
-  askForRemindersAccess: permissions.askForRemindersAccess
+  askForRemindersAccess: permissions.askForRemindersAccess,
+  askForFullDiskAccess: permissions.askForFullDiskAccess
 }

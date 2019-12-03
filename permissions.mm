@@ -151,6 +151,13 @@ void AskForRemindersAccess(const Napi::CallbackInfo &info) {
   }];
 }
 
+// Request Full Disk Access.
+void AskForFullDiskAccess(const Napi::CallbackInfo &info) {
+  NSWorkspace* workspace = [[NSWorkspace alloc] init];
+  NSString* pref_string = @"x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles";
+  [workspace openURL:[NSURL URLWithString:pref_string]];
+}
+
 // Initializes all functions exposed to JS
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
   exports.Set(
@@ -164,6 +171,9 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
   );
   exports.Set(
     Napi::String::New(env, "askForRemindersAccess"), Napi::Function::New(env, AskForRemindersAccess)
+  );
+  exports.Set(
+    Napi::String::New(env, "askForFullDiskAccess"), Napi::Function::New(env, AskForFullDiskAccess)
   );
 
   return exports;
