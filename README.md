@@ -138,6 +138,7 @@ for (const type of ['microphone', 'camera']) {
     console.log(`Access to media type ${type} is ${status}`)
   })
 }
+```
 
 Example using Promise:
 ```js
