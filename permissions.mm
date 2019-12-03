@@ -43,10 +43,10 @@ std::string ContactAuthStatus() {
 }
 
 // Returns a status indicating whether or not the user has authorized Calendar access
-std::string CalendarAuthStatus() {
+std::string EventAuthStatus(std::string type) {
   std::string auth_status = "Not Determined";
 
-  EKEntityType entityType = EKEntityTypeEvent;
+  EKEntityType entityType = (type == "calendar") ? EKEntityTypeEvent : EKEntityTypeReminder;
   EKAuthorizationStatus status = [EKEventStore authorizationStatusForEntityType:entityType];
 
   if (status == EKAuthorizationStatusAuthorized)
@@ -113,9 +113,11 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
   if (type == "contacts") {
     auth_status = ContactAuthStatus();
   } else if (type == "calendar") {
-    auth_status = CalendarAuthStatus();
+    auth_status = EventAuthStatus("calendar");
   } else if (type == "photos") {
     auth_status = PhotosAuthStatus();
+  }  else if (type == "reminders") {
+    auth_status = EventAuthStatus("reminders");
   } else if (type == "full-disk-access") {
     auth_status = FDAAuthStatus();
   }

@@ -9,13 +9,14 @@ This native Node.js module allows you to manage an app's access to:
 * Contacts
 * Full Disk Access
 * Calendar
+* Reminders
 * Photos
 
 ## API
 
 ## `permissions.getAuthStatus(type)`
 
-* `type` - The type of system component to which you are requesting access. Can be one of `contacts`, `full-disk-access`, `photos`, or `calendar`.
+* `type` - The type of system component to which you are requesting access. Can be one of 'contacts', 'full-disk-access', 'photos', 'reminders', or 'calendar'.
 
 Returns `String` - Can be one of 'Not Determined', 'Denied', 'Authorized', or 'Restricted'.
 
@@ -27,4 +28,4 @@ Return Value Descriptions:
 * 'Denied' - The user explicitly denied access to `type` data for the application.
 * 'Authorized' - The application is authorized to access `type` data.
 
-**Note:** Access to `contacts` will always return a status of 'Authorized' prior to macOS 10.13 High Sierra, as access to contacts was unilaterally allowed until that version.
+**Note:** Access to 'contacts' will always return a status of 'Authorized' prior to macOS 10.13 High Sierra, as access to contacts was unilaterally allowed until that version.
