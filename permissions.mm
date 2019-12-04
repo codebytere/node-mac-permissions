@@ -108,7 +108,7 @@ std::string MediaAuthStatus(const std::string& type) {
 /***** EXPORTED FUNCTIONS *****/
 
 // Returns the user's access consent status as a string
-Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
+Napi::Value GetAuthStatus(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   std::string auth_status;
 
@@ -131,7 +131,7 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
 }
 
 // Request access to the Contacts store.
-void AskForContactsAccess(const Napi::CallbackInfo &info) {
+void AskForContactsAccess(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(env,
                                                                  info[0].As<Napi::Function>(),
@@ -156,7 +156,7 @@ void AskForContactsAccess(const Napi::CallbackInfo &info) {
 }
 
 // Request access to Calendar.
-void AskForCalendarAccess(const Napi::CallbackInfo &info) {
+void AskForCalendarAccess(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(env,
                                                                  info[0].As<Napi::Function>(),
@@ -175,7 +175,7 @@ void AskForCalendarAccess(const Napi::CallbackInfo &info) {
 }
 
 // Request access to Reminders.
-void AskForRemindersAccess(const Napi::CallbackInfo &info) {
+void AskForRemindersAccess(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(env,
                                                                  info[0].As<Napi::Function>(),
