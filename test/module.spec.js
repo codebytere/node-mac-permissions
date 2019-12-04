@@ -1,6 +1,7 @@
 const { expect } = require('chai')
 const { 
-  getAuthStatus
+  getAuthStatus,
+  askForMediaAccess
 } = require('../index')
 
 describe('node-mac-permissions', () => {
@@ -26,6 +27,16 @@ describe('node-mac-permissions', () => {
         const status = getAuthStatus(type)
         expect(statuses).to.contain(status)
       }
+    })
+  })
+
+  describe('askForMediaAccess(type, callback)', () => {
+    it ('throws on invalid media types', () => {
+      expect(() => {
+        askForMediaAccess('bad-type', (status) =>{
+          console.log(status)
+        })
+      }).to.throw(/bad-type must be either 'camera' or 'microphone'/)
     })
   })
 })

@@ -18,9 +18,10 @@ function getAuthStatus(type) {
 } 
 
 function askForMediaAccess(type, callback) {
-  if (['microphone', 'camera'].includes(type)) {
+  if (!['microphone', 'camera'].includes(type)) {
     throw new TypeError(`${type} must be either 'camera' or 'microphone'`)
   }
+
   if (typeof callback !== 'function') {
     throw new TypeError(`callback must be a function`)
   }
