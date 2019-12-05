@@ -7,7 +7,8 @@ function getAuthStatus(type) {
     'reminders',
     'full-disk-access',
     'camera',
-    'microphone'
+    'microphone',
+    'accessibility'
   ]
 
   if (!validTypes.includes(type)) {
@@ -15,7 +16,7 @@ function getAuthStatus(type) {
   }
 
   return permissions.getAuthStatus.call(this, type)
-} 
+}
 
 function askForMediaAccess(type, callback) {
   if (!['microphone', 'camera'].includes(type)) {

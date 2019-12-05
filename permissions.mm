@@ -125,6 +125,8 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo& info) {
     auth_status = MediaAuthStatus("microphone");
   } else if (type == "camera") {
     auth_status = MediaAuthStatus("camera");
+  } else if (type == "accessibility") {
+    auth_status = AXIsProcessTrusted() ? "authorized" : "denied";
   }
 
   return Napi::Value::From(env, auth_status);

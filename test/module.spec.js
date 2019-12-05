@@ -19,7 +19,8 @@ describe('node-mac-permissions', () => {
         'reminders',
         'full-disk-access',
         'camera',
-        'microphone'
+        'microphone',
+        'accessibility'
       ]
 
       const statuses = ['not determined', 'denied', 'authorized', 'restricted']
