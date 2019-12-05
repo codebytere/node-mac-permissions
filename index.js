@@ -8,7 +8,8 @@ function getAuthStatus(type) {
     'full-disk-access',
     'camera',
     'microphone',
-    'accessibility'
+    'accessibility',
+    'location'
   ]
 
   if (!validTypes.includes(type)) {

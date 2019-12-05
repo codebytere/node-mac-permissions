@@ -17,31 +17,52 @@ This native Node.js module allows you to manage an app's access to:
 * Camera
 * Microphone
 * Accessibility
+* Location
 
 ## API
 
 ## `permissions.getAuthStatus(type)`
 
-* `type` String - The type of system component to which you are requesting access. Can be one of 'contacts', 'full-disk-access', 'photos', 'reminders', 'camera', 'accessibility', 'microphone', or 'calendar'.
+* `type` String - The type of system component to which you are requesting access. Can be one of `accessibility`, `calendar`, `camera`, `contacts`, `full-disk-access`, `location`, `microphone`, `photos`, or `reminders`.
 
-Returns `String` - Can be one of 'not determined', 'denied', 'authorized', or 'restricted'.
+Returns `String` - Can be one of `not determined`, `denied`, `authorized`, or `restricted`.
 
 Checks the authorization status of the application to access `type` on macOS.
 
 Return Value Descriptions: 
-* 'not determined' - The user has not yet made a choice regarding whether the application may access `type` data.
-* 'restricted' - The application is not authorized to access `type` data. The user cannot change this application’s status, possibly due to active restrictions such as parental controls being in place.
-* 'denied' - The user explicitly denied access to `type` data for the application.
-* 'authorized' - The application is authorized to access `type` data.
+* `not determined` - The user has not yet made a choice regarding whether the application may access `type` data.
+* `restricted` - The application is not authorized to access `type` data. The user cannot change this application’s status, possibly due to active restrictions such as parental controls being in place.
+* `denied` - The user explicitly denied access to `type` data for the application.
+* `authorized` - The application is authorized to access `type` data.
 
 **Notes:**
-  * Access to 'contacts' will always return a status of 'Authorized' prior to macOS 10.11, as access to contacts was unilaterally allowed until that version.
-  * Access to 'camera' and 'microphone' will always return a status of 'Authorized' prior to macOS 10.14, as access to contacts was unilaterally allowed until that version.
+  * Access to `contacts` will always return a status of `authorized` prior to macOS 10.11, as access to contacts was unilaterally allowed until that version.
+  * Access to `camera` and `microphone` will always return a status of `authorized` prior to macOS 10.14, as access to contacts was unilaterally allowed until that version.
+
+Example:
+```js
+const types = [
+  'contacts',
+  'calendar',
+  'reminders',
+  'full-disk-access',
+  'camera',
+  'microphone',
+  'accessibility',
+  'location'
+]
+
+const statuses = ['not determined', 'denied', 'authorized', 'restricted']
+for (const type of types) {
+  const status = getAuthStatus(type)
+  console.log(`Access to ${type} is ${status}`)
+}
+```
 
 ## `permissions.askForContactsAccess(callback)`
 
 * `callback` Function
-  * `status` String - Whether or not the request succeeded or failed; can be 'authorized' or 'denied'.
+  * `status` String - Whether or not the request succeeded or failed; can be `authorized` or `denied`.
 
 Your app’s `Info.plist` file must provide a value for the `NSContactsUsageDescription` key that explains to the user why your app is requesting Contacts access.
 
@@ -50,7 +71,7 @@ Your app’s `Info.plist` file must provide a value for the `NSContactsUsageDesc
 <string>Your reason for wanting to access the Contact store</string>
 ```
 
-**Note:** `status` will be called back as 'authorized' prior to macOS 10.11, as access to contacts was unilaterally allowed until that version.
+**Note:** `status` will be called back as `authorized` prior to macOS 10.11, as access to contacts was unilaterally allowed until that version.
 
 Example:
 ```js
@@ -64,7 +85,7 @@ askForContactsAccess((status) => {
 ## `permissions.askForCalendarAccess(callback)`
 
 * `callback` Function
-  * `status` String - Whether or not the request succeeded or failed; can be 'authorized' or 'denied'.
+  * `status` String - Whether or not the request succeeded or failed; can be `authorized` or `denied`.
 
 Example:
 ```js
@@ -78,7 +99,7 @@ askForCalendarAccess((status) => {
 ## `permissions.askForRemindersAccess(callback)`
 
 * `callback` Function
-  * `status` String - Whether or not the request succeeded or failed; can be 'authorized' or 'denied'.
+  * `status` String - Whether or not the request succeeded or failed; can be `authorized` or `denied`.
 
 Example:
 ```js
@@ -102,10 +123,10 @@ askForFullDiskAccess()
 
 ## `permissions.askForMediaAccess(type, callback)`
 
-* `type` String - The type of media to which you are requesting access. Can be 'microphone' or 'camera'.
+* `type` String - The type of media to which you are requesting access. Can be `microphone` or `camera`.
 
 * `callback` Function
-  * `status` String - Whether or not the request succeeded or failed; can be 'authorized' or 'denied'.
+  * `status` String - Whether or not the request succeeded or failed; can be `authorized` or `denied`.
 
 Your app must provide an explanation for its use of capture devices using the `NSCameraUsageDescription` or `NSMicrophoneUsageDescription` `Info.plist` keys; Calling this method or attempting to start a capture session without a usage description raises an exception.
 
@@ -116,7 +137,7 @@ Your app must provide an explanation for its use of capture devices using the `N
 <string>Your reason for wanting to access the Microphone</string>
 ```
 
-**Note:** `status` will be called back as 'authorized' prior to macOS 10.14 High Sierra, as access to the camera and microphone was unilaterally allowed until that version.
+**Note:** `status` will be called back as `authorized` prior to macOS 10.14 High Sierra, as access to the camera and microphone was unilaterally allowed until that version.
 
 Example:
 ```js

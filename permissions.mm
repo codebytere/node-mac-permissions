@@ -2,7 +2,8 @@
 
 // Apple APIs
 #import <AppKit/AppKit.h>
-#import <AVFoundation/AVFoundation.h> 
+#import <AVFoundation/AVFoundation.h>
+#import <CoreLocation/CoreLocation.h>
 #import <Contacts/Contacts.h>
 #import <EventKit/EventKit.h>
 #import <Foundation/Foundation.h>
@@ -105,6 +106,21 @@ std::string MediaAuthStatus(const std::string& type) {
   return auth_status;
 }
 
+std::string LocationAuthStatus() {
+  std::string auth_status = "not determined";
+
+  CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
+
+  if (status == kCLAuthorizationStatusAuthorizedAlways)
+    auth_status = "authorized";
+  else if (status == kCLAuthorizationStatusDenied)
+    auth_status = "denied";
+  else if (status == kCLAuthorizationStatusNotDetermined)
+    auth_status = "restricted";
+
+  return auth_status;
+}
+
 /***** EXPORTED FUNCTIONS *****/
 
 // Returns the user's access consent status as a string
@@ -127,6 +143,8 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo& info) {
     auth_status = MediaAuthStatus("camera");
   } else if (type == "accessibility") {
     auth_status = AXIsProcessTrusted() ? "authorized" : "denied";
+  } else if (type == "location") {
+    auth_status = LocationAuthStatus();
   }
 
   return Napi::Value::From(env, auth_status);
