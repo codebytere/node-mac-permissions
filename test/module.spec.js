@@ -35,7 +35,7 @@ describe('node-mac-permissions', () => {
   describe('askForMediaAccess(type, callback)', () => {
     it ('throws on invalid media types', () => {
       expect(() => {
-        askForMediaAccess('bad-type', (status) =>{
+        askForMediaAccess('bad-type').then(status =>{
           console.log(status)
         })
       }).to.throw(/bad-type must be either 'camera' or 'microphone'/)

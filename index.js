@@ -19,16 +19,12 @@ function getAuthStatus(type) {
   return permissions.getAuthStatus.call(this, type)
 }
 
-function askForMediaAccess(type, callback) {
+function askForMediaAccess(type) {
   if (!['microphone', 'camera'].includes(type)) {
     throw new TypeError(`${type} must be either 'camera' or 'microphone'`)
   }
 
-  if (typeof callback !== 'function') {
-    throw new TypeError(`callback must be a function`)
-  }
-
-  return permissions.askForMediaAccess.call(this, type, callback)
+  return permissions.askForMediaAccess.call(this, type)
 }
 
 module.exports = {
