@@ -12,6 +12,9 @@
 
 /***** HELPER FUNCTIONS *****/
 
+// Dummy value to pass into function parameter for ThreadSafeFunction
+Napi::Value NoOp(const Napi::CallbackInfo& info) { return info.Env().Undefined(); }
+
 NSString* GetUserHomeFolderPath() {
   NSString* path;
   BOOL isSandboxed = (nil != NSProcessInfo.processInfo.environment[@"APP_SANDBOX_CONTAINER_ID"]);
@@ -151,11 +154,12 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo& info) {
 }
 
 // Request access to the Contacts store.
-void AskForContactsAccess(const Napi::CallbackInfo& info) {
+Napi::Promise AskForContactsAccess(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
+  Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
   Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(env,
-                                                                 info[0].As<Napi::Function>(),
-                                                                 "Resource Name",
+                                                                 Napi::Function::New(env, NoOp),
+                                                                 "contactsCallback",
                                                                  0,
                                                                  1,
                                                                  [](Napi::Env){});
@@ -164,53 +168,60 @@ void AskForContactsAccess(const Napi::CallbackInfo& info) {
     CNContactStore *store = [CNContactStore new];
     [store requestAccessForEntityType:CNEntityTypeContacts
                     completionHandler:^(BOOL granted, NSError* error) {
-      auto callback = [](Napi::Env env, Napi::Function js_cb, const char* granted) {
-        js_cb.Call({Napi::String::New(env, granted)});
+      auto callback = [=](Napi::Env env, Napi::Function js_cb, const char* granted) {
+        deferred.Resolve(Napi::String::New(env, granted));
       };
       ts_fn.BlockingCall(granted ? "authorized" : "denied", callback);
     }];
   } else {
-    Napi::FunctionReference fn = Napi::Persistent(info[0].As<Napi::Function>());
-    fn.Call({Napi::String::New(env, "authorized")});
+    deferred.Resolve(Napi::String::New(env, "authorized"));
   }
+
+  return deferred.Promise();
 }
 
 // Request access to Calendar.
-void AskForCalendarAccess(const Napi::CallbackInfo& info) {
+Napi::Promise AskForCalendarAccess(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
+  Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
   Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(env,
-                                                                 info[0].As<Napi::Function>(),
-                                                                 "Resource Name",
+                                                                 Napi::Function::New(env, NoOp),
+                                                                 "calendarCallback",
                                                                  0,
                                                                  1,
                                                                  [](Napi::Env){});
 
   [[EKEventStore new] requestAccessToEntityType:EKEntityTypeEvent
                                      completion:^(BOOL granted, NSError * error) {
-    auto callback = [](Napi::Env env, Napi::Function js_cb, const char* granted) {
-      js_cb.Call({Napi::String::New(env, granted)});
+    auto callback = [=](Napi::Env env, Napi::Function js_cb, const char* granted) {
+      deferred.Resolve(Napi::String::New(env, granted));
     };
     ts_fn.BlockingCall(granted ? "authorized" : "denied", callback);
   }];
+
+  return deferred.Promise();
 }
 
 // Request access to Reminders.
-void AskForRemindersAccess(const Napi::CallbackInfo& info) {
+Napi::Promise AskForRemindersAccess(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
+  Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
   Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(env,
-                                                                 info[0].As<Napi::Function>(),
-                                                                 "Resource Name",
+                                                                 Napi::Function::New(env, NoOp),
+                                                                 "remindersCallback",
                                                                  0,
                                                                  1,
                                                                  [](Napi::Env){});
 
   [[EKEventStore new] requestAccessToEntityType:EKEntityTypeReminder
-                                    completion:^(BOOL granted, NSError * error) {
-    auto callback = [](Napi::Env env, Napi::Function js_cb, const char* granted) {
-      js_cb.Call({Napi::String::New(env, granted)});
+                                     completion:^(BOOL granted, NSError * error) {
+    auto callback = [=](Napi::Env env, Napi::Function prom_cb, const char* granted) {
+      deferred.Resolve(Napi::String::New(env, granted));
     };
     ts_fn.BlockingCall(granted ? "authorized" : "denied", callback);
   }];
+
+  return deferred.Promise();
 }
 
 // Request Full Disk Access.
@@ -221,12 +232,13 @@ void AskForFullDiskAccess(const Napi::CallbackInfo &info) {
 }
 
 // Request access to either the Camera or the Microphone.
-void AskForMediaAccess(const Napi::CallbackInfo& info) {
+Napi::Promise AskForMediaAccess(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   const std::string type = info[0].As<Napi::String>().Utf8Value();
+  Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
   Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(env,
-                                                                 info[1].As<Napi::Function>(),
-                                                                 "Resource Name",
+                                                                 Napi::Function::New(env, NoOp),
+                                                                 "mediaAccessCallback",
                                                                  0,
                                                                  1,
                                                                  [](Napi::Env){});
@@ -235,15 +247,16 @@ void AskForMediaAccess(const Napi::CallbackInfo& info) {
     AVMediaType media_type = (type == "microphone") ? AVMediaTypeAudio : AVMediaTypeVideo;
     [AVCaptureDevice requestAccessForMediaType:media_type
                              completionHandler:^(BOOL granted) {
-      auto callback = [](Napi::Env env, Napi::Function js_cb, const char* granted) {
-        js_cb.Call({Napi::String::New(env, granted)});
+      auto callback = [=](Napi::Env env, Napi::Function js_cb, const char* granted) {
+        deferred.Resolve(Napi::String::New(env, granted));
       };
       ts_fn.BlockingCall(granted ? "authorized" : "denied", callback);
     }];
   } else {
-    Napi::FunctionReference fn = Napi::Persistent(info[0].As<Napi::Function>());
-    fn.Call({Napi::String::New(env, "authorized")});
+    deferred.Resolve(Napi::String::New(env, "authorized"));
   }
+
+  return deferred.Promise();
 }
 
 // Initializes all functions exposed to JS
