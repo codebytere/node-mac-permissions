@@ -15,6 +15,7 @@
 // Dummy value to pass into function parameter for ThreadSafeFunction
 Napi::Value NoOp(const Napi::CallbackInfo& info) { return info.Env().Undefined(); }
 
+// Returns the user's home folder path
 NSString* GetUserHomeFolderPath() {
   NSString* path;
   BOOL isSandboxed = (nil != NSProcessInfo.processInfo.environment[@"APP_SANDBOX_CONTAINER_ID"]);
@@ -109,6 +110,7 @@ std::string MediaAuthStatus(const std::string& type) {
   return auth_status;
 }
 
+// Returns a status indicating whether or not the user has authorized location access
 std::string LocationAuthStatus() {
   std::string auth_status = "not determined";
 
