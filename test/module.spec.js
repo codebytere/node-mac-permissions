@@ -21,7 +21,8 @@ describe('node-mac-permissions', () => {
         'camera',
         'microphone',
         'accessibility',
-        'location'
+        'location',
+        'screen'
       ]
 
       const statuses = ['not determined', 'denied', 'authorized', 'restricted']

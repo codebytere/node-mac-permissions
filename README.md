@@ -18,12 +18,13 @@ This native Node.js module allows you to manage an app's access to:
 * Microphone
 * Accessibility
 * Location
+* Screen Capture
 
 ## API
 
 ## `permissions.getAuthStatus(type)`
 
-* `type` String - The type of system component to which you are requesting access. Can be one of `accessibility`, `calendar`, `camera`, `contacts`, `full-disk-access`, `location`, `microphone`, `photos`, or `reminders`.
+* `type` String - The type of system component to which you are requesting access. Can be one of `accessibility`, `calendar`, `camera`, `contacts`, `full-disk-access`, `location`, `microphone`, `photos`, `screen`, or `reminders`.
 
 Returns `String` - Can be one of `not determined`, `denied`, `authorized`, or `restricted`.
 

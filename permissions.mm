@@ -101,6 +101,36 @@ std::string FDAAuthStatus() {
 }
 
 // Returns a status indicating whether the user has authorized
+// Screen Recording access
+std::string ScreenAuthStatus() {
+  std::string auth_status = "not determined";
+
+  // Screen Capture is considered allowed if the name of at least one normal
+  // or dock window running on another process is visible.
+  if (@available(macOS 10.15, *)) {
+    CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly, kCGNullWindowID);
+    int num_windows = (int)CFArrayGetCount(window_list);
+    int num_named_windows = 0;
+    for (int idx = 0; idx < num_windows; idx++) {
+      NSDictionary* info = (NSDictionary*)CFArrayGetValueAtIndex(window_list, idx);
+      NSString* window_name = info[(id)kCGWindowName];
+      if (window_name) {
+        num_named_windows++;
+      } else {
+        break;
+      }
+    }
+
+    CFRelease(window_list);
+    auth_status = (num_windows == num_named_windows) ? "authorized" : "denied";
+  } else {
+    auth_status = "authorized";
+  }
+
+  return auth_status;
+}
+
+// Returns a status indicating whether the user has authorized
 // Camera/Microphone access
 std::string MediaAuthStatus(const std::string &type) {
   std::string auth_status = "not determined";
@@ -165,6 +195,8 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
     auth_status = AXIsProcessTrusted() ? "authorized" : "denied";
   } else if (type == "location") {
     auth_status = LocationAuthStatus();
+  } else if (type == "screen") {
+    auth_status = ScreenAuthStatus();
   }
 
   return Napi::Value::From(env, auth_status);

@@ -9,7 +9,8 @@ function getAuthStatus(type) {
     'camera',
     'microphone',
     'accessibility',
-    'location'
+    'location',
+    'screen'
   ]
 
   if (!validTypes.includes(type)) {
