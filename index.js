@@ -33,6 +33,7 @@ module.exports = {
   askForContactsAccess: permissions.askForContactsAccess,
   askForFullDiskAccess: permissions.askForFullDiskAccess,
   askForRemindersAccess: permissions.askForRemindersAccess,
+  askForScreenCaptureAccess: permissions.askForScreenCaptureAccess,
   askForMediaAccess,
   getAuthStatus
 }
