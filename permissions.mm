@@ -108,12 +108,14 @@ std::string ScreenAuthStatus() {
   // Screen Capture is considered allowed if the name of at least one normal
   // or dock window running on another process is visible.
   if (@available(macOS 10.15, *)) {
-    CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly, kCGNullWindowID);
+    CFArrayRef window_list = CGWindowListCopyWindowInfo(
+        kCGWindowListOptionOnScreenOnly, kCGNullWindowID);
     int num_windows = (int)CFArrayGetCount(window_list);
     int num_named_windows = 0;
     for (int idx = 0; idx < num_windows; idx++) {
-      NSDictionary* info = (NSDictionary*)CFArrayGetValueAtIndex(window_list, idx);
-      NSString* window_name = info[(id)kCGWindowName];
+      NSDictionary *info =
+          (NSDictionary *)CFArrayGetValueAtIndex(window_list, idx);
+      NSString *window_name = info[(id)kCGWindowName];
       if (window_name) {
         num_named_windows++;
       } else {
@@ -322,7 +324,7 @@ void AskForScreenCaptureAccess(const Napi::CallbackInfo &info) {
 
 // Request Accessibility Access.
 void AskForAccessibilityAccess(const Napi::CallbackInfo &info) {
-  NSDictionary* options = @{(id)kAXTrustedCheckOptionPrompt : @(YES)};
+  NSDictionary *options = @{(id)kAXTrustedCheckOptionPrompt : @(YES)};
   bool trusted = AXIsProcessTrustedWithOptions((CFDictionaryRef)options);
 
   if (!trusted) {
@@ -348,9 +350,9 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
   exports.Set(Napi::String::New(env, "askForMediaAccess"),
               Napi::Function::New(env, AskForMediaAccess));
   exports.Set(Napi::String::New(env, "askForScreenCaptureAccess"),
-            Napi::Function::New(env, AskForScreenCaptureAccess));
+              Napi::Function::New(env, AskForScreenCaptureAccess));
   exports.Set(Napi::String::New(env, "askForAccessibilityAccess"),
-          Napi::Function::New(env, AskForAccessibilityAccess));
+              Napi::Function::New(env, AskForAccessibilityAccess));
 
   return exports;
 }
