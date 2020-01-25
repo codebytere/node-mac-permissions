@@ -39,6 +39,7 @@ Return Value Descriptions:
 **Notes:**
   * Access to `contacts` will always return a status of `authorized` prior to macOS 10.11, as access to contacts was unilaterally allowed until that version.
   * Access to `camera` and `microphone` will always return a status of `authorized` prior to macOS 10.14, as access to contacts was unilaterally allowed until that version.
+  * Access to `screen` will always return a status of `authorized` prior to macOS 10.15, as access to screen capture was unilaterally allowed until that version.
 
 Example:
 ```js
@@ -145,4 +146,14 @@ for (const type of ['microphone', 'camera']) {
     console.log(`Access to media type ${type} is ${status}`)
   })
 }
+```
+## `permissions.askForScreenCaptureAccess()`
+
+There is no API for programmatically requesting Screen Capture on macOS at this time, and so calling this method will trigger opening of System Preferences at the Screen Capture pane of Security and Privacy.
+
+Example:
+```js
+const { askForScreenCaptureAccess } = require('node-mac-permissions')
+
+askForScreenCaptureAccess()
 ```

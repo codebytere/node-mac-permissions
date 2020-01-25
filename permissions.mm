@@ -101,7 +101,7 @@ std::string FDAAuthStatus() {
 }
 
 // Returns a status indicating whether the user has authorized
-// Screen Recording access
+// Screen Capture access
 std::string ScreenAuthStatus() {
   std::string auth_status = "not determined";
 
@@ -310,6 +310,16 @@ Napi::Promise AskForMediaAccess(const Napi::CallbackInfo &info) {
   return deferred.Promise();
 }
 
+// Request Screen Capture Access.
+void AskForScreenCaptureAccess(const Napi::CallbackInfo &info) {
+  if (@available(macOS 10.14, *)) {
+    NSWorkspace *workspace = [[NSWorkspace alloc] init];
+    NSString *pref_string = @"x-apple.systempreferences:com.apple.preference."
+                            @"security?Privacy_ScreenCapture";
+    [workspace openURL:[NSURL URLWithString:pref_string]];
+  }
+}
+
 // Initializes all functions exposed to JS
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
   exports.Set(Napi::String::New(env, "getAuthStatus"),
@@ -324,6 +334,8 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
               Napi::Function::New(env, AskForFullDiskAccess));
   exports.Set(Napi::String::New(env, "askForMediaAccess"),
               Napi::Function::New(env, AskForMediaAccess));
+  exports.Set(Napi::String::New(env, "askForScreenCaptureAccess"),
+            Napi::Function::New(env, AskForScreenCaptureAccess));
 
   return exports;
 }
