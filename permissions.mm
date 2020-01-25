@@ -320,6 +320,19 @@ void AskForScreenCaptureAccess(const Napi::CallbackInfo &info) {
   }
 }
 
+// Request Accessibility Access.
+void AskForAccessibilityAccess(const Napi::CallbackInfo &info) {
+  NSDictionary* options = @{(id)kAXTrustedCheckOptionPrompt : @(YES)};
+  bool trusted = AXIsProcessTrustedWithOptions((CFDictionaryRef)options);
+
+  if (!trusted) {
+    NSWorkspace *workspace = [[NSWorkspace alloc] init];
+    NSString *pref_string = @"x-apple.systempreferences:com.apple.preference."
+                            @"security?Privacy_Accessibility";
+    [workspace openURL:[NSURL URLWithString:pref_string]];
+  }
+}
+
 // Initializes all functions exposed to JS
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
   exports.Set(Napi::String::New(env, "getAuthStatus"),
@@ -336,6 +349,8 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
               Napi::Function::New(env, AskForMediaAccess));
   exports.Set(Napi::String::New(env, "askForScreenCaptureAccess"),
             Napi::Function::New(env, AskForScreenCaptureAccess));
+  exports.Set(Napi::String::New(env, "askForAccessibilityAccess"),
+          Napi::Function::New(env, AskForAccessibilityAccess));
 
   return exports;
 }

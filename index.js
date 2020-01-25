@@ -34,6 +34,7 @@ module.exports = {
   askForFullDiskAccess: permissions.askForFullDiskAccess,
   askForRemindersAccess: permissions.askForRemindersAccess,
   askForScreenCaptureAccess: permissions.askForScreenCaptureAccess,
+  askForAccessibilityAccess: permissions.askForAccessibilityAccess,
   askForMediaAccess,
   getAuthStatus
 }

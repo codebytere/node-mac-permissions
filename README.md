@@ -147,6 +147,7 @@ for (const type of ['microphone', 'camera']) {
   })
 }
 ```
+
 ## `permissions.askForScreenCaptureAccess()`
 
 There is no API for programmatically requesting Screen Capture on macOS at this time, and so calling this method will trigger opening of System Preferences at the Screen Capture pane of Security and Privacy.
@@ -156,4 +157,15 @@ Example:
 const { askForScreenCaptureAccess } = require('node-mac-permissions')
 
 askForScreenCaptureAccess()
+```
+
+## `permissions.askForAccessibilityAccess()`
+
+There is no API for programmatically requesting Accessibility access on macOS at this time, and so calling this method will trigger opening of System Preferences at the Accessibility pane of Security and Privacy.
+
+Example:
+```js
+const { askForAccessibilityAccess } = require('node-mac-permissions')
+
+askForAccessibilityAccess()
 ```
