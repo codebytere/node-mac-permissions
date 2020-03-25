@@ -169,3 +169,15 @@ const { askForAccessibilityAccess } = require('node-mac-permissions')
 
 askForAccessibilityAccess()
 ```
+
+## FAQ
+
+Q. I'm seeing an error like the following when using webpack:
+
+```sh
+App threw an error during load
+TypeError: Cannot read property 'indexOf' of undefined
+    at Function.getFileName (webpack-internal:///./node_modules/bindings/bindings.js:178:16)
+```
+
+A. This error means that webpack packed this module, which it should not. To fix this, you should configure webpack to use this module externally, e.g explicitly not pack it.
