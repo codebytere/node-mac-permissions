@@ -6,7 +6,8 @@
   "scripts": {
     "build": "node-gyp rebuild",
     "clean": "node-gyp clean",
-    "format": "clang-format -i permissions.mm",
+    "lint": "prettier --check index.js",
+    "format": "clang-format -i permissions.mm && prettier --write index.js",
     "test": "./node_modules/.bin/mocha --reporter spec"
   },
   "repository": {
@@ -34,6 +35,7 @@
     "chai": "^4.2.0",
     "clang-format": "^1.3.0",
     "mocha": "^6.2.2",
-    "node-gyp": "^6.0.1"
+    "node-gyp": "^6.0.1",
+    "prettier": "^2.0.4"
   }
 }
