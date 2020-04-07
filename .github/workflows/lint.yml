@@ -1,4 +1,4 @@
-name: Test
+name: Lint
 
 on:
   push:
@@ -13,11 +13,11 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@master
-    - name: Use Node.js 10.x
+    - name: Use Node.js 12.x
       uses: actions/setup-node@v1
       with:
-        version: 10.x
-    - name: npm install, build, and test
+        version: 12.x
+    - name: Lint
       run: |
         npm install
-        npm test
+        npm run lint

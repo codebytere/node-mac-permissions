@@ -1,4 +1,4 @@
-const permissions = require('bindings')('permissions.node');
+const permissions = require('bindings')('permissions.node')
 
 function getAuthStatus(type) {
   const validTypes = [
@@ -11,13 +11,13 @@ function getAuthStatus(type) {
     'accessibility',
     'location',
     'screen',
-  ];
+  ]
 
   if (!validTypes.includes(type)) {
-    throw new TypeError(`${type} is not a valid type`);
+    throw new TypeError(`${type} is not a valid type`)
   }
 
-  return permissions.getAuthStatus.call(this, type);
+  return permissions.getAuthStatus.call(this, type)
 }
 
 module.exports = {
@@ -30,4 +30,4 @@ module.exports = {
   askForScreenCaptureAccess: permissions.askForScreenCaptureAccess,
   askForAccessibilityAccess: permissions.askForAccessibilityAccess,
   getAuthStatus,
-};
+}
