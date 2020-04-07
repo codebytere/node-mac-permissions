@@ -20,14 +20,6 @@ function getAuthStatus(type) {
   return permissions.getAuthStatus.call(this, type);
 }
 
-function askForMediaAccess(type) {
-  if (!['microphone', 'camera'].includes(type)) {
-    throw new TypeError(`${type} must be either 'camera' or 'microphone'`);
-  }
-
-  return permissions.askForMediaAccess.call(this, type);
-}
-
 module.exports = {
   askForCalendarAccess: permissions.askForCalendarAccess,
   askForContactsAccess: permissions.askForContactsAccess,
@@ -37,6 +29,5 @@ module.exports = {
   askForMicrophoneAccess: permissions.askForMicrophoneAccess,
   askForScreenCaptureAccess: permissions.askForScreenCaptureAccess,
   askForAccessibilityAccess: permissions.askForAccessibilityAccess,
-  askForMediaAccess,
   getAuthStatus,
 };

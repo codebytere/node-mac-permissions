@@ -120,33 +120,6 @@ const { askForFullDiskAccess } = require('node-mac-permissions')
 askForFullDiskAccess()
 ```
 
-## `permissions.askForMediaAccess(type)`
-
-* `type` String - The type of media to which you are requesting access. Can be `microphone` or `camera`.
-
-Returns `Promise<String>` - Whether or not the request succeeded or failed; can be `authorized` or `denied`.
-
-Your app must provide an explanation for its use of capture devices using the `NSCameraUsageDescription` or `NSMicrophoneUsageDescription` `Info.plist` keys; Calling this method or attempting to start a capture session without a usage description raises an exception.
-
-```
-<key>NSCameraUsageDescription</key>
-<string>Your reason for wanting to access the Camera</string>
-<key>NSMicrophoneUsageDescription</key>
-<string>Your reason for wanting to access the Microphone</string>
-```
-
-**Note:** `status` will be resolved back as `authorized` prior to macOS 10.14 High Sierra, as access to the camera and microphone was unilaterally allowed until that version.
-
-Example:
-```js
-const { askForMediaAccess } = require('node-mac-permissions')
-
-for (const type of ['microphone', 'camera']) {
-  askForMediaAccess(type).then(status => {
-    console.log(`Access to media type ${type} is ${status}`)
-  })
-}
-```
 ## `permissions.askForCameraAccess()`
 
 Returns `Promise<String>` - Current permission status; can be `authorized`, `denied`, or `restricted`.

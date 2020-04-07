@@ -283,35 +283,6 @@ void AskForFullDiskAccess(const Napi::CallbackInfo &info) {
   [workspace openURL:[NSURL URLWithString:pref_string]];
 }
 
-// Request access to either the Camera or the Microphone.
-Napi::Promise AskForMediaAccess(const Napi::CallbackInfo &info) {
-  Napi::Env env = info.Env();
-  const std::string type = info[0].As<Napi::String>().Utf8Value();
-  Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
-  Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(
-      env, Napi::Function::New(env, NoOp), "mediaAccessCallback", 0, 1,
-      [](Napi::Env) {});
-
-  if (@available(macOS 10.14, *)) {
-    AVMediaType media_type =
-        (type == "microphone") ? AVMediaTypeAudio : AVMediaTypeVideo;
-    [AVCaptureDevice
-        requestAccessForMediaType:media_type
-                completionHandler:^(BOOL granted) {
-                  auto callback = [=](Napi::Env env, Napi::Function js_cb,
-                                      const char *granted) {
-                    deferred.Resolve(Napi::String::New(env, granted));
-                  };
-                  ts_fn.BlockingCall(granted ? "authorized" : "denied",
-                                     callback);
-                }];
-  } else {
-    deferred.Resolve(Napi::String::New(env, "authorized"));
-  }
-
-  return deferred.Promise();
-}
-
 // Request Camera Access.
 Napi::Promise AskForCameraAccess(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
@@ -417,8 +388,6 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
               Napi::Function::New(env, AskForRemindersAccess));
   exports.Set(Napi::String::New(env, "askForFullDiskAccess"),
               Napi::Function::New(env, AskForFullDiskAccess));
-  exports.Set(Napi::String::New(env, "askForMediaAccess"),
-              Napi::Function::New(env, AskForMediaAccess));
   exports.Set(Napi::String::New(env, "askForCameraAccess"),  
               Napi::Function::New(env, AskForCameraAccess));
   exports.Set(Napi::String::New(env, "askForMicrophoneAccess"),  
