@@ -120,32 +120,62 @@ const { askForFullDiskAccess } = require('node-mac-permissions')
 askForFullDiskAccess()
 ```
 
-## `permissions.askForMediaAccess(type)`
+## `permissions.askForCameraAccess()`
 
-* `type` String - The type of media to which you are requesting access. Can be `microphone` or `camera`.
+Returns `Promise<String>` - Current permission status; can be `authorized`, `denied`, or `restricted`.
 
-Returns `Promise<String>` - Whether or not the request succeeded or failed; can be `authorized` or `denied`.
+Checks the authorization status for camera access. If the status check returns:
 
-Your app must provide an explanation for its use of capture devices using the `NSCameraUsageDescription` or `NSMicrophoneUsageDescription` `Info.plist` keys; Calling this method or attempting to start a capture session without a usage description raises an exception.
+- `not determined`, the camera access authorization will prompt the user to authorize or deny. The Promise is resolved after the user selection with either `authorized` or `denied`.
+- `denied`, the `Security & Privacy` System Preferences window is opened with the Camera privacy key highlighted. On open of the `Security & Privacy` window, the Promise is resolved as `denied`.
+- `restricted`, the Promise is resolved as `restricted`.
+
+Your app must provide an explanation for its use of capture devices using the `NSCameraUsageDescription` `Info.plist` key; Calling this method or attempting to start a capture session without a usage description raises an exception.
 
 ```
-<key>`NSCameraUsageDescription</key>
+<key>NSCameraUsageDescription</key>
 <string>Your reason for wanting to access the Camera</string>
-<key>`NSMicrophoneUsageDescription</key>
+```
+
+**Note:**
+
+- `status` will be resolved back as `authorized` prior to macOS 10.14 High Sierra, as access to the camera and microphone was unilaterally allowed until that version.
+
+Example:
+
+```js
+const { askForCameraAccess } = require("node-mac-permissions");
+
+const status = await askForCameraAccess();
+```
+
+## `permissions.askForMicrophoneAccess()`
+
+Returns `Promise<String>` - Current permission status; can be `authorized`, `denied`, or `restricted`.
+
+Checks the authorization status for microphone access. If the status check returns:
+
+- `not determined`, the microphone access authorization will prompt the user to authorize or deny. The Promise is resolved after the user selection with either `authorized` or `denied`.
+- `denied`, the `Security & Privacy` System Preferences window is opened with the Microphone privacy key highlighted. On open of the `Security & Privacy` window, the Promise is resolved as `denied`.
+- `restricted`, the Promise is resolved as `restricted`.
+
+Your app must provide an explanation for its use of capture devices using the `NSMicrophoneUsageDescription` `Info.plist` key; Calling this method or attempting to start a capture session without a usage description raises an exception.
+
+```
+<key>NSMicrophoneUsageDescription</key>
 <string>Your reason for wanting to access the Microphone</string>
 ```
 
-**Note:** `status` will be resolved back as `authorized` prior to macOS 10.14 High Sierra, as access to the camera and microphone was unilaterally allowed until that version.
+**Note:**
+
+- `status` will be resolved back as `authorized` prior to macOS 10.14 High Sierra, as access to the camera and microphone was unilaterally allowed until that version.
 
 Example:
-```js
-const { askForMediaAccess } = require('node-mac-permissions')
 
-for (const type of ['microphone', 'camera']) {
-  askForMediaAccess(type).then(status => {
-    console.log(`Access to media type ${type} is ${status}`)
-  })
-}
+```js
+const { askForMicrophoneAccess } = require("node-mac-permissions");
+
+const status = await askForMicrophoneAccess();
 ```
 
 ## `permissions.askForScreenCaptureAccess()`
