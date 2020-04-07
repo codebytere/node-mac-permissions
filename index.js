@@ -1,4 +1,4 @@
-const permissions = require('bindings')('permissions.node')
+const permissions = require('bindings')('permissions.node');
 
 function getAuthStatus(type) {
   const validTypes = [
@@ -10,22 +10,22 @@ function getAuthStatus(type) {
     'microphone',
     'accessibility',
     'location',
-    'screen'
-  ]
+    'screen',
+  ];
 
   if (!validTypes.includes(type)) {
-    throw new TypeError(`${type} is not a valid type`)
+    throw new TypeError(`${type} is not a valid type`);
   }
 
-  return permissions.getAuthStatus.call(this, type)
+  return permissions.getAuthStatus.call(this, type);
 }
 
 function askForMediaAccess(type) {
   if (!['microphone', 'camera'].includes(type)) {
-    throw new TypeError(`${type} must be either 'camera' or 'microphone'`)
+    throw new TypeError(`${type} must be either 'camera' or 'microphone'`);
   }
 
-  return permissions.askForMediaAccess.call(this, type)
+  return permissions.askForMediaAccess.call(this, type);
 }
 
 module.exports = {
@@ -33,8 +33,10 @@ module.exports = {
   askForContactsAccess: permissions.askForContactsAccess,
   askForFullDiskAccess: permissions.askForFullDiskAccess,
   askForRemindersAccess: permissions.askForRemindersAccess,
+  askForCameraAccess: permissions.askForCameraAccess,
+  askForMicrophoneAccess: permissions.askForMicrophoneAccess,
   askForScreenCaptureAccess: permissions.askForScreenCaptureAccess,
   askForAccessibilityAccess: permissions.askForAccessibilityAccess,
   askForMediaAccess,
-  getAuthStatus
-}
+  getAuthStatus,
+};

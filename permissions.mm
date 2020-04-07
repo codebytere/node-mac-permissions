@@ -312,6 +312,76 @@ Napi::Promise AskForMediaAccess(const Napi::CallbackInfo &info) {
   return deferred.Promise();
 }
 
+// Request Camera Access.
+Napi::Promise AskForCameraAccess(const Napi::CallbackInfo &info) {
+  Napi::Env env = info.Env();
+  Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
+  Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(env, Napi::Function::New(env, NoOp), "cameraAccessCallback", 0, 1, [](Napi::Env) {});
+
+  if (@available(macOS 10.14, *)) {
+    std::string auth_status = MediaAuthStatus("camera");
+
+    if (auth_status == "not determined") {
+        [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+          auto callback = [=](Napi::Env env, Napi::Function js_cb, const char *granted) {
+            deferred.Resolve(Napi::String::New(env, granted));
+          };
+
+          ts_fn.BlockingCall(granted ? "authorized" : "denied", callback);
+        }];  
+    } else if (auth_status == "denied"){
+      NSWorkspace *workspace = [[NSWorkspace alloc] init];
+      NSString *pref_string = @"x-apple.systempreferences:com.apple.preference.security?Privacy_Camera";
+  
+      [workspace openURL:[NSURL URLWithString:pref_string]];
+
+      deferred.Resolve(Napi::String::New(env, "denied"));
+    } else {
+      deferred.Resolve(Napi::String::New(env, auth_status));
+    }    
+  } else {
+    deferred.Resolve(Napi::String::New(env, "authorized"));
+  }
+
+  return deferred.Promise();
+}
+
+
+
+// Request Microphone Access.
+Napi::Promise AskForMicrophoneAccess(const Napi::CallbackInfo &info) {
+  Napi::Env env = info.Env();
+  Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
+  Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(env, Napi::Function::New(env, NoOp), "microphoneAccessCallback", 0, 1, [](Napi::Env) {});
+
+  if (@available(macOS 10.14, *)) {
+    std::string auth_status = MediaAuthStatus("microphone");
+
+    if (auth_status == "not determined") {
+        [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio completionHandler:^(BOOL granted) {
+          auto callback = [=](Napi::Env env, Napi::Function js_cb, const char *granted) {
+            deferred.Resolve(Napi::String::New(env, granted));
+          };
+
+          ts_fn.BlockingCall(granted ? "authorized" : "denied", callback);
+        }];  
+    } else if (auth_status == "denied") {
+      NSWorkspace *workspace = [[NSWorkspace alloc] init];
+      NSString *pref_string = @"x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone";
+  
+      [workspace openURL:[NSURL URLWithString:pref_string]];
+
+      deferred.Resolve(Napi::String::New(env, "denied"));
+    } else {
+      deferred.Resolve(Napi::String::New(env, auth_status));
+    }
+  } else {
+    deferred.Resolve(Napi::String::New(env, "authorized"));
+  }
+
+  return deferred.Promise();
+}
+
 // Request Screen Capture Access.
 void AskForScreenCaptureAccess(const Napi::CallbackInfo &info) {
   if (@available(macOS 10.14, *)) {
@@ -349,6 +419,10 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
               Napi::Function::New(env, AskForFullDiskAccess));
   exports.Set(Napi::String::New(env, "askForMediaAccess"),
               Napi::Function::New(env, AskForMediaAccess));
+  exports.Set(Napi::String::New(env, "askForCameraAccess"),  
+              Napi::Function::New(env, AskForCameraAccess));
+  exports.Set(Napi::String::New(env, "askForMicrophoneAccess"),  
+              Napi::Function::New(env, AskForMicrophoneAccess));
   exports.Set(Napi::String::New(env, "askForScreenCaptureAccess"),
               Napi::Function::New(env, AskForScreenCaptureAccess));
   exports.Set(Napi::String::New(env, "askForAccessibilityAccess"),
