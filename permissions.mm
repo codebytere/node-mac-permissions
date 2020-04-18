@@ -210,7 +210,7 @@ Napi::Promise AskForContactsAccess(const Napi::CallbackInfo &info) {
   Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
   Napi::ThreadSafeFunction ts_fn =
       Napi::ThreadSafeFunction::New(env, Napi::Function::New(env, NoOp),
-                                    "contactsCallback", 0, 1, [](Napi::Env) {});
+                                    "contactsCallback", 0, 1);
 
   if (@available(macOS 10.11, *)) {
     CNContactStore *store = [CNContactStore new];
@@ -236,7 +236,7 @@ Napi::Promise AskForCalendarAccess(const Napi::CallbackInfo &info) {
   Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
   Napi::ThreadSafeFunction ts_fn =
       Napi::ThreadSafeFunction::New(env, Napi::Function::New(env, NoOp),
-                                    "calendarCallback", 0, 1, [](Napi::Env) {});
+                                    "calendarCallback", 0, 1);
 
   [[EKEventStore new]
       requestAccessToEntityType:EKEntityTypeEvent
@@ -257,8 +257,7 @@ Napi::Promise AskForRemindersAccess(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
   Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(
-      env, Napi::Function::New(env, NoOp), "remindersCallback", 0, 1,
-      [](Napi::Env) {});
+      env, Napi::Function::New(env, NoOp), "remindersCallback", 0, 1);
 
   [[EKEventStore new]
       requestAccessToEntityType:EKEntityTypeReminder
@@ -288,8 +287,7 @@ Napi::Promise AskForCameraAccess(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
   Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(
-      env, Napi::Function::New(env, NoOp), "cameraAccessCallback", 0, 1,
-      [](Napi::Env) {});
+      env, Napi::Function::New(env, NoOp), "cameraAccessCallback", 0, 1);
 
   if (@available(macOS 10.14, *)) {
     std::string auth_status = MediaAuthStatus("camera");
@@ -329,8 +327,7 @@ Napi::Promise AskForMicrophoneAccess(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
   Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(
-      env, Napi::Function::New(env, NoOp), "microphoneAccessCallback", 0, 1,
-      [](Napi::Env) {});
+      env, Napi::Function::New(env, NoOp), "microphoneAccessCallback", 0, 1);
 
   if (@available(macOS 10.14, *)) {
     std::string auth_status = MediaAuthStatus("microphone");
