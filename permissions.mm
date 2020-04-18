@@ -367,11 +367,23 @@ Napi::Promise AskForMicrophoneAccess(const Napi::CallbackInfo &info) {
 
 // Request Screen Capture Access.
 void AskForScreenCaptureAccess(const Napi::CallbackInfo &info) {
-  if (@available(macOS 10.14, *)) {
-    NSWorkspace *workspace = [[NSWorkspace alloc] init];
-    NSString *pref_string = @"x-apple.systempreferences:com.apple.preference."
-                            @"security?Privacy_ScreenCapture";
-    [workspace openURL:[NSURL URLWithString:pref_string]];
+  if (@available(macOS 10.15, *)) {
+    // Tries to create a capture stream.  This is necessary to add the app back
+    // to the list in sysprefs if the user perviously denied.
+    // https://stackoverflow.com/questions/56597221/detecting-screen-recording-settings-on-macos-catalina
+    CGDisplayStreamRef stream = CGDisplayStreamCreate(
+        CGMainDisplayID(), 1, 1, kCVPixelFormatType_32BGRA, nil,
+        ^(CGDisplayStreamFrameStatus status, uint64_t displayTime,
+          IOSurfaceRef frameSurface, CGDisplayStreamUpdateRef updateRef){
+        });
+    if (stream) {
+      CFRelease(stream);
+    } else {
+      NSWorkspace *workspace = [[NSWorkspace alloc] init];
+      NSString *pref_string = @"x-apple.systempreferences:com.apple.preference."
+                              @"security?Privacy_ScreenCapture";
+      [workspace openURL:[NSURL URLWithString:pref_string]];
+    }
   }
 }
 
