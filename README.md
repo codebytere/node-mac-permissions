@@ -114,6 +114,7 @@ askForRemindersAccess().then(status => {
 There is no API for programmatically requesting Full Disk Access on macOS at this time, and so calling this method will trigger opening of System Preferences at the Full Disk pane of Security and Privacy.
 
 Example:
+
 ```js
 const { askForFullDiskAccess } = require('node-mac-permissions')
 
@@ -126,9 +127,9 @@ Returns `Promise<String>` - Current permission status; can be `authorized`, `den
 
 Checks the authorization status for camera access. If the status check returns:
 
-- `not determined`, the camera access authorization will prompt the user to authorize or deny. The Promise is resolved after the user selection with either `authorized` or `denied`.
-- `denied`, the `Security & Privacy` System Preferences window is opened with the Camera privacy key highlighted. On open of the `Security & Privacy` window, the Promise is resolved as `denied`.
-- `restricted`, the Promise is resolved as `restricted`.
+* `not determined` - The camera access authorization will prompt the user to authorize or deny. The Promise is resolved after the user selection with either `authorized` or `denied`.
+* `denied` - The `Security & Privacy` System Preferences window is opened with the Camera privacy key highlighted. On open of the `Security & Privacy` window, the Promise is resolved as `denied`.
+* `restricted` - The Promise is resolved as `restricted`.
 
 Your app must provide an explanation for its use of capture devices using the `NSCameraUsageDescription` `Info.plist` key; Calling this method or attempting to start a capture session without a usage description raises an exception.
 
@@ -155,9 +156,9 @@ Returns `Promise<String>` - Current permission status; can be `authorized`, `den
 
 Checks the authorization status for microphone access. If the status check returns:
 
-- `not determined`, the microphone access authorization will prompt the user to authorize or deny. The Promise is resolved after the user selection with either `authorized` or `denied`.
-- `denied`, the `Security & Privacy` System Preferences window is opened with the Microphone privacy key highlighted. On open of the `Security & Privacy` window, the Promise is resolved as `denied`.
-- `restricted`, the Promise is resolved as `restricted`.
+* `not determined` - The microphone access authorization will prompt the user to authorize or deny. The Promise is resolved after the user selection with either `authorized` or `denied`.
+* `denied` -T he `Security & Privacy` System Preferences window is opened with the Microphone privacy key highlighted. On open of the `Security & Privacy` window, the Promise is resolved as `denied`.
+* `restricted` - The Promise is resolved as `restricted`.
 
 Your app must provide an explanation for its use of capture devices using the `NSMicrophoneUsageDescription` `Info.plist` key; Calling this method or attempting to start a capture session without a usage description raises an exception.
 
@@ -183,6 +184,7 @@ const status = await askForMicrophoneAccess();
 There is no API for programmatically requesting Screen Capture on macOS at this time, and so calling this method will trigger opening of System Preferences at the Screen Capture pane of Security and Privacy.
 
 Example:
+
 ```js
 const { askForScreenCaptureAccess } = require('node-mac-permissions')
 
@@ -194,6 +196,7 @@ askForScreenCaptureAccess()
 There is no API for programmatically requesting Accessibility access on macOS at this time, and so calling this method will trigger opening of System Preferences at the Accessibility pane of Security and Privacy.
 
 Example:
+
 ```js
 const { askForAccessibilityAccess } = require('node-mac-permissions')
 
@@ -211,3 +214,36 @@ TypeError: Cannot read property 'indexOf' of undefined
 ```
 
 A. This error means that webpack packed this module, which it should not. To fix this, you should configure webpack to use this module externally, e.g explicitly not pack it.
+
+----------------------
+
+Q. I've authorized access to a particular system component and want to reset it. How do I do that?
+
+A. You can use `tccutil` to do this!
+
+The `tccutil` command manages the privacy database, which stores decisions the user has made about whether apps may access personal data.
+
+Examples:
+
+```sh
+# Reset all app permissions
+$ tccutil reset All
+
+# Reset Accessibility access permissions
+$ tccutil reset Accessibility
+
+# Reset Reminders access permissions
+$ tccutil reset Reminders
+
+# Reset Calendar access permissions
+$ tccutil reset Calendar
+
+# Reset Camera access permissions
+$ tccutil reset Camera
+
+# Reset Microphone access permissions
+$ tccutil reset Microphone
+
+# Reset Photos access permissions
+$ tccutil reset Photos
+```
