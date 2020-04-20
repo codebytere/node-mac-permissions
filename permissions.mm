@@ -104,27 +104,42 @@ std::string FDAAuthStatus() {
 // Screen Capture access
 std::string ScreenAuthStatus() {
   std::string auth_status = "not determined";
-
-  // Screen Capture is considered allowed if the name of at least one normal
-  // or dock window running on another process is visible.
   if (@available(macOS 10.15, *)) {
-    CFArrayRef window_list = CGWindowListCopyWindowInfo(
+    auth_status = "denied";
+    NSRunningApplication *runningApplication =
+        NSRunningApplication.currentApplication;
+    NSNumber *ourProcessIdentifier =
+        [NSNumber numberWithInteger:runningApplication.processIdentifier];
+
+    CFArrayRef windowList = CGWindowListCopyWindowInfo(
         kCGWindowListOptionOnScreenOnly, kCGNullWindowID);
-    int num_windows = (int)CFArrayGetCount(window_list);
-    int num_named_windows = 0;
-    for (int idx = 0; idx < num_windows; idx++) {
-      NSDictionary *info =
-          (NSDictionary *)CFArrayGetValueAtIndex(window_list, idx);
-      NSString *window_name = info[(id)kCGWindowName];
-      if (window_name) {
-        num_named_windows++;
-      } else {
-        break;
+    int numberOfWindows = CFArrayGetCount(windowList);
+    for (int index = 0; index < numberOfWindows; index++) {
+      // get information for each window
+      NSDictionary *windowInfo =
+          (NSDictionary *)CFArrayGetValueAtIndex(windowList, index);
+      NSString *windowName = windowInfo[(id)kCGWindowName];
+      NSNumber *processIdentifier = windowInfo[(id)kCGWindowOwnerPID];
+
+      // don't check windows owned by this process
+      if (![processIdentifier isEqual:ourProcessIdentifier]) {
+        // get process information for each window
+        pid_t pid = processIdentifier.intValue;
+        NSRunningApplication *windowRunningApplication =
+            [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
+        if (windowRunningApplication) {
+          NSString *windowExecutableName =
+              windowRunningApplication.executableURL.lastPathComponent;
+          if (windowName) {
+            if (![windowExecutableName isEqual:@"Dock"]) {
+              auth_status = "authorized";
+              break;
+            }
+          }
+        }
       }
     }
-
-    CFRelease(window_list);
-    auth_status = (num_windows == num_named_windows) ? "authorized" : "denied";
+    CFRelease(windowList);
   } else {
     auth_status = "authorized";
   }
@@ -369,7 +384,7 @@ Napi::Promise AskForMicrophoneAccess(const Napi::CallbackInfo &info) {
 void AskForScreenCaptureAccess(const Napi::CallbackInfo &info) {
   if (@available(macOS 10.15, *)) {
     // Tries to create a capture stream.  This is necessary to add the app back
-    // to the list in sysprefs if the user perviously denied.
+    // to the list in sysprefs if the user previously denied.
     // https://stackoverflow.com/questions/56597221/detecting-screen-recording-settings-on-macos-catalina
     CGDisplayStreamRef stream = CGDisplayStreamCreate(
         CGMainDisplayID(), 1, 1, kCVPixelFormatType_32BGRA, nil,
