@@ -30,6 +30,7 @@ module.exports = {
   askForCameraAccess: permissions.askForCameraAccess,
   askForMicrophoneAccess: permissions.askForMicrophoneAccess,
   askForPhotosAccess: permissions.askForPhotosAccess,
+  askForSpeechRecognitionAccess: permissions.askForSpeechRecognitionAccess,
   askForScreenCaptureAccess: permissions.askForScreenCaptureAccess,
   askForAccessibilityAccess: permissions.askForAccessibilityAccess,
   getAuthStatus,

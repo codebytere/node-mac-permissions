@@ -100,6 +100,33 @@ askForCalendarAccess().then(status => {
 })
 ```
 
+## `permissions.askForSpeechRecognitionAccess()`
+
+Returns `Promise<String>` - Whether or not the request succeeded or failed; can be `authorized` or `denied`.
+
+Checks the authorization status for Speech Recognition access. If the status check returns:
+
+* `not determined` - The Speech Recognition access authorization will prompt the user to authorize or deny. The Promise is resolved after the user selection with either `authorized` or `denied`.
+* `denied` - The `Security & Privacy` System Preferences window is opened with the Speech Recognition privacy key highlighted. On open of the `Security & Privacy` window, the Promise is resolved as `denied`.
+
+Your app must provide an explanation for its use of Speech Recognition using the `NSSpeechRecognitionUsageDescription` `Info.plist` key;
+
+```
+<key>NSSpeechRecognitionUsageDescription</key>
+<string>Your reason for wanting to access Speech Recognition</string>
+```
+
+Example:
+```js
+const { askForSpeechRecognitionAccess } = require('node-mac-permissions')
+
+askForSpeechRecognitionAccess().then(status => {
+  console.log(`Access to Speech Recognition is ${status}`)
+})
+```
+
+**Note:** `status` will be resolved back as `authorized` prior to macOS 10.15, where the underlying API was introduced.
+
 ## `permissions.askForRemindersAccess()`
 
 Returns `Promise<String>` - Whether or not the request succeeded or failed; can be `authorized` or `denied`.

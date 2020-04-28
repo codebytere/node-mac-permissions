@@ -355,7 +355,7 @@ Napi::Promise AskForCameraAccess(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
   Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(
-      env, Napi::Function::New(env, NoOp), "cameraAccessCallback", 0, 1);
+      env, Napi::Function::New(env, NoOp), "cameraCallback", 0, 1);
 
   if (@available(macOS 10.14, *)) {
     std::string auth_status = MediaAuthStatus("camera");
@@ -378,6 +378,52 @@ Napi::Promise AskForCameraAccess(const Napi::CallbackInfo &info) {
       NSWorkspace *workspace = [[NSWorkspace alloc] init];
       NSString *pref_string = @"x-apple.systempreferences:com.apple.preference."
                               @"security?Privacy_Camera";
+
+      [workspace openURL:[NSURL URLWithString:pref_string]];
+
+      ts_fn.Release();
+      deferred.Resolve(Napi::String::New(env, "denied"));
+    } else {
+      ts_fn.Release();
+      deferred.Resolve(Napi::String::New(env, auth_status));
+    }
+  } else {
+    ts_fn.Release();
+    deferred.Resolve(Napi::String::New(env, "authorized"));
+  }
+
+  return deferred.Promise();
+}
+
+// Request Speech Recognition access.
+Napi::Promise AskForSpeechRecognitionAccess(const Napi::CallbackInfo &info) {
+  Napi::Env env = info.Env();
+  Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
+  Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(
+      env, Napi::Function::New(env, NoOp), "speechRecognitionCallback", 0, 1);
+
+  if (@available(macOS 10.15, *)) {
+    std::string auth_status = SpeechRecognitionAuthStatus();
+
+    if (auth_status == "not determined") {
+      __block Napi::ThreadSafeFunction tsfn = ts_fn;
+      [SFSpeechRecognizer
+          requestAuthorization:^(SFSpeechRecognizerAuthorizationStatus status) {
+            auto callback = [=](Napi::Env env, Napi::Function js_cb,
+                                const char *granted) {
+              deferred.Resolve(Napi::String::New(env, granted));
+            };
+            tsfn.BlockingCall(
+                status == SFSpeechRecognizerAuthorizationStatusAuthorized
+                    ? "authorized"
+                    : "denied",
+                callback);
+            tsfn.Release();
+          }];
+    } else if (auth_status == "denied") {
+      NSWorkspace *workspace = [[NSWorkspace alloc] init];
+      NSString *pref_string = @"x-apple.systempreferences:com.apple.preference."
+                              @"security?Privacy_SpeechRecognition";
 
       [workspace openURL:[NSURL URLWithString:pref_string]];
 
@@ -443,7 +489,7 @@ Napi::Promise AskForMicrophoneAccess(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
   Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(
-      env, Napi::Function::New(env, NoOp), "microphoneAccessCallback", 0, 1);
+      env, Napi::Function::New(env, NoOp), "microphoneCallback", 0, 1);
 
   if (@available(macOS 10.14, *)) {
     std::string auth_status = MediaAuthStatus("microphone");
@@ -534,6 +580,8 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
               Napi::Function::New(env, AskForCameraAccess));
   exports.Set(Napi::String::New(env, "askForMicrophoneAccess"),
               Napi::Function::New(env, AskForMicrophoneAccess));
+  exports.Set(Napi::String::New(env, "askForSpeechRecognitionAccess"),
+              Napi::Function::New(env, AskForSpeechRecognitionAccess));
   exports.Set(Napi::String::New(env, "askForPhotosAccess"),
               Napi::Function::New(env, AskForPhotosAccess));
   exports.Set(Napi::String::New(env, "askForScreenCaptureAccess"),
