@@ -15,6 +15,7 @@ This native Node.js module allows you to manage an app's access to:
 * Reminders
 * Camera
 * Microphone
+* Photos
 * Accessibility
 * Location
 * Screen Capture
@@ -23,7 +24,7 @@ This native Node.js module allows you to manage an app's access to:
 
 ## `permissions.getAuthStatus(type)`
 
-* `type` String - The type of system component to which you are requesting access. Can be one of `accessibility`, `calendar`, `camera`, `contacts`, `full-disk-access`, `location`, `microphone`, `screen`, or `reminders`.
+* `type` String - The type of system component to which you are requesting access. Can be one of `accessibility`, `calendar`, `camera`, `contacts`, `full-disk-access`, `location`, `microphone`, `photos`, `screen`, or `reminders`.
 
 Returns `String` - Can be one of `not determined`, `denied`, `authorized`, or `restricted`.
 
@@ -39,6 +40,7 @@ Return Value Descriptions:
   * Access to `contacts` will always return a status of `authorized` prior to macOS 10.11, as access to contacts was unilaterally allowed until that version.
   * Access to `camera` and `microphone` will always return a status of `authorized` prior to macOS 10.14, as access to contacts was unilaterally allowed until that version.
   * Access to `screen` will always return a status of `authorized` prior to macOS 10.15, as access to screen capture was unilaterally allowed until that version.
+  * Access to `photos` will always return a status of `authorized` prior to macOS 10.13, as access to screen capture was unilaterally allowed until that version.
 
 Example:
 ```js
@@ -48,12 +50,12 @@ const types = [
   'reminders',
   'full-disk-access',
   'camera',
+  'photos',
   'microphone',
   'accessibility',
   'location'
 ]
 
-const statuses = ['not determined', 'denied', 'authorized', 'restricted']
 for (const type of types) {
   const status = getAuthStatus(type)
   console.log(`Access to ${type} is ${status}`)
@@ -242,4 +244,7 @@ $ tccutil reset Camera
 
 # Reset Microphone access permissions
 $ tccutil reset Microphone
+
+# Reset Photos access permissions
+$ tccutil reset Photos
 ```

@@ -7,6 +7,7 @@ function getAuthStatus(type) {
     'reminders',
     'full-disk-access',
     'camera',
+    'photos',
     'microphone',
     'accessibility',
     'location',

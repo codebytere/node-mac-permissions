@@ -6,17 +6,18 @@
 #import <Contacts/Contacts.h>
 #import <CoreLocation/CoreLocation.h>
 #import <EventKit/EventKit.h>
+#import <Photos/Photos.h>
 #import <Foundation/Foundation.h>
 #import <pwd.h>
 
 /***** HELPER FUNCTIONS *****/
 
-// Dummy value to pass into function parameter for ThreadSafeFunction
+// Dummy value to pass into function parameter for ThreadSafeFunction.
 Napi::Value NoOp(const Napi::CallbackInfo &info) {
   return info.Env().Undefined();
 }
 
-// Returns the user's home folder path
+// Returns the user's home folder path.
 NSString *GetUserHomeFolderPath() {
   NSString *path;
   BOOL isSandboxed =
@@ -35,7 +36,7 @@ NSString *GetUserHomeFolderPath() {
 }
 
 // Returns a status indicating whether the user has authorized Contacts
-// access
+// access.
 std::string ContactAuthStatus() {
   std::string auth_status = "not determined";
 
@@ -54,7 +55,7 @@ std::string ContactAuthStatus() {
 }
 
 // Returns a status indicating whether the user has authorized
-// Calendar/Reminders access
+// Calendar/Reminders access.
 std::string EventAuthStatus(const std::string &type) {
   std::string auth_status = "not determined";
 
@@ -73,7 +74,7 @@ std::string EventAuthStatus(const std::string &type) {
   return auth_status;
 }
 
-// Returns a status indicating whether the user has Full Disk Access
+// Returns a status indicating whether the user has Full Disk Access.
 std::string FDAAuthStatus() {
   std::string auth_status = "not determined";
   NSString *path;
@@ -100,7 +101,7 @@ std::string FDAAuthStatus() {
 }
 
 // Returns a status indicating whether the user has authorized
-// Screen Capture access
+// Screen Capture access.
 std::string ScreenAuthStatus() {
   std::string auth_status = "not determined";
   if (@available(macOS 10.15, *)) {
@@ -147,7 +148,7 @@ std::string ScreenAuthStatus() {
 }
 
 // Returns a status indicating whether the user has authorized
-// Camera/Microphone access
+// Camera/Microphone access.
 std::string MediaAuthStatus(const std::string &type) {
   std::string auth_status = "not determined";
 
@@ -171,7 +172,7 @@ std::string MediaAuthStatus(const std::string &type) {
 }
 
 // Returns a status indicating whether the user has authorized location
-// access
+// access.
 std::string LocationAuthStatus() {
   std::string auth_status = "not determined";
 
@@ -187,9 +188,30 @@ std::string LocationAuthStatus() {
   return auth_status;
 }
 
+// Returns a status indicating whether or not the user has authorized Photos
+// access.
+std::string PhotosAuthStatus() {
+  std::string auth_status = "not determined";
+
+  if (@available(macOS 10.13, *)) {
+    PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
+
+    if (status == PHAuthorizationStatusAuthorized)
+      auth_status = "authorized";
+    else if (status == PHAuthorizationStatusDenied)
+      auth_status = "denied";
+    else if (status == PHAuthorizationStatusRestricted)
+      auth_status = "restricted";
+  } else {
+    auth_status = "authorized";
+  }
+
+  return auth_status;
+}
+
 /***** EXPORTED FUNCTIONS *****/
 
-// Returns the user's access consent status as a string
+// Returns the user's access consent status as a string.
 Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   std::string auth_status;
@@ -205,6 +227,8 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
     auth_status = FDAAuthStatus();
   } else if (type == "microphone") {
     auth_status = MediaAuthStatus("microphone");
+  } else if (type == "photos") {
+    auth_status = PhotosAuthStatus();
   } else if (type == "camera") {
     auth_status = MediaAuthStatus("camera");
   } else if (type == "accessibility") {
@@ -218,7 +242,7 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
   return Napi::Value::From(env, auth_status);
 }
 
-// Request access to the Contacts store.
+// Request Contacts access.
 Napi::Promise AskForContactsAccess(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
@@ -245,7 +269,7 @@ Napi::Promise AskForContactsAccess(const Napi::CallbackInfo &info) {
   return deferred.Promise();
 }
 
-// Request access to Calendar.
+// Request Calendar access.
 Napi::Promise AskForCalendarAccess(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
@@ -268,7 +292,7 @@ Napi::Promise AskForCalendarAccess(const Napi::CallbackInfo &info) {
   return deferred.Promise();
 }
 
-// Request access to Reminders.
+// Request Reminders access.
 Napi::Promise AskForRemindersAccess(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
@@ -300,7 +324,7 @@ void AskForFullDiskAccess(const Napi::CallbackInfo &info) {
   [workspace openURL:[NSURL URLWithString:pref_string]];
 }
 
-// Request Camera Access.
+// Request Camera access.
 Napi::Promise AskForCameraAccess(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
@@ -342,7 +366,7 @@ Napi::Promise AskForCameraAccess(const Napi::CallbackInfo &info) {
   return deferred.Promise();
 }
 
-// Request Microphone Access.
+// Request Microphone access.
 Napi::Promise AskForMicrophoneAccess(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
