@@ -146,9 +146,11 @@ Your app must provide an explanation for its use of capture devices using the `N
 Example:
 
 ```js
-const { askForCameraAccess } = require("node-mac-permissions");
+const { askForCameraAccess } = require('node-mac-permissions')
 
-const status = await askForCameraAccess();
+askForCameraAccess().then(status => {
+  console.log(`Access to Camera is ${status}`)
+})
 ```
 
 ## `permissions.askForMicrophoneAccess()`
@@ -158,7 +160,7 @@ Returns `Promise<String>` - Current permission status; can be `authorized`, `den
 Checks the authorization status for microphone access. If the status check returns:
 
 * `not determined` - The microphone access authorization will prompt the user to authorize or deny. The Promise is resolved after the user selection with either `authorized` or `denied`.
-* `denied` -T he `Security & Privacy` System Preferences window is opened with the Microphone privacy key highlighted. On open of the `Security & Privacy` window, the Promise is resolved as `denied`.
+* `denied` - The `Security & Privacy` System Preferences window is opened with the Microphone privacy key highlighted. On open of the `Security & Privacy` window, the Promise is resolved as `denied`.
 * `restricted` - The Promise is resolved as `restricted`.
 
 Your app must provide an explanation for its use of capture devices using the `NSMicrophoneUsageDescription` `Info.plist` key; Calling this method or attempting to start a capture session without a usage description raises an exception.
@@ -175,11 +177,11 @@ Your app must provide an explanation for its use of capture devices using the `N
 Example:
 
 ```js
-const { askForMicrophoneAccess } = require("node-mac-permissions");
+const { askForMicrophoneAccess } = require('node-mac-permissions')
 
 askForMicrophoneAccess().then(status => {
   console.log(`Access to Microphone is ${status}`)
-});
+})
 ```
 
 ## `permissions.askForPhotosAccess()`
@@ -206,11 +208,11 @@ Your app must provide an explanation for its use of the photo library using the 
 Example:
 
 ```js
-const { askForPhotosAccess } = require("node-mac-permissions");
+const { askForPhotosAccess } = require('node-mac-permissions')
 
 askForPhotosAccess().then(status => {
   console.log(`Access to Photos is ${status}`)
-});
+})
 ```
 
 ## `permissions.askForScreenCaptureAccess()`
