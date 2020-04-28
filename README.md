@@ -38,11 +38,11 @@ Return Value Descriptions:
 * `authorized` - The application is authorized to access `type` data.
 
 **Notes:**
-  * Access to `contacts` will always return a status of `authorized` prior to macOS 10.11, as access to contacts was unilaterally allowed until that version.
-  * Access to `camera` and `microphone` will always return a status of `authorized` prior to macOS 10.14, as access to contacts was unilaterally allowed until that version.
-  * Access to `screen` will always return a status of `authorized` prior to macOS 10.15, as access to screen capture was unilaterally allowed until that version.
-  * Access to `photos` will always return a status of `authorized` prior to macOS 10.13, as access to screen capture was unilaterally allowed until that version.
-  * Access to `speech-recognition` will always return a status of `authorized` prior to macOS 10.15, as access to screen capture was unilaterally allowed until that version.
+  * Access to `contacts` will always return a status of `authorized` prior to macOS 10.11, as the underlying API was not introduced until that version.
+  * Access to `camera` and `microphone` will always return a status of `authorized` prior to macOS 10.14, as the underlying API was not introduced until that version.
+  * Access to `screen` will always return a status of `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
+  * Access to `photos` will always return a status of `authorized` prior to macOS 10.13, as the underlying API was not introduced until that version.
+  * Access to `speech-recognition` will always return a status of `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
 
 Example:
 ```js
@@ -76,7 +76,7 @@ Your app’s `Info.plist` file must provide a value for the `NSContactsUsageDesc
 <string>Your reason for wanting to access the Contact store</string>
 ```
 
-**Note:** `status` will be resolved back as `authorized` prior to macOS 10.11, as access to contacts was unilaterally allowed until that version.
+**Note:** `status` will be resolved back as `authorized` prior to macOS 10.11, as the underlying API was not introduced until that version.
 
 Example:
 ```js
@@ -125,7 +125,7 @@ askForSpeechRecognitionAccess().then(status => {
 })
 ```
 
-**Note:** `status` will be resolved back as `authorized` prior to macOS 10.15, where the underlying API was introduced.
+**Note:** `status` will be resolved back as `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
 
 ## `permissions.askForRemindersAccess()`
 
@@ -171,7 +171,7 @@ Your app must provide an explanation for its use of capture devices using the `N
 
 **Note:**
 
-- `status` will be resolved back as `authorized` prior to macOS 10.14, as access to the camera and microphone was unilaterally allowed until that version.
+- `status` will be resolved back as `authorized` prior to macOS 10.14, as the underlying API was not introduced until that version.
 
 Example:
 
@@ -202,7 +202,7 @@ Your app must provide an explanation for its use of capture devices using the `N
 
 **Note:**
 
-- `status` will be resolved back as `authorized` prior to macOS 10.14, as access to the camera and microphone was unilaterally allowed until that version.
+- `status` will be resolved back as `authorized` prior to macOS 10.14, as the underlying API was not introduced until that version.
 
 Example:
 
@@ -233,7 +233,7 @@ Your app must provide an explanation for its use of the photo library using the 
 
 **Note:**
 
-- `status` will be resolved back as `authorized` prior to macOS 10.13, as access to Photos was unilaterally allowed until that version.
+- `status` will be resolved back as `authorized` prior to macOS 10.13, as the underlying API was not introduced until that version.
 
 Example:
 
@@ -312,4 +312,13 @@ $ tccutil reset Microphone
 
 # Reset Photos access permissions
 $ tccutil reset Photos
+
+# Reset Screen Capture access permissions
+$ tccutil reset ScreenCapture
+
+# Reset Full Disk Access permissions
+$ tccutil reset SystemPolicyAllFiles
+
+# Reset Contacts permissions
+$ tccutil reset AddressBook
 ```
