@@ -4,6 +4,9 @@
     "sources": [ ],
     "conditions": [
       ['OS=="mac"', {
+        "xcode_settings": {
+          "MACOSX_DEPLOYMENT_TARGET": "10.10"
+        },
         "sources": [
           "permissions.mm"
         ],
@@ -18,7 +21,7 @@
     ],
     'defines': [ 'NAPI_DISABLE_CPP_EXCEPTIONS' ],
     "xcode_settings": {
-      "OTHER_CPLUSPLUSFLAGS": ["-std=c++14", "-stdlib=libc++", "-mmacosx-version-min=10.10"],
+      "OTHER_CPLUSPLUSFLAGS": ["-std=c++14", "-stdlib=libc++"],
       "OTHER_LDFLAGS": ["-framework CoreFoundation -framework CoreLocation -framework AppKit -framework Contacts -framework EventKit -framework AVFoundation"]
     }
   }]
