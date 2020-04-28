@@ -8,6 +8,7 @@ function getAuthStatus(type) {
     'full-disk-access',
     'camera',
     'photos',
+    'speech-recognition',
     'microphone',
     'accessibility',
     'location',

@@ -8,6 +8,7 @@
 #import <EventKit/EventKit.h>
 #import <Foundation/Foundation.h>
 #import <Photos/Photos.h>
+#import <Speech/Speech.h>
 #import <pwd.h>
 
 /***** HELPER FUNCTIONS *****/
@@ -171,6 +172,28 @@ std::string MediaAuthStatus(const std::string &type) {
   return auth_status;
 }
 
+// Returns a status indicating whether the user has authorized speech
+// recognition access.
+std::string SpeechRecognitionAuthStatus() {
+  std::string auth_status = "not determined";
+
+  if (@available(macOS 10.15, *)) {
+    SFSpeechRecognizerAuthorizationStatus status =
+        [SFSpeechRecognizer authorizationStatus];
+
+    if (status == SFSpeechRecognizerAuthorizationStatusAuthorized)
+      auth_status = "authorized";
+    else if (status == SFSpeechRecognizerAuthorizationStatusDenied)
+      auth_status = "denied";
+    else if (status == SFSpeechRecognizerAuthorizationStatusRestricted)
+      auth_status = "restricted";
+  } else {
+    auth_status = "authorized";
+  }
+
+  return auth_status;
+}
+
 // Returns a status indicating whether the user has authorized location
 // access.
 std::string LocationAuthStatus() {
@@ -229,6 +252,8 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
     auth_status = MediaAuthStatus("microphone");
   } else if (type == "photos") {
     auth_status = PhotosAuthStatus();
+  } else if (type == "speech-recognition") {
+    auth_status = SpeechRecognitionAuthStatus();
   } else if (type == "camera") {
     auth_status = MediaAuthStatus("camera");
   } else if (type == "accessibility") {
