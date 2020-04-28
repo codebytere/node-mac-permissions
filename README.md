@@ -141,7 +141,7 @@ Your app must provide an explanation for its use of capture devices using the `N
 
 **Note:**
 
-- `status` will be resolved back as `authorized` prior to macOS 10.14 High Sierra, as access to the camera and microphone was unilaterally allowed until that version.
+- `status` will be resolved back as `authorized` prior to macOS 10.14, as access to the camera and microphone was unilaterally allowed until that version.
 
 Example:
 
@@ -170,14 +170,47 @@ Your app must provide an explanation for its use of capture devices using the `N
 
 **Note:**
 
-- `status` will be resolved back as `authorized` prior to macOS 10.14 High Sierra, as access to the camera and microphone was unilaterally allowed until that version.
+- `status` will be resolved back as `authorized` prior to macOS 10.14, as access to the camera and microphone was unilaterally allowed until that version.
 
 Example:
 
 ```js
 const { askForMicrophoneAccess } = require("node-mac-permissions");
 
-const status = await askForMicrophoneAccess();
+askForMicrophoneAccess().then(status => {
+  console.log(`Access to Microphone is ${status}`)
+});
+```
+
+## `permissions.askForPhotosAccess()`
+
+Returns `Promise<String>` - Current permission status; can be `authorized`, `denied`, or `restricted`.
+
+Checks the authorization status for Photos access. If the status check returns:
+
+* `not determined` - The Photos access authorization will prompt the user to authorize or deny. The Promise is resolved after the user selection with either `authorized` or `denied`.
+* `denied` - The `Security & Privacy` System Preferences window is opened with the Photos privacy key highlighted. On open of the `Security & Privacy` window, the Promise is resolved as `denied`.
+* `restricted` - The Promise is resolved as `restricted`.
+
+Your app must provide an explanation for its use of the photo library using the `NSPhotoLibraryUsageDescription` `Info.plist` key.
+
+```
+<key>NSPhotoLibraryUsageDescription</key>
+<string>Your reason for wanting to access Photos</string>
+```
+
+**Note:**
+
+- `status` will be resolved back as `authorized` prior to macOS 10.13, as access to Photos was unilaterally allowed until that version.
+
+Example:
+
+```js
+const { askForPhotosAccess } = require("node-mac-permissions");
+
+askForPhotosAccess().then(status => {
+  console.log(`Access to Photos is ${status}`)
+});
 ```
 
 ## `permissions.askForScreenCaptureAccess()`
