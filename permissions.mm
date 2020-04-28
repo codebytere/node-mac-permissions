@@ -7,7 +7,6 @@
 #import <CoreLocation/CoreLocation.h>
 #import <EventKit/EventKit.h>
 #import <Foundation/Foundation.h>
-#import <Photos/Photos.h>
 #import <pwd.h>
 
 /***** HELPER FUNCTIONS *****/

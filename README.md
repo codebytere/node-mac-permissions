@@ -13,7 +13,6 @@ This native Node.js module allows you to manage an app's access to:
 * Full Disk Access
 * Calendar
 * Reminders
-* Photos
 * Camera
 * Microphone
 * Accessibility
@@ -24,7 +23,7 @@ This native Node.js module allows you to manage an app's access to:
 
 ## `permissions.getAuthStatus(type)`
 
-* `type` String - The type of system component to which you are requesting access. Can be one of `accessibility`, `calendar`, `camera`, `contacts`, `full-disk-access`, `location`, `microphone`, `photos`, `screen`, or `reminders`.
+* `type` String - The type of system component to which you are requesting access. Can be one of `accessibility`, `calendar`, `camera`, `contacts`, `full-disk-access`, `location`, `microphone`, `screen`, or `reminders`.
 
 Returns `String` - Can be one of `not determined`, `denied`, `authorized`, or `restricted`.
 
@@ -243,7 +242,4 @@ $ tccutil reset Camera
 
 # Reset Microphone access permissions
 $ tccutil reset Microphone
-
-# Reset Photos access permissions
-$ tccutil reset Photos
 ```
