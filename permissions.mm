@@ -222,10 +222,10 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
 Napi::Promise AskForContactsAccess(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
-  Napi::ThreadSafeFunction ts_fn =
-      Napi::ThreadSafeFunction::New(env, Napi::Function::New(env, NoOp),
-                                    "contactsCallback", 0, 1);
+  Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(
+      env, Napi::Function::New(env, NoOp), "contactsCallback", 0, 1);
 
+  __block Napi::ThreadSafeFunction tsfn = ts_fn;
   if (@available(macOS 10.11, *)) {
     CNContactStore *store = [CNContactStore new];
     [store requestAccessForEntityType:CNEntityTypeContacts
@@ -234,8 +234,9 @@ Napi::Promise AskForContactsAccess(const Napi::CallbackInfo &info) {
                                           const char *granted) {
                         deferred.Resolve(Napi::String::New(env, granted));
                       };
-                      ts_fn.BlockingCall(granted ? "authorized" : "denied",
-                                         callback);
+                      tsfn.BlockingCall(granted ? "authorized" : "denied",
+                                        callback);
+                      tsfn.Release();
                     }];
   } else {
     deferred.Resolve(Napi::String::New(env, "authorized"));
@@ -248,10 +249,10 @@ Napi::Promise AskForContactsAccess(const Napi::CallbackInfo &info) {
 Napi::Promise AskForCalendarAccess(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
-  Napi::ThreadSafeFunction ts_fn =
-      Napi::ThreadSafeFunction::New(env, Napi::Function::New(env, NoOp),
-                                    "calendarCallback", 0, 1);
+  Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(
+      env, Napi::Function::New(env, NoOp), "calendarCallback", 0, 1);
 
+  __block Napi::ThreadSafeFunction tsfn = ts_fn;
   [[EKEventStore new]
       requestAccessToEntityType:EKEntityTypeEvent
                      completion:^(BOOL granted, NSError *error) {
@@ -259,8 +260,9 @@ Napi::Promise AskForCalendarAccess(const Napi::CallbackInfo &info) {
                                            const char *granted) {
                          deferred.Resolve(Napi::String::New(env, granted));
                        };
-                       ts_fn.BlockingCall(granted ? "authorized" : "denied",
-                                          callback);
+                       tsfn.BlockingCall(granted ? "authorized" : "denied",
+                                         callback);
+                       tsfn.Release();
                      }];
 
   return deferred.Promise();
@@ -273,6 +275,7 @@ Napi::Promise AskForRemindersAccess(const Napi::CallbackInfo &info) {
   Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(
       env, Napi::Function::New(env, NoOp), "remindersCallback", 0, 1);
 
+  __block Napi::ThreadSafeFunction tsfn = ts_fn;
   [[EKEventStore new]
       requestAccessToEntityType:EKEntityTypeReminder
                      completion:^(BOOL granted, NSError *error) {
@@ -281,8 +284,9 @@ Napi::Promise AskForRemindersAccess(const Napi::CallbackInfo &info) {
                                            const char *granted) {
                          deferred.Resolve(Napi::String::New(env, granted));
                        };
-                       ts_fn.BlockingCall(granted ? "authorized" : "denied",
-                                          callback);
+                       tsfn.BlockingCall(granted ? "authorized" : "denied",
+                                         callback);
+                       tsfn.Release();
                      }];
 
   return deferred.Promise();
@@ -307,6 +311,7 @@ Napi::Promise AskForCameraAccess(const Napi::CallbackInfo &info) {
     std::string auth_status = MediaAuthStatus("camera");
 
     if (auth_status == "not determined") {
+      __block Napi::ThreadSafeFunction tsfn = ts_fn;
       [AVCaptureDevice
           requestAccessForMediaType:AVMediaTypeVideo
                   completionHandler:^(BOOL granted) {
@@ -315,8 +320,9 @@ Napi::Promise AskForCameraAccess(const Napi::CallbackInfo &info) {
                       deferred.Resolve(Napi::String::New(env, granted));
                     };
 
-                    ts_fn.BlockingCall(granted ? "authorized" : "denied",
-                                       callback);
+                    tsfn.BlockingCall(granted ? "authorized" : "denied",
+                                      callback);
+                    tsfn.Release();
                   }];
     } else if (auth_status == "denied") {
       NSWorkspace *workspace = [[NSWorkspace alloc] init];
@@ -347,6 +353,7 @@ Napi::Promise AskForMicrophoneAccess(const Napi::CallbackInfo &info) {
     std::string auth_status = MediaAuthStatus("microphone");
 
     if (auth_status == "not determined") {
+      __block Napi::ThreadSafeFunction tsfn = ts_fn;
       [AVCaptureDevice
           requestAccessForMediaType:AVMediaTypeAudio
                   completionHandler:^(BOOL granted) {
@@ -355,8 +362,9 @@ Napi::Promise AskForMicrophoneAccess(const Napi::CallbackInfo &info) {
                       deferred.Resolve(Napi::String::New(env, granted));
                     };
 
-                    ts_fn.BlockingCall(granted ? "authorized" : "denied",
-                                       callback);
+                    tsfn.BlockingCall(granted ? "authorized" : "denied",
+                                      callback);
+                    tsfn.Release();
                   }];
     } else if (auth_status == "denied") {
       NSWorkspace *workspace = [[NSWorkspace alloc] init];
@@ -379,7 +387,7 @@ Napi::Promise AskForMicrophoneAccess(const Napi::CallbackInfo &info) {
 // Request Screen Capture Access.
 void AskForScreenCaptureAccess(const Napi::CallbackInfo &info) {
   if (@available(macOS 10.15, *)) {
-    // Tries to create a capture stream.  This is necessary to add the app back
+    // Tries to create a capture stream. This is necessary to add the app back
     // to the list in sysprefs if the user previously denied.
     // https://stackoverflow.com/questions/56597221/detecting-screen-recording-settings-on-macos-catalina
     CGDisplayStreamRef stream = CGDisplayStreamCreate(
