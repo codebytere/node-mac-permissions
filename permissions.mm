@@ -36,6 +36,55 @@ NSString *GetUserHomeFolderPath() {
   return path;
 }
 
+// This method determines whether or not a system preferences security
+// authentication request is currently open on the user's screen and foregrounds
+// it if found
+bool HasOpenSystemPreferencesDialog() {
+  int MAX_NUM_LIKELY_OPEN_WINDOWS = 4;
+  bool isDialogOpen = false;
+  CFArrayRef windowList;
+
+  // loops for max 1 second, breaks if/when dialog is found
+  for (int index = 0; index <= MAX_NUM_LIKELY_OPEN_WINDOWS; index++) {
+    windowList = CGWindowListCopyWindowInfo(
+        kCGWindowListOptionOnScreenAboveWindow, kCGNullWindowID);
+    int numberOfWindows = CFArrayGetCount(windowList);
+
+    for (int windowIndex = 0; windowIndex < numberOfWindows; windowIndex++) {
+      NSDictionary *windowInfo =
+          (NSDictionary *)CFArrayGetValueAtIndex(windowList, windowIndex);
+      NSString *windowOwnerName = windowInfo[(id)kCGWindowOwnerName];
+      NSNumber *windowLayer = windowInfo[(id)kCGWindowLayer];
+      NSNumber *windowOwnerPID = windowInfo[(id)kCGWindowOwnerPID];
+
+      if ([windowLayer integerValue] == 0 &&
+          [windowOwnerName isEqual:@"universalAccessAuthWarn"]) {
+        // make sure the auth window is in the foreground
+        NSRunningApplication *authApplication = [NSRunningApplication
+            runningApplicationWithProcessIdentifier:[windowOwnerPID
+                                                        integerValue]];
+
+        [NSRunningApplication.currentApplication
+            activateWithOptions:NSApplicationActivateAllWindows];
+        [authApplication activateWithOptions:NSApplicationActivateAllWindows];
+
+        isDialogOpen = true;
+        break;
+      }
+    }
+
+    CFRelease(windowList);
+
+    if (isDialogOpen) {
+      break;
+    }
+
+    usleep(250000);
+  }
+
+  return isDialogOpen;
+}
+
 // Returns a status indicating whether the user has authorized Contacts
 // access.
 std::string ContactAuthStatus() {
@@ -529,52 +578,6 @@ Napi::Promise AskForMicrophoneAccess(const Napi::CallbackInfo &info) {
   return deferred.Promise();
 }
 
-bool HasOpenSystemPreferencesDialog() {
-  bool isDialogOpen = false;
-  CFArrayRef windowList;
-
-  // loops for max 1 second, breaks if/when dialog is found
-  for (int index = 0; index <= 4; index++) {
-    windowList = CGWindowListCopyWindowInfo(
-        kCGWindowListOptionOnScreenAboveWindow, kCGNullWindowID);
-    int numberOfWindows = CFArrayGetCount(windowList);
-
-    for (int windowIndex = 0; windowIndex < numberOfWindows; windowIndex++) {
-      NSDictionary *windowInfo =
-          (NSDictionary *)CFArrayGetValueAtIndex(windowList, windowIndex);
-      NSString *windowOwnerName = windowInfo[(id)kCGWindowOwnerName];
-      NSNumber *windowLayer = windowInfo[(id)kCGWindowLayer];
-      NSNumber *windowOwnerPID = windowInfo[(id)kCGWindowOwnerPID];
-
-      if ([windowLayer integerValue] == 0 &&
-          [windowOwnerName isEqual:@"universalAccessAuthWarn"]) {
-        // make sure the auth window is in the foreground
-        NSRunningApplication *authApplication = [NSRunningApplication
-            runningApplicationWithProcessIdentifier:[windowOwnerPID
-                                                        integerValue]];
-
-        if (!authApplication.active) {
-          [authApplication
-              activateWithOptions:NSApplicationActivateAllWindows];
-        }
-
-        isDialogOpen = true;
-        break;
-      }
-    }
-
-    CFRelease(windowList);
-
-    if (isDialogOpen) {
-      break;
-    }
-
-    usleep(250000);
-  }
-
-  return isDialogOpen;
-}
-
 // Request Screen Capture Access.
 void AskForScreenCaptureAccess(const Napi::CallbackInfo &info) {
   if (@available(macOS 10.15, *)) {
@@ -598,7 +601,7 @@ void AskForScreenCaptureAccess(const Napi::CallbackInfo &info) {
         [workspace openURL:[NSURL URLWithString:pref_string]];
       }
     }
-  } 
+  }
 }
 
 // Request Accessibility Access.
