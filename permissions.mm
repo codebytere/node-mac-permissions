@@ -36,6 +36,55 @@ NSString *GetUserHomeFolderPath() {
   return path;
 }
 
+// This method determines whether or not a system preferences security
+// authentication request is currently open on the user's screen and foregrounds
+// it if found
+bool HasOpenSystemPreferencesDialog() {
+  int MAX_NUM_LIKELY_OPEN_WINDOWS = 4;
+  bool isDialogOpen = false;
+  CFArrayRef windowList;
+
+  // loops for max 1 second, breaks if/when dialog is found
+  for (int index = 0; index <= MAX_NUM_LIKELY_OPEN_WINDOWS; index++) {
+    windowList = CGWindowListCopyWindowInfo(
+        kCGWindowListOptionOnScreenAboveWindow, kCGNullWindowID);
+    int numberOfWindows = CFArrayGetCount(windowList);
+
+    for (int windowIndex = 0; windowIndex < numberOfWindows; windowIndex++) {
+      NSDictionary *windowInfo =
+          (NSDictionary *)CFArrayGetValueAtIndex(windowList, windowIndex);
+      NSString *windowOwnerName = windowInfo[(id)kCGWindowOwnerName];
+      NSNumber *windowLayer = windowInfo[(id)kCGWindowLayer];
+      NSNumber *windowOwnerPID = windowInfo[(id)kCGWindowOwnerPID];
+
+      if ([windowLayer integerValue] == 0 &&
+          [windowOwnerName isEqual:@"universalAccessAuthWarn"]) {
+        // make sure the auth window is in the foreground
+        NSRunningApplication *authApplication = [NSRunningApplication
+            runningApplicationWithProcessIdentifier:[windowOwnerPID
+                                                        integerValue]];
+
+        [NSRunningApplication.currentApplication
+            activateWithOptions:NSApplicationActivateAllWindows];
+        [authApplication activateWithOptions:NSApplicationActivateAllWindows];
+
+        isDialogOpen = true;
+        break;
+      }
+    }
+
+    CFRelease(windowList);
+
+    if (isDialogOpen) {
+      break;
+    }
+
+    usleep(250000);
+  }
+
+  return isDialogOpen;
+}
+
 // Returns a status indicating whether the user has authorized Contacts
 // access.
 std::string ContactAuthStatus() {
@@ -112,8 +161,8 @@ std::string ScreenAuthStatus() {
     NSNumber *ourProcessIdentifier =
         [NSNumber numberWithInteger:runningApplication.processIdentifier];
 
-    CFArrayRef windowList = CGWindowListCopyWindowInfo(
-        kCGWindowListOptionOnScreenOnly, kCGNullWindowID);
+    CFArrayRef windowList =
+        CGWindowListCopyWindowInfo(kCGWindowListOptionAll, kCGNullWindowID);
     int numberOfWindows = CFArrayGetCount(windowList);
     for (int index = 0; index < numberOfWindows; index++) {
       // get information for each window
@@ -536,24 +585,28 @@ void AskForScreenCaptureAccess(const Napi::CallbackInfo &info) {
     // to the list in sysprefs if the user previously denied.
     // https://stackoverflow.com/questions/56597221/detecting-screen-recording-settings-on-macos-catalina
     CGDisplayStreamRef stream = CGDisplayStreamCreate(
-        CGMainDisplayID(), 1, 1, kCVPixelFormatType_32BGRA, nil,
+        CGMainDisplayID(), 1, 1, kCVPixelFormatType_32BGRA, NULL,
         ^(CGDisplayStreamFrameStatus status, uint64_t displayTime,
           IOSurfaceRef frameSurface, CGDisplayStreamUpdateRef updateRef){
         });
+
     if (stream) {
       CFRelease(stream);
     } else {
-      NSWorkspace *workspace = [[NSWorkspace alloc] init];
-      NSString *pref_string = @"x-apple.systempreferences:com.apple.preference."
-                              @"security?Privacy_ScreenCapture";
-      [workspace openURL:[NSURL URLWithString:pref_string]];
+      if (!HasOpenSystemPreferencesDialog()) {
+        NSWorkspace *workspace = [[NSWorkspace alloc] init];
+        NSString *pref_string =
+            @"x-apple.systempreferences:com.apple.preference."
+            @"security?Privacy_ScreenCapture";
+        [workspace openURL:[NSURL URLWithString:pref_string]];
+      }
     }
   }
 }
 
 // Request Accessibility Access.
 void AskForAccessibilityAccess(const Napi::CallbackInfo &info) {
-  NSDictionary *options = @{(id)kAXTrustedCheckOptionPrompt : @(YES)};
+  NSDictionary *options = @{(id)kAXTrustedCheckOptionPrompt : @(NO)};
   bool trusted = AXIsProcessTrustedWithOptions((CFDictionaryRef)options);
 
   if (!trusted) {
