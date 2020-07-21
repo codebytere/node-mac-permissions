@@ -3,6 +3,7 @@
   "version": "2.1.3",
   "description": "A native node module to manage system permissions on macOS",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "build": "node-gyp rebuild",
     "clean": "node-gyp clean",
