@@ -165,15 +165,15 @@ std::string ScreenAuthStatus() {
         CGWindowListCopyWindowInfo(kCGWindowListOptionAll, kCGNullWindowID);
     int numberOfWindows = CFArrayGetCount(windowList);
     for (int index = 0; index < numberOfWindows; index++) {
-      // get information for each window
+      // Get information for each window.
       NSDictionary *windowInfo =
           (NSDictionary *)CFArrayGetValueAtIndex(windowList, index);
       NSString *windowName = windowInfo[(id)kCGWindowName];
       NSNumber *processIdentifier = windowInfo[(id)kCGWindowOwnerPID];
 
-      // don't check windows owned by this process
+      // Don't check windows owned by the current process.
       if (![processIdentifier isEqual:ourProcessIdentifier]) {
-        // get process information for each window
+        // Get process information for each window.
         pid_t pid = processIdentifier.intValue;
         NSRunningApplication *windowRunningApplication =
             [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
