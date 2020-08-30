@@ -1,5 +1,6 @@
 const { expect } = require('chai')
-const { 
+const {
+  askForFoldersAccess,
   getAuthStatus,
 } = require('../index')
 
@@ -31,6 +32,14 @@ describe('node-mac-permissions', () => {
         const status = getAuthStatus(type)
         expect(statuses).to.contain(status)
       }
+    })
+  })
+
+  describe('askForFoldersAccess()', () => {
+    it('should throw on invalid types', () => {
+      expect(() => {
+        askForFoldersAccess('bad-type')
+      }).to.throw(/bad-type is not a valid protected folder/)
     })
   })
 })

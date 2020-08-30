@@ -20,6 +20,7 @@ This native Node.js module allows you to manage an app's access to:
 * Location
 * Screen Capture
 * Speech Recognition
+* Protected Folders
 
 ## API
 
@@ -138,6 +139,37 @@ const { askForRemindersAccess } = require('node-mac-permissions')
 askForRemindersAccess().then(status => {
   console.log(`Access to Reminders is ${status}`)
 })
+```
+
+## `permissions.askForFoldersAccess(folder)`
+
+* `type` String - The folder to which you are requesting access. Can be one of `desktop`, `documents`, or `downloads`.
+
+Returns `Promise<String>` - Whether or not the request succeeded or failed; can be `authorized` or `denied`.
+
+Example:
+
+```js
+const { askForFoldersAccess } = require('node-mac-permissions')
+
+askForFoldersAccess('desktop').then(status => {
+  console.log(`Access to Desktop is ${status}`)
+})
+```
+
+```
+<key>NSDesktopFolderUsageDescription</key>
+<string>Your reason for wanting to access the Desktop folder</string>
+```
+
+```
+<key>NSDocumentsFolderUsageDescription</key>
+<string>Your reason for wanting to access the Documents folder</string>
+```
+
+```
+<key>NSDownloadsFolderUsageDescription</key>
+<string>Your reason for wanting to access the Downloads folder</string>
 ```
 
 ## `permissions.askForFullDiskAccess()`
@@ -321,4 +353,13 @@ $ tccutil reset SystemPolicyAllFiles
 
 # Reset Contacts permissions
 $ tccutil reset AddressBook
+
+# Reset Desktop folder access
+$ tccutil reset SystemPolicyDesktopFolder <bundleID>
+
+# Reset Documents folder access
+$ tccutil reset SystemPolicyDocumentsFolder <bundleID>
+
+# Reset Downloads folder access
+$ tccutil reset SystemPolicyDownloadsFolder <bundleID>
 ```

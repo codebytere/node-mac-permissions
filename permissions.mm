@@ -13,6 +13,15 @@
 
 /***** HELPER FUNCTIONS *****/
 
+NSURL *URLForDirectory(NSSearchPathDirectory directory) {
+  NSFileManager *fm = [NSFileManager defaultManager];
+  return [fm URLForDirectory:directory
+                    inDomain:NSUserDomainMask
+           appropriateForURL:nil
+                      create:false
+                       error:nil];
+}
+
 // Dummy value to pass into function parameter for ThreadSafeFunction.
 Napi::Value NoOp(const Napi::CallbackInfo &info) {
   return info.Env().Undefined();
@@ -314,6 +323,34 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
   }
 
   return Napi::Value::From(env, auth_status);
+}
+
+// Request access to various protected folders on the system.
+Napi::Promise AskForFoldersAccess(const Napi::CallbackInfo &info) {
+  Napi::Env env = info.Env();
+  Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
+  const std::string folder_name = info[0].As<Napi::String>().Utf8Value();
+
+  NSString *path = @"";
+  if (folder_name == "documents") {
+    NSURL *url = URLForDirectory(NSDocumentDirectory);
+    path = [url path];
+  } else if (folder_name == "downloads") {
+    NSURL *url = URLForDirectory(NSDownloadsDirectory);
+    path = [url path];
+  } else if (folder_name == "desktop") {
+    NSURL *url = URLForDirectory(NSDesktopDirectory);
+    path = [url path];
+  }
+
+  NSError *error = nil;
+  NSFileManager *fm = [NSFileManager defaultManager];
+  NSArray<NSString *> *contents __unused =
+      [fm contentsOfDirectoryAtPath:path error:&error];
+
+  std::string status = (error) ? "denied" : "authorized";
+  deferred.Resolve(Napi::String::New(env, status));
+  return deferred.Promise();
 }
 
 // Request Contacts access.
@@ -627,6 +664,8 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
               Napi::Function::New(env, AskForCalendarAccess));
   exports.Set(Napi::String::New(env, "askForRemindersAccess"),
               Napi::Function::New(env, AskForRemindersAccess));
+  exports.Set(Napi::String::New(env, "askForFoldersAccess"),
+              Napi::Function::New(env, AskForFoldersAccess));
   exports.Set(Napi::String::New(env, "askForFullDiskAccess"),
               Napi::Function::New(env, AskForFullDiskAccess));
   exports.Set(Napi::String::New(env, "askForCameraAccess"),

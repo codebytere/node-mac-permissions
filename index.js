@@ -22,9 +22,20 @@ function getAuthStatus(type) {
   return permissions.getAuthStatus.call(this, type)
 }
 
+function askForFoldersAccess(folder) {
+  const validFolders = ['desktop', 'documents', 'downloads']
+
+  if (!validFolders.includes(folder)) {
+    throw new TypeError(`${folder} is not a valid protected folder`)
+  }
+
+  return permissions.askForFoldersAccess.call(this, folder)
+}
+
 module.exports = {
   askForCalendarAccess: permissions.askForCalendarAccess,
   askForContactsAccess: permissions.askForContactsAccess,
+  askForFoldersAccess,
   askForFullDiskAccess: permissions.askForFullDiskAccess,
   askForRemindersAccess: permissions.askForRemindersAccess,
   askForCameraAccess: permissions.askForCameraAccess,
