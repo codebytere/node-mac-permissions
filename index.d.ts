@@ -3,6 +3,7 @@
 
 export function askForCalendarAccess(): Promise<'authorized' | 'denied'>
 export function askForContactsAccess(): Promise<'authorized' | 'denied'>
+export function askForFoldersAccess(): Promise<'authorized' | 'denied'>
 export function askForFullDiskAccess(): undefined
 export function askForRemindersAccess(): Promise<'authorized' | 'denied'>
 export function askForCameraAccess(): Promise<'authorized' | 'denied' | 'restricted'>
