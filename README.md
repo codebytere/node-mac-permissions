@@ -57,7 +57,8 @@ const types = [
   'speech-recognition',
   'microphone',
   'accessibility',
-  'location'
+  'location',
+  'screen',
 ]
 
 for (const type of types) {
