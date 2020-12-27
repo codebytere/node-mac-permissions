@@ -183,41 +183,11 @@ std::string FDAAuthStatus() {
 std::string ScreenAuthStatus() {
   std::string auth_status = kNotDetermined;
   if (@available(macOS 10.15, *)) {
-    auth_status = kDenied;
-    NSRunningApplication *runningApplication =
-        NSRunningApplication.currentApplication;
-    NSNumber *ourProcessIdentifier =
-        [NSNumber numberWithInteger:runningApplication.processIdentifier];
-
-    CFArrayRef windowList =
-        CGWindowListCopyWindowInfo(kCGWindowListOptionAll, kCGNullWindowID);
-    int numberOfWindows = CFArrayGetCount(windowList);
-    for (int index = 0; index < numberOfWindows; index++) {
-      // Get information for each window.
-      NSDictionary *windowInfo =
-          (NSDictionary *)CFArrayGetValueAtIndex(windowList, index);
-      NSString *windowName = windowInfo[(id)kCGWindowName];
-      NSNumber *processIdentifier = windowInfo[(id)kCGWindowOwnerPID];
-
-      // Don't check windows owned by the current process.
-      if (![processIdentifier isEqual:ourProcessIdentifier]) {
-        // Get process information for each window.
-        pid_t pid = processIdentifier.intValue;
-        NSRunningApplication *windowRunningApplication =
-            [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
-        if (windowRunningApplication) {
-          NSString *windowExecutableName =
-              windowRunningApplication.executableURL.lastPathComponent;
-          if (windowName) {
-            if (![windowExecutableName isEqual:@"Dock"]) {
-              auth_status = kAuthorized;
-              break;
-            }
-          }
-        }
-      }
+    if (CGPreflightScreenCaptureAccess()) {
+      auth_status = kAuthorized;
+    } else {
+      auth_status = kDenied;
     }
-    CFRelease(windowList);
   } else {
     auth_status = kAuthorized;
   }
