@@ -14,6 +14,11 @@
 
 /***** HELPER FUNCTIONS *****/
 
+const std::string kAuthorized{"authorized"};
+const std::string kDenied{"denied"};
+const std::string kRestricted{"restricted"};
+const std::string kNotDetermined{"not determined"};
+
 NSURL *URLForDirectory(NSSearchPathDirectory directory) {
   NSFileManager *fm = [NSFileManager defaultManager];
   return [fm URLForDirectory:directory
@@ -98,64 +103,58 @@ bool HasOpenSystemPreferencesDialog() {
 // Returns a status indicating whether the user has authorized Contacts
 // access.
 std::string ContactAuthStatus() {
-  std::string auth_status = "not determined";
-
-  CNEntityType entity_type = CNEntityTypeContacts;
-  CNAuthorizationStatus status =
-      [CNContactStore authorizationStatusForEntityType:entity_type];
-
-  if (status == CNAuthorizationStatusAuthorized)
-    auth_status = "authorized";
-  else if (status == CNAuthorizationStatusDenied)
-    auth_status = "denied";
-  else if (status == CNAuthorizationStatusRestricted)
-    auth_status = "restricted";
-
-  return auth_status;
+  switch (
+      [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts]) {
+  case CNAuthorizationStatusAuthorized:
+    return kAuthorized;
+  case CNAuthorizationStatusDenied:
+    return kDenied;
+  case CNAuthorizationStatusRestricted:
+    return kRestricted;
+  default:
+    return kNotDetermined;
+  }
 }
 
 // Returns a status indicating whether the user has authorized Bluetooth access.
 std::string BluetoothAuthStatus() {
   if (@available(macOS 10.15.0, *)) {
-    std::string auth_status = "not determined";
-    CBManagerAuthorization status = [CBCentralManager authorization];
-
-    if (status == CBManagerAuthorizationAllowedAlways)
-      auth_status = "authorized";
-    else if (status == CBManagerAuthorizationDenied)
-      auth_status = "denied";
-    else if (status == CBManagerAuthorizationRestricted)
-      auth_status = "restricted";
-
-    return auth_status;
+    switch ([CBCentralManager authorization]) {
+    case CBManagerAuthorizationAllowedAlways:
+      return kAuthorized;
+    case CBManagerAuthorizationDenied:
+      return kDenied;
+    case CBManagerAuthorizationRestricted:
+      return kRestricted;
+    default:
+      return kNotDetermined;
+    }
   }
 
-  return "authorized";
+  return kAuthorized;
 }
 
 // Returns a status indicating whether the user has authorized
 // Calendar/Reminders access.
 std::string EventAuthStatus(const std::string &type) {
-  std::string auth_status = "not determined";
-
   EKEntityType entity_type =
       (type == "calendar") ? EKEntityTypeEvent : EKEntityTypeReminder;
-  EKAuthorizationStatus status =
-      [EKEventStore authorizationStatusForEntityType:entity_type];
 
-  if (status == EKAuthorizationStatusAuthorized)
-    auth_status = "authorized";
-  else if (status == EKAuthorizationStatusDenied)
-    auth_status = "denied";
-  else if (status == EKAuthorizationStatusRestricted)
-    auth_status = "restricted";
-
-  return auth_status;
+  switch ([EKEventStore authorizationStatusForEntityType:entity_type]) {
+  case EKAuthorizationStatusAuthorized:
+    return kAuthorized;
+  case EKAuthorizationStatusDenied:
+    return kDenied;
+  case EKAuthorizationStatusRestricted:
+    return kRestricted;
+  default:
+    return kNotDetermined;
+  }
 }
 
 // Returns a status indicating whether the user has Full Disk Access.
 std::string FDAAuthStatus() {
-  std::string auth_status = "not determined";
+  std::string auth_status = kNotDetermined;
   NSString *path;
   NSString *home_folder = GetUserHomeFolderPath();
 
@@ -171,9 +170,9 @@ std::string FDAAuthStatus() {
   BOOL file_exists = [manager fileExistsAtPath:path];
   NSData *data = [NSData dataWithContentsOfFile:path];
   if (data == nil && file_exists) {
-    auth_status = "denied";
+    auth_status = kDenied;
   } else if (file_exists) {
-    auth_status = "authorized";
+    auth_status = kAuthorized;
   }
 
   return auth_status;
@@ -182,9 +181,9 @@ std::string FDAAuthStatus() {
 // Returns a status indicating whether the user has authorized
 // Screen Capture access.
 std::string ScreenAuthStatus() {
-  std::string auth_status = "not determined";
+  std::string auth_status = kNotDetermined;
   if (@available(macOS 10.15, *)) {
-    auth_status = "denied";
+    auth_status = kDenied;
     NSRunningApplication *runningApplication =
         NSRunningApplication.currentApplication;
     NSNumber *ourProcessIdentifier =
@@ -211,7 +210,7 @@ std::string ScreenAuthStatus() {
               windowRunningApplication.executableURL.lastPathComponent;
           if (windowName) {
             if (![windowExecutableName isEqual:@"Dock"]) {
-              auth_status = "authorized";
+              auth_status = kAuthorized;
               break;
             }
           }
@@ -220,7 +219,7 @@ std::string ScreenAuthStatus() {
     }
     CFRelease(windowList);
   } else {
-    auth_status = "authorized";
+    auth_status = kAuthorized;
   }
 
   return auth_status;
@@ -229,85 +228,76 @@ std::string ScreenAuthStatus() {
 // Returns a status indicating whether the user has authorized
 // Camera/Microphone access.
 std::string MediaAuthStatus(const std::string &type) {
-  std::string auth_status = "not determined";
-
   if (@available(macOS 10.14, *)) {
     AVMediaType media_type =
         (type == "microphone") ? AVMediaTypeAudio : AVMediaTypeVideo;
-    AVAuthorizationStatus status =
-        [AVCaptureDevice authorizationStatusForMediaType:media_type];
 
-    if (status == AVAuthorizationStatusAuthorized)
-      auth_status = "authorized";
-    else if (status == AVAuthorizationStatusDenied)
-      auth_status = "denied";
-    else if (status == AVAuthorizationStatusRestricted)
-      auth_status = "restricted";
-  } else {
-    auth_status = "authorized";
+    switch ([AVCaptureDevice authorizationStatusForMediaType:media_type]) {
+    case AVAuthorizationStatusAuthorized:
+      return kAuthorized;
+    case AVAuthorizationStatusDenied:
+      return kDenied;
+    case AVAuthorizationStatusRestricted:
+      return kRestricted;
+    default:
+      return kNotDetermined;
+    }
   }
 
-  return auth_status;
+  return kAuthorized;
 }
 
 // Returns a status indicating whether the user has authorized speech
 // recognition access.
 std::string SpeechRecognitionAuthStatus() {
-  std::string auth_status = "not determined";
-
   if (@available(macOS 10.15, *)) {
-    SFSpeechRecognizerAuthorizationStatus status =
-        [SFSpeechRecognizer authorizationStatus];
-
-    if (status == SFSpeechRecognizerAuthorizationStatusAuthorized)
-      auth_status = "authorized";
-    else if (status == SFSpeechRecognizerAuthorizationStatusDenied)
-      auth_status = "denied";
-    else if (status == SFSpeechRecognizerAuthorizationStatusRestricted)
-      auth_status = "restricted";
-  } else {
-    auth_status = "authorized";
+    switch ([SFSpeechRecognizer authorizationStatus]) {
+    case SFSpeechRecognizerAuthorizationStatusAuthorized:
+      return kAuthorized;
+    case SFSpeechRecognizerAuthorizationStatusDenied:
+      return kDenied;
+    case SFSpeechRecognizerAuthorizationStatusRestricted:
+      return kRestricted;
+    default:
+      return kNotDetermined;
+    }
   }
 
-  return auth_status;
+  return kAuthorized;
 }
 
 // Returns a status indicating whether the user has authorized location
 // access.
 std::string LocationAuthStatus() {
-  std::string auth_status = "not determined";
-
-  CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-
-  if (status == kCLAuthorizationStatusAuthorizedAlways)
-    auth_status = "authorized";
-  else if (status == kCLAuthorizationStatusDenied)
-    auth_status = "denied";
-  else if (status == kCLAuthorizationStatusNotDetermined)
-    auth_status = "restricted";
-
-  return auth_status;
+  switch ([CLLocationManager authorizationStatus]) {
+  case kCLAuthorizationStatusAuthorizedAlways:
+    return kAuthorized;
+  case kCLAuthorizationStatusDenied:
+    return kDenied;
+  case kCLAuthorizationStatusRestricted:
+    return kDenied;
+  default:
+    return kDenied;
+  }
 }
 
 // Returns a status indicating whether or not the user has authorized Photos
 // access.
 std::string PhotosAuthStatus() {
-  std::string auth_status = "not determined";
-
   if (@available(macOS 10.13, *)) {
-    PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
-
-    if (status == PHAuthorizationStatusAuthorized)
-      auth_status = "authorized";
-    else if (status == PHAuthorizationStatusDenied)
-      auth_status = "denied";
-    else if (status == PHAuthorizationStatusRestricted)
-      auth_status = "restricted";
-  } else {
-    auth_status = "authorized";
+    switch ([PHPhotoLibrary authorizationStatus]) {
+    case PHAuthorizationStatusAuthorized:
+      return kAuthorized;
+    case PHAuthorizationStatusDenied:
+      return kDenied;
+    case PHAuthorizationStatusRestricted:
+      return kRestricted;
+    default:
+      return kNotDetermined;
+    }
   }
 
-  return auth_status;
+  return kAuthorized;
 }
 
 /***** EXPORTED FUNCTIONS *****/
@@ -335,7 +325,7 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
   } else if (type == "camera") {
     auth_status = MediaAuthStatus("camera");
   } else if (type == "accessibility") {
-    auth_status = AXIsProcessTrusted() ? "authorized" : "denied";
+    auth_status = AXIsProcessTrusted() ? kAuthorized : kDenied;
   } else if (type == "location") {
     auth_status = LocationAuthStatus();
   } else if (type == "screen") {
@@ -370,7 +360,7 @@ Napi::Promise AskForFoldersAccess(const Napi::CallbackInfo &info) {
   NSArray<NSString *> *contents __unused =
       [fm contentsOfDirectoryAtPath:path error:&error];
 
-  std::string status = (error) ? "denied" : "authorized";
+  std::string status = (error) ? kDenied : kAuthorized;
   deferred.Resolve(Napi::String::New(env, status));
   return deferred.Promise();
 }
@@ -397,7 +387,7 @@ Napi::Promise AskForContactsAccess(const Napi::CallbackInfo &info) {
                     }];
   } else {
     ts_fn.Release();
-    deferred.Resolve(Napi::String::New(env, "authorized"));
+    deferred.Resolve(Napi::String::New(env, kAuthorized));
   }
 
   return deferred.Promise();
@@ -468,7 +458,7 @@ Napi::Promise AskForCameraAccess(const Napi::CallbackInfo &info) {
   if (@available(macOS 10.14, *)) {
     std::string auth_status = MediaAuthStatus("camera");
 
-    if (auth_status == "not determined") {
+    if (auth_status == kNotDetermined) {
       __block Napi::ThreadSafeFunction tsfn = ts_fn;
       [AVCaptureDevice
           requestAccessForMediaType:AVMediaTypeVideo
@@ -482,7 +472,7 @@ Napi::Promise AskForCameraAccess(const Napi::CallbackInfo &info) {
                                       callback);
                     tsfn.Release();
                   }];
-    } else if (auth_status == "denied") {
+    } else if (auth_status == kDenied) {
       NSWorkspace *workspace = [[NSWorkspace alloc] init];
       NSString *pref_string = @"x-apple.systempreferences:com.apple.preference."
                               @"security?Privacy_Camera";
@@ -490,14 +480,14 @@ Napi::Promise AskForCameraAccess(const Napi::CallbackInfo &info) {
       [workspace openURL:[NSURL URLWithString:pref_string]];
 
       ts_fn.Release();
-      deferred.Resolve(Napi::String::New(env, "denied"));
+      deferred.Resolve(Napi::String::New(env, kDenied));
     } else {
       ts_fn.Release();
       deferred.Resolve(Napi::String::New(env, auth_status));
     }
   } else {
     ts_fn.Release();
-    deferred.Resolve(Napi::String::New(env, "authorized"));
+    deferred.Resolve(Napi::String::New(env, kAuthorized));
   }
 
   return deferred.Promise();
@@ -513,7 +503,7 @@ Napi::Promise AskForSpeechRecognitionAccess(const Napi::CallbackInfo &info) {
   if (@available(macOS 10.15, *)) {
     std::string auth_status = SpeechRecognitionAuthStatus();
 
-    if (auth_status == "not determined") {
+    if (auth_status == kNotDetermined) {
       __block Napi::ThreadSafeFunction tsfn = ts_fn;
       [SFSpeechRecognizer
           requestAuthorization:^(SFSpeechRecognizerAuthorizationStatus status) {
@@ -528,7 +518,7 @@ Napi::Promise AskForSpeechRecognitionAccess(const Napi::CallbackInfo &info) {
                 callback);
             tsfn.Release();
           }];
-    } else if (auth_status == "denied") {
+    } else if (auth_status == kDenied) {
       NSWorkspace *workspace = [[NSWorkspace alloc] init];
       NSString *pref_string = @"x-apple.systempreferences:com.apple.preference."
                               @"security?Privacy_SpeechRecognition";
@@ -536,14 +526,14 @@ Napi::Promise AskForSpeechRecognitionAccess(const Napi::CallbackInfo &info) {
       [workspace openURL:[NSURL URLWithString:pref_string]];
 
       ts_fn.Release();
-      deferred.Resolve(Napi::String::New(env, "denied"));
+      deferred.Resolve(Napi::String::New(env, kDenied));
     } else {
       ts_fn.Release();
       deferred.Resolve(Napi::String::New(env, auth_status));
     }
   } else {
     ts_fn.Release();
-    deferred.Resolve(Napi::String::New(env, "authorized"));
+    deferred.Resolve(Napi::String::New(env, kAuthorized));
   }
 
   return deferred.Promise();
@@ -559,7 +549,7 @@ Napi::Promise AskForPhotosAccess(const Napi::CallbackInfo &info) {
   if (@available(macOS 10.13, *)) {
     std::string auth_status = PhotosAuthStatus();
 
-    if (auth_status == "not determined") {
+    if (auth_status == kNotDetermined) {
       __block Napi::ThreadSafeFunction tsfn = ts_fn;
       [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
         auto callback = [=](Napi::Env env, Napi::Function js_cb,
@@ -571,7 +561,7 @@ Napi::Promise AskForPhotosAccess(const Napi::CallbackInfo &info) {
             callback);
         tsfn.Release();
       }];
-    } else if (auth_status == "denied") {
+    } else if (auth_status == kDenied) {
       NSWorkspace *workspace = [[NSWorkspace alloc] init];
       NSString *pref_string = @"x-apple.systempreferences:com.apple.preference."
                               @"security?Privacy_Photos";
@@ -579,14 +569,14 @@ Napi::Promise AskForPhotosAccess(const Napi::CallbackInfo &info) {
       [workspace openURL:[NSURL URLWithString:pref_string]];
 
       ts_fn.Release();
-      deferred.Resolve(Napi::String::New(env, "denied"));
+      deferred.Resolve(Napi::String::New(env, kDenied));
     } else {
       ts_fn.Release();
       deferred.Resolve(Napi::String::New(env, auth_status));
     }
   } else {
     ts_fn.Release();
-    deferred.Resolve(Napi::String::New(env, "authorized"));
+    deferred.Resolve(Napi::String::New(env, kAuthorized));
   }
 
   return deferred.Promise();
@@ -602,7 +592,7 @@ Napi::Promise AskForMicrophoneAccess(const Napi::CallbackInfo &info) {
   if (@available(macOS 10.14, *)) {
     std::string auth_status = MediaAuthStatus("microphone");
 
-    if (auth_status == "not determined") {
+    if (auth_status == kNotDetermined) {
       __block Napi::ThreadSafeFunction tsfn = ts_fn;
       [AVCaptureDevice
           requestAccessForMediaType:AVMediaTypeAudio
@@ -616,7 +606,7 @@ Napi::Promise AskForMicrophoneAccess(const Napi::CallbackInfo &info) {
                                       callback);
                     tsfn.Release();
                   }];
-    } else if (auth_status == "denied") {
+    } else if (auth_status == kDenied) {
       NSWorkspace *workspace = [[NSWorkspace alloc] init];
       NSString *pref_string = @"x-apple.systempreferences:com.apple.preference."
                               @"security?Privacy_Microphone";
@@ -624,14 +614,14 @@ Napi::Promise AskForMicrophoneAccess(const Napi::CallbackInfo &info) {
       [workspace openURL:[NSURL URLWithString:pref_string]];
 
       ts_fn.Release();
-      deferred.Resolve(Napi::String::New(env, "denied"));
+      deferred.Resolve(Napi::String::New(env, kDenied));
     } else {
       ts_fn.Release();
       deferred.Resolve(Napi::String::New(env, auth_status));
     }
   } else {
     ts_fn.Release();
-    deferred.Resolve(Napi::String::New(env, "authorized"));
+    deferred.Resolve(Napi::String::New(env, kAuthorized));
   }
 
   return deferred.Promise();
