@@ -26,7 +26,7 @@ This native Node.js module allows you to manage an app's access to:
 
 ## `permissions.getAuthStatus(type)`
 
-* `type` String - The type of system component to which you are requesting access. Can be one of `accessibility`, `calendar`, `camera`, `contacts`, `full-disk-access`, `speech-recognition`, `location`, `microphone`, `photos`, `screen`, or `reminders`.
+* `type` String - The type of system component to which you are requesting access. Can be one of `accessibility`, `bluetooth`, `calendar`, `camera`, `contacts`, `full-disk-access`, `speech-recognition`, `location`, `microphone`, `photos`, `screen`, or `reminders`.
 
 Returns `String` - Can be one of `not determined`, `denied`, `authorized`, or `restricted`.
 
@@ -44,6 +44,7 @@ Return Value Descriptions:
   * Access to `screen` will always return a status of `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
   * Access to `photos` will always return a status of `authorized` prior to macOS 10.13, as the underlying API was not introduced until that version.
   * Access to `speech-recognition` will always return a status of `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
+  * Access to `bluetooth` will always return a status of `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
 
 Example:
 ```js
@@ -57,7 +58,9 @@ const types = [
   'speech-recognition',
   'microphone',
   'accessibility',
-  'location'
+  'location',
+  'screen',
+  'bluetooth'
 ]
 
 for (const type of types) {

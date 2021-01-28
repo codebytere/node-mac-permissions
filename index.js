@@ -13,6 +13,7 @@ function getAuthStatus(type) {
     'accessibility',
     'location',
     'screen',
+    'bluetooth',
   ]
 
   if (!validTypes.includes(type)) {

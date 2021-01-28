@@ -4,6 +4,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <AppKit/AppKit.h>
 #import <Contacts/Contacts.h>
+#import <CoreBluetooth/CoreBluetooth.h>
 #import <CoreLocation/CoreLocation.h>
 #import <EventKit/EventKit.h>
 #import <Foundation/Foundation.h>
@@ -111,6 +112,25 @@ std::string ContactAuthStatus() {
     auth_status = "restricted";
 
   return auth_status;
+}
+
+// Returns a status indicating whether the user has authorized Bluetooth access.
+std::string BluetoothAuthStatus() {
+  if (@available(macOS 10.15.0, *)) {
+    std::string auth_status = "not determined";
+    CBManagerAuthorization status = [CBCentralManager authorization];
+
+    if (status == CBManagerAuthorizationAllowedAlways)
+      auth_status = "authorized";
+    else if (status == CBManagerAuthorizationDenied)
+      auth_status = "denied";
+    else if (status == CBManagerAuthorizationRestricted)
+      auth_status = "restricted";
+
+    return auth_status;
+  }
+
+  return "authorized";
 }
 
 // Returns a status indicating whether the user has authorized
@@ -320,6 +340,8 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
     auth_status = LocationAuthStatus();
   } else if (type == "screen") {
     auth_status = ScreenAuthStatus();
+  } else if (type == "bluetooth") {
+    auth_status = BluetoothAuthStatus();
   }
 
   return Napi::Value::From(env, auth_status);
