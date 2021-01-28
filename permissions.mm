@@ -118,7 +118,7 @@ std::string ContactAuthStatus() {
 
 // Returns a status indicating whether the user has authorized Bluetooth access.
 std::string BluetoothAuthStatus() {
-  if (@available(macOS 10.15.0, *)) {
+  if (@available(macOS 10.15, *)) {
     switch ([CBCentralManager authorization]) {
     case CBManagerAuthorizationAllowedAlways:
       return kAuthorized;
@@ -270,6 +270,7 @@ std::string SpeechRecognitionAuthStatus() {
 // access.
 std::string LocationAuthStatus() {
   switch ([CLLocationManager authorizationStatus]) {
+  case kCLAuthorizationStatusAuthorized:
   case kCLAuthorizationStatusAuthorizedAlways:
     return kAuthorized;
   case kCLAuthorizationStatusDenied:
