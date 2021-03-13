@@ -21,3 +21,5 @@ jobs:
       run: |
         npm install
         npm test
+      env:
+        DEVELOPER_DIR: /Applications/Xcode_12.4.app/Contents/Developer
