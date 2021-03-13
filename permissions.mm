@@ -271,7 +271,6 @@ std::string SpeechRecognitionAuthStatus() {
 std::string LocationAuthStatus() {
   switch ([CLLocationManager authorizationStatus]) {
   case kCLAuthorizationStatusAuthorized:
-  case kCLAuthorizationStatusAuthorizedAlways:
     return kAuthorized;
   case kCLAuthorizationStatusDenied:
     return kDenied;
