@@ -22,6 +22,8 @@ This native Node.js module allows you to manage an app's access to:
 * Speech Recognition
 * Protected Folders
 
+Note: Always will return `undefined` when imported on a non-Mac platform
+
 ## API
 
 ## `permissions.getAuthStatus(type)`
