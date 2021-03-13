@@ -10,14 +10,17 @@ on:
 
 jobs:
   build:
-    runs-on: macOS-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
     steps:
     - uses: actions/checkout@master
     - name: Use Node.js 14.x
       uses: actions/setup-node@v1
       with:
         version: 14.x
-    - name: npm install, build, and test
+    - name: npm install, build, and test (${{ matrix.os }})
       run: |
         npm install
         npm test
