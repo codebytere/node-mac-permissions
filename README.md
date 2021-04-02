@@ -24,6 +24,11 @@ This native Node.js module allows you to manage an app's access to:
 
 Note: Always will return `undefined` when imported on a non-Mac platform
 
+If you need to ask for permissions, your app must be allowed to ask for permission :
+
+* for a Nodejs script/app, you can use a terminal app such as [iTerm2](https://iterm2.com/) (it won't work on macOS Terminal.app)
+* for an Electron app (or equivalent), you'll have to update `Info.plist` to include a usage description key like `NSMicrophoneUsageDescription` for microphone permission.
+
 ## API
 
 ## `permissions.getAuthStatus(type)`
