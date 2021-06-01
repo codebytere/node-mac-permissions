@@ -7,8 +7,8 @@
   "scripts": {
     "build": "node-gyp rebuild",
     "clean": "node-gyp clean",
-    "lint": "prettier --check '**/*.js'",
-    "format": "clang-format -i permissions.mm && prettier --write '**/*.js'",
+    "lint": "prettier --check index.js test/module.spec.js",
+    "format": "clang-format -i permissions.mm && prettier --write index.js test/module.spec.js",
     "test": "./node_modules/.bin/mocha --reporter spec"
   },
   "repository": {
