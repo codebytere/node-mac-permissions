@@ -1,4 +1,21 @@
-const permissions = require('bindings')('permissions.node')
+const nonMacResponse = () => undefined
+const stub = {
+  askForCalendarAccess: nonMacResponse,
+  askForContactsAccess: nonMacResponse,
+  askForFoldersAccess: nonMacResponse,
+  askForFullDiskAccess: nonMacResponse,
+  askForRemindersAccess: nonMacResponse,
+  askForCameraAccess: nonMacResponse,
+  askForMicrophoneAccess: nonMacResponse,
+  askForPhotosAccess: nonMacResponse,
+  askForSpeechRecognitionAccess: nonMacResponse,
+  askForScreenCaptureAccess: nonMacResponse,
+  askForAccessibilityAccess: nonMacResponse,
+  getAuthStatus: nonMacResponse,
+}
+
+const { platform } = require('os')
+const permissions = platform() === 'darwin' ? require('bindings')('permissions.node') : stub
 
 function getAuthStatus(type) {
   const validTypes = [
@@ -34,16 +51,7 @@ function askForFoldersAccess(folder) {
 }
 
 module.exports = {
-  askForCalendarAccess: permissions.askForCalendarAccess,
-  askForContactsAccess: permissions.askForContactsAccess,
+  ...permissions,
   askForFoldersAccess,
-  askForFullDiskAccess: permissions.askForFullDiskAccess,
-  askForRemindersAccess: permissions.askForRemindersAccess,
-  askForCameraAccess: permissions.askForCameraAccess,
-  askForMicrophoneAccess: permissions.askForMicrophoneAccess,
-  askForPhotosAccess: permissions.askForPhotosAccess,
-  askForSpeechRecognitionAccess: permissions.askForSpeechRecognitionAccess,
-  askForScreenCaptureAccess: permissions.askForScreenCaptureAccess,
-  askForAccessibilityAccess: permissions.askForAccessibilityAccess,
   getAuthStatus,
 }
