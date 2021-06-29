@@ -10,6 +10,7 @@
 #import <Foundation/Foundation.h>
 #import <Photos/Photos.h>
 #import <Speech/Speech.h>
+#import <Storekit/Storekit.h>
 #import <pwd.h>
 
 /***** HELPER FUNCTIONS *****/
@@ -125,6 +126,25 @@ std::string BluetoothAuthStatus() {
     case CBManagerAuthorizationDenied:
       return kDenied;
     case CBManagerAuthorizationRestricted:
+      return kRestricted;
+    default:
+      return kNotDetermined;
+    }
+  }
+
+  return kAuthorized;
+}
+
+// Returns a status indicating whether the user has authorized Apple Music
+// Library access.
+std::string MusicLibraryAuthStatus() {
+  if (@available(macOS 10.16, *)) {
+    switch ([SKCloudServiceController authorizationStatus]) {
+    case SKCloudServiceAuthorizationStatusAuthorized:
+      return kAuthorized;
+    case SKCloudServiceAuthorizationStatusDenied:
+      return kDenied;
+    case SKCloudServiceAuthorizationStatusRestricted:
       return kRestricted;
     default:
       return kNotDetermined;
@@ -332,6 +352,8 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
     auth_status = ScreenAuthStatus();
   } else if (type == "bluetooth") {
     auth_status = BluetoothAuthStatus();
+  } else if (type == "music-library") {
+    auth_status = MusicLibraryAuthStatus();
   }
 
   return Napi::Value::From(env, auth_status);

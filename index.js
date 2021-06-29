@@ -10,6 +10,7 @@ function getAuthStatus(type) {
     'photos',
     'speech-recognition',
     'microphone',
+    'music-library',
     'accessibility',
     'location',
     'screen',

@@ -1,8 +1,5 @@
 const { expect } = require('chai')
-const {
-  askForFoldersAccess,
-  getAuthStatus,
-} = require('../index')
+const { askForFoldersAccess, getAuthStatus } = require('../index')
 
 describe('node-mac-permissions', () => {
   describe('getAuthStatus()', () => {
@@ -22,9 +19,10 @@ describe('node-mac-permissions', () => {
         'photos',
         'speech-recognition',
         'microphone',
+        'music-library',
         'accessibility',
         'location',
-        'screen'
+        'screen',
       ]
 
       const statuses = ['not determined', 'denied', 'authorized', 'restricted']

@@ -50,22 +50,24 @@ Return Value Descriptions:
   * Access to `photos` will always return a status of `authorized` prior to macOS 10.13, as the underlying API was not introduced until that version.
   * Access to `speech-recognition` will always return a status of `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
   * Access to `bluetooth` will always return a status of `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
+  * Access to `music-library` will always return a status of `authorized` prior to macOS 11.0, as the underlying API was not introduced until that version.
 
 Example:
 ```js
 const types = [
-  'contacts',
+  'accessibility',
+  'bluetooth',
   'calendar',
+  'camera',
+  'contacts',
   'reminders',
   'full-disk-access',
-  'camera',
-  'photos',
-  'speech-recognition',
-  'microphone',
-  'accessibility',
   'location',
+  'microphone',
+  'music-library',
+  'photos',
   'screen',
-  'bluetooth'
+  'speech-recognition'
 ]
 
 for (const type of types) {
