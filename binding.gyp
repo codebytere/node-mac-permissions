@@ -19,8 +19,20 @@
     'defines': [ 'NAPI_DISABLE_CPP_EXCEPTIONS' ],
     "xcode_settings": {
       "MACOSX_DEPLOYMENT_TARGET": "10.10",
+      "SYSTEM_VERSION_COMPAT": 1,
       "OTHER_CPLUSPLUSFLAGS": ["-std=c++14", "-stdlib=libc++"],
-      "OTHER_LDFLAGS": ["-framework CoreBluetooth -framework CoreFoundation -framework CoreLocation -framework AppKit -framework Speech -framework Contacts -framework Photos -framework EventKit -framework AVFoundation"]
+      "OTHER_LDFLAGS": [
+        "-framework AppKit",
+        "-framework AVFoundation",
+        "-framework CoreBluetooth",
+        "-framework CoreFoundation",
+        "-framework CoreLocation",
+        "-framework Contacts",
+        "-framework EventKit",
+        "-framework Photos",
+        "-framework Speech",
+        "-framework Storekit"
+      ]
     }
   }]
 }
