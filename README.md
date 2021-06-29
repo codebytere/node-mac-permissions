@@ -256,6 +256,19 @@ askForMicrophoneAccess().then(status => {
 })
 ```
 
+## `permissions.askForMusicLibraryAccess()`
+
+Returns `Promise<String>` - Whether or not the request succeeded or failed; can be `authorized` or `denied`.
+
+Example:
+```js
+const { askForMusicLibraryAccess } = require('node-mac-permissions')
+
+askForMusicLibraryAccess().then(status => {
+  console.log(`Access to Apple Music Library is ${status}`)
+})
+```
+
 ## `permissions.askForPhotosAccess()`
 
 Returns `Promise<String>` - Current permission status; can be `authorized`, `denied`, or `restricted`.

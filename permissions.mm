@@ -649,6 +649,51 @@ Napi::Promise AskForMicrophoneAccess(const Napi::CallbackInfo &info) {
   return deferred.Promise();
 }
 
+// Request Apple Music Library access.
+Napi::Promise AskForMusicLibraryAccess(const Napi::CallbackInfo &info) {
+  Napi::Env env = info.Env();
+  Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
+  Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(
+      env, Napi::Function::New(env, NoOp), "musicLibraryCallback", 0, 1);
+
+  if (@available(macOS 10.16, *)) {
+    std::string auth_status = MusicLibraryAuthStatus();
+
+    if (auth_status == kNotDetermined) {
+      __block Napi::ThreadSafeFunction tsfn = ts_fn;
+      [SKCloudServiceController
+          requestAuthorization:^(SKCloudServiceAuthorizationStatus status) {
+            auto callback = [=](Napi::Env env, Napi::Function js_cb,
+                                const char *granted) {
+              deferred.Resolve(Napi::String::New(env, granted));
+            };
+
+            bool granted =
+                status == SKCloudServiceAuthorizationStatusAuthorized;
+            tsfn.BlockingCall(granted ? "authorized" : "denied", callback);
+            tsfn.Release();
+          }];
+    } else if (auth_status == kDenied) {
+      NSWorkspace *workspace = [[NSWorkspace alloc] init];
+      NSString *pref_string = @"x-apple.systempreferences:com.apple.preference."
+                              @"security?Privacy_Media";
+
+      [workspace openURL:[NSURL URLWithString:pref_string]];
+
+      ts_fn.Release();
+      deferred.Resolve(Napi::String::New(env, kDenied));
+    } else {
+      ts_fn.Release();
+      deferred.Resolve(Napi::String::New(env, auth_status));
+    }
+  } else {
+    ts_fn.Release();
+    deferred.Resolve(Napi::String::New(env, kAuthorized));
+  }
+
+  return deferred.Promise();
+}
+
 // Request Screen Capture Access.
 void AskForScreenCaptureAccess(const Napi::CallbackInfo &info) {
   if (@available(macOS 10.15, *)) {
@@ -706,6 +751,8 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
               Napi::Function::New(env, AskForCameraAccess));
   exports.Set(Napi::String::New(env, "askForMicrophoneAccess"),
               Napi::Function::New(env, AskForMicrophoneAccess));
+  exports.Set(Napi::String::New(env, "askForMusicLibraryAccess"),
+              Napi::Function::New(env, AskForMusicLibraryAccess));
   exports.Set(Napi::String::New(env, "askForSpeechRecognitionAccess"),
               Napi::Function::New(env, AskForSpeechRecognitionAccess));
   exports.Set(Napi::String::New(env, "askForPhotosAccess"),
