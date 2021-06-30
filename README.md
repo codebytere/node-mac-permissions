@@ -260,6 +260,21 @@ askForMicrophoneAccess().then(status => {
 
 Returns `Promise<String>` - Whether or not the request succeeded or failed; can be `authorized` or `denied`.
 
+* `not determined` - The Music Library access authorization will prompt the user to authorize or deny. The Promise is resolved after the user selection with either `authorized` or `denied`.
+* `denied` - The `Security & Privacy` System Preferences window is opened with the Music Library privacy key highlighted. On open of the `Security & Privacy` window, the Promise is resolved as `denied`.
+* `restricted` - The Promise is resolved as `restricted`.
+
+Your app must provide an explanation for its use of the music library using the `NSAppleMusicUsageDescription` `Info.plist` key.
+
+```
+<key>NSAppleMusicUsageDescription</key>
+<string>Your reason for wanting to access the user’s media library.</string>
+```
+
+**Note:**
+
+- `status` will be resolved back as `authorized` prior to macOS 11.0, as the underlying API was not introduced until that version.
+
 Example:
 ```js
 const { askForMusicLibraryAccess } = require('node-mac-permissions')
