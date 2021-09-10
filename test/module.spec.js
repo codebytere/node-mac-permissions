@@ -24,6 +24,7 @@ describe('node-mac-permissions', () => {
         'photos',
         'speech-recognition',
         'microphone',
+        'music-library',
         'accessibility',
         'location',
         'screen',
@@ -58,6 +59,7 @@ describe('node-mac-permissions', () => {
         'askForSpeechRecognitionAccess',
         'askForScreenCaptureAccess',
         'askForAccessibilityAccess',
+        'askForMusicLibraryAccess'
       ]
 
       for (const func of asyncModuleExports) {

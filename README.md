@@ -52,22 +52,24 @@ Return Value Descriptions:
   * Access to `photos` will always return a status of `authorized` prior to macOS 10.13, as the underlying API was not introduced until that version.
   * Access to `speech-recognition` will always return a status of `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
   * Access to `bluetooth` will always return a status of `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
+  * Access to `music-library` will always return a status of `authorized` prior to macOS 11.0, as the underlying API was not introduced until that version.
 
 Example:
 ```js
 const types = [
-  'contacts',
+  'accessibility',
+  'bluetooth',
   'calendar',
+  'camera',
+  'contacts',
   'reminders',
   'full-disk-access',
-  'camera',
-  'photos',
-  'speech-recognition',
-  'microphone',
-  'accessibility',
   'location',
+  'microphone',
+  'music-library',
+  'photos',
   'screen',
-  'bluetooth'
+  'speech-recognition'
 ]
 
 for (const type of types) {
@@ -253,6 +255,34 @@ const { askForMicrophoneAccess } = require('node-mac-permissions')
 
 askForMicrophoneAccess().then(status => {
   console.log(`Access to Microphone is ${status}`)
+})
+```
+
+## `permissions.askForMusicLibraryAccess()`
+
+Returns `Promise<String>` - Whether or not the request succeeded or failed; can be `authorized` or `denied`.
+
+* `not determined` - The Music Library access authorization will prompt the user to authorize or deny. The Promise is resolved after the user selection with either `authorized` or `denied`.
+* `denied` - The `Security & Privacy` System Preferences window is opened with the Music Library privacy key highlighted. On open of the `Security & Privacy` window, the Promise is resolved as `denied`.
+* `restricted` - The Promise is resolved as `restricted`.
+
+Your app must provide an explanation for its use of the music library using the `NSAppleMusicUsageDescription` `Info.plist` key.
+
+```
+<key>NSAppleMusicUsageDescription</key>
+<string>Your reason for wanting to access the user’s media library.</string>
+```
+
+**Note:**
+
+- `status` will be resolved back as `authorized` prior to macOS 11.0, as the underlying API was not introduced until that version.
+
+Example:
+```js
+const { askForMusicLibraryAccess } = require('node-mac-permissions')
+
+askForMusicLibraryAccess().then(status => {
+  console.log(`Access to Apple Music Library is ${status}`)
 })
 ```
 
