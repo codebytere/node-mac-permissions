@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: macOS-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@master
     - name: Use Node.js 14.x
