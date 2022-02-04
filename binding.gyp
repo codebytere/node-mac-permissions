@@ -27,6 +27,7 @@
         "-framework CoreBluetooth",
         "-framework CoreFoundation",
         "-framework CoreLocation",
+        "-framework CoreGraphics",
         "-framework Contacts",
         "-framework EventKit",
         "-framework Photos",

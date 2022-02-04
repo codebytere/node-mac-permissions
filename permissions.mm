@@ -6,6 +6,7 @@
 #import <Contacts/Contacts.h>
 #import <CoreBluetooth/CoreBluetooth.h>
 #import <CoreLocation/CoreLocation.h>
+#import <CoreGraphics/CoreGraphics.h>
 #import <EventKit/EventKit.h>
 #import <Foundation/Foundation.h>
 #import <Photos/Photos.h>
@@ -202,7 +203,13 @@ std::string FDAAuthStatus() {
 // Screen Capture access.
 std::string ScreenAuthStatus() {
   std::string auth_status = kNotDetermined;
-  if (@available(macOS 10.15, *)) {
+  if (@available(macOS 11, *)) {
+    if (CGPreflightScreenCaptureAccess()) {
+      auth_status = kAuthorized;
+    } else {
+      auth_status = kDenied;
+    }
+  } else if (@available(macOS 10.15, *)) {
     auth_status = kDenied;
     NSRunningApplication *runningApplication =
         NSRunningApplication.currentApplication;
@@ -696,7 +703,9 @@ Napi::Promise AskForMusicLibraryAccess(const Napi::CallbackInfo &info) {
 
 // Request Screen Capture Access.
 void AskForScreenCaptureAccess(const Napi::CallbackInfo &info) {
-  if (@available(macOS 10.15, *)) {
+  if (@available(macOS 11, *)) {
+    CGRequestScreenCaptureAccess();
+  } else if (@available(macOS 10.15, *)) {
     // Tries to create a capture stream. This is necessary to add the app back
     // to the list in sysprefs if the user previously denied.
     // https://stackoverflow.com/questions/56597221/detecting-screen-recording-settings-on-macos-catalina

@@ -21,3 +21,5 @@ jobs:
       run: |
         npm install
         npm test
+      env:
+        SDKROOT: /Library/Developer/CommandLineTools/SDKs/MacOSX11.1.sdk
