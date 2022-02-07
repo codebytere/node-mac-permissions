@@ -5,8 +5,8 @@
 #import <AppKit/AppKit.h>
 #import <Contacts/Contacts.h>
 #import <CoreBluetooth/CoreBluetooth.h>
-#import <CoreLocation/CoreLocation.h>
 #import <CoreGraphics/CoreGraphics.h>
+#import <CoreLocation/CoreLocation.h>
 #import <EventKit/EventKit.h>
 #import <Foundation/Foundation.h>
 #import <Photos/Photos.h>
