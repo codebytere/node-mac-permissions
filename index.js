@@ -1,4 +1,4 @@
-const permissions = require('bindings')('permissions.node')
+const permissions = require('node-gyp-build')(__dirname)
 
 function getAuthStatus(type) {
   const validTypes = [
