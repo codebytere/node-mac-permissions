@@ -3,6 +3,28 @@
 
 # node-mac-permissions
 
+### Table of Contents
+
+- [Overview](#overview)
+- [API](#api)
+  - [`permissions.getAuthStatus(type)`](#permissionsgetauthstatustype)
+  - [`permissions.askForContactsAccess()`](#permissionsaskforcontactsaccess)
+  - [`permissions.askForCalendarAccess()`](#permissionsaskforcalendaraccess)
+  - [`permissions.askForSpeechRecognitionAccess()`](#permissionsaskforspeechrecognitionaccess)
+  - [`permissions.askForRemindersAccess()`](#permissionsaskforremindersaccess)
+  - [`permissions.askForFoldersAccess(folder)`](#permissionsaskforfoldersaccessfolder)
+  - [`permissions.askForFullDiskAccess()`](#permissionsaskforfulldiskaccess)
+  - [`permissions.askForCameraAccess()`](#permissionsaskforcameraaccess)
+  - [`permissions.askForInputMonitoringAccess()`](#permissionsaskforinputmonitoringaccess)
+  - [`permissions.askForMicrophoneAccess()`](#permissionsaskformicrophoneaccess)
+  - [`permissions.askForMusicLibraryAccess()`](#permissionsaskformusiclibraryaccess)
+  - [`permissions.askForPhotosAccess()`](#permissionsaskforphotosaccess)
+  - [`permissions.askForScreenCaptureAccess()`](#permissionsaskforscreencaptureaccess)
+  - [`permissions.askForAccessibilityAccess()`](#permissionsaskforaccessibilityaccess)
+- [FAQ](#faq)
+
+## Overview
+
 ```js
 $ npm i node-mac-permissions
 ```
@@ -32,7 +54,7 @@ If you're using macOS 12.3 or newer, you'll need to ensure you have Python insta
 
 ## API
 
-## `permissions.getAuthStatus(type)`
+### `permissions.getAuthStatus(type)`
 
 * `type` String - The type of system component to which you are requesting access. Can be one of `accessibility`, `bluetooth`, `calendar`, `camera`, `contacts`, `full-disk-access`, `input-monitoring`, `location`, `microphone`,`photos`, `reminders`, `screen`, or `speech-recognition`.
 
@@ -81,7 +103,7 @@ for (const type of types) {
 }
 ```
 
-## `permissions.askForContactsAccess()`
+### `permissions.askForContactsAccess()`
 
 Returns `Promise<String>` - Whether or not the request succeeded or failed; can be `authorized` or `denied`.
 
@@ -103,7 +125,7 @@ askForContactsAccess().then(status => {
 })
 ```
 
-## `permissions.askForCalendarAccess()`
+### `permissions.askForCalendarAccess()`
 
 Returns `Promise<String>` - Whether or not the request succeeded or failed; can be `authorized` or `denied`.
 
@@ -116,7 +138,7 @@ askForCalendarAccess().then(status => {
 })
 ```
 
-## `permissions.askForSpeechRecognitionAccess()`
+### `permissions.askForSpeechRecognitionAccess()`
 
 Returns `Promise<String>` - Whether or not the request succeeded or failed; can be `authorized` or `denied`.
 
@@ -143,7 +165,7 @@ askForSpeechRecognitionAccess().then(status => {
 
 **Note:** `status` will be resolved back as `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
 
-## `permissions.askForRemindersAccess()`
+### `permissions.askForRemindersAccess()`
 
 Returns `Promise<String>` - Whether or not the request succeeded or failed; can be `authorized` or `denied`.
 
@@ -156,7 +178,7 @@ askForRemindersAccess().then(status => {
 })
 ```
 
-## `permissions.askForFoldersAccess(folder)`
+### `permissions.askForFoldersAccess(folder)`
 
 * `type` String - The folder to which you are requesting access. Can be one of `desktop`, `documents`, or `downloads`.
 
@@ -187,7 +209,7 @@ askForFoldersAccess('desktop').then(status => {
 <string>Your reason for wanting to access the Downloads folder</string>
 ```
 
-## `permissions.askForFullDiskAccess()`
+### `permissions.askForFullDiskAccess()`
 
 There is no API for programmatically requesting Full Disk Access on macOS at this time, and so calling this method will trigger opening of System Preferences at the Full Disk pane of Security and Privacy.
 
@@ -199,7 +221,7 @@ const { askForFullDiskAccess } = require('node-mac-permissions')
 askForFullDiskAccess()
 ```
 
-## `permissions.askForCameraAccess()`
+### `permissions.askForCameraAccess()`
 
 Returns `Promise<String>` - Current permission status; can be `authorized`, `denied`, or `restricted`.
 
@@ -230,7 +252,7 @@ askForCameraAccess().then(status => {
 })
 ```
 
-## `permissions.askForInputMonitoringAccess()`
+### `permissions.askForInputMonitoringAccess()`
 
 Returns `Promise<String>` - Current permission status; can be `authorized` or `denied`.
 
@@ -252,7 +274,7 @@ askForInputMonitoringAccess().then(status => {
 })
 ```
 
-## `permissions.askForMicrophoneAccess()`
+### `permissions.askForMicrophoneAccess()`
 
 Returns `Promise<String>` - Current permission status; can be `authorized`, `denied`, or `restricted`.
 
@@ -283,7 +305,7 @@ askForMicrophoneAccess().then(status => {
 })
 ```
 
-## `permissions.askForMusicLibraryAccess()`
+### `permissions.askForMusicLibraryAccess()`
 
 Returns `Promise<String>` - Whether or not the request succeeded or failed; can be `authorized` or `denied`.
 
@@ -311,7 +333,7 @@ askForMusicLibraryAccess().then(status => {
 })
 ```
 
-## `permissions.askForPhotosAccess()`
+### `permissions.askForPhotosAccess()`
 
 Returns `Promise<String>` - Current permission status; can be `authorized`, `denied`, or `restricted`.
 
@@ -342,7 +364,7 @@ askForPhotosAccess().then(status => {
 })
 ```
 
-## `permissions.askForScreenCaptureAccess()`
+### `permissions.askForScreenCaptureAccess()`
 
 There is no API for programmatically requesting Screen Capture on macOS at this time, and so calling this method will trigger opening of System Preferences at the Screen Capture pane of Security and Privacy.
 
@@ -354,7 +376,7 @@ const { askForScreenCaptureAccess } = require('node-mac-permissions')
 askForScreenCaptureAccess()
 ```
 
-## `permissions.askForAccessibilityAccess()`
+### `permissions.askForAccessibilityAccess()`
 
 There is no API for programmatically requesting Accessibility access on macOS at this time, and so calling this method will trigger opening of System Preferences at the Accessibility pane of Security and Privacy.
 
