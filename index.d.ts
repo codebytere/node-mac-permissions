@@ -1,20 +1,21 @@
 // Type definitions for node-mac-permissions
 // Project: node-mac-permissions
 
-export function askForCalendarAccess(): Promise<'authorized' | 'denied'>
-export function askForContactsAccess(): Promise<'authorized' | 'denied'>
-export function askForFoldersAccess(): Promise<'authorized' | 'denied'>
+export function askForCalendarAccess(): Promise<Omit<PermissionType, 'restricted'>>
+export function askForContactsAccess(): Promise<Omit<PermissionType, 'restricted'>>
+export function askForFoldersAccess(): Promise<Omit<PermissionType, 'restricted'>>
 export function askForFullDiskAccess(): undefined
-export function askForRemindersAccess(): Promise<'authorized' | 'denied'>
-export function askForCameraAccess(): Promise<'authorized' | 'denied' | 'restricted'>
-export function askForMicrophoneAccess(): Promise<'authorized' | 'denied' | 'restricted'>
-export function askForPhotosAccess(): Promise<'authorized' | 'denied' | 'restricted'>
-export function askForSpeechRecognitionAccess(): Promise<'authorized' | 'denied'>
+export function askForRemindersAccess(): Promise<Omit<PermissionType, 'restricted'>>
+export function askForCameraAccess(): Promise<PermissionType>
+export function askForMicrophoneAccess(): Promise<PermissionType>
+export function askForPhotosAccess(): Promise<PermissionType>
+export function askForSpeechRecognitionAccess(): Promise<Omit<PermissionType, 'restricted'>>
 export function askForScreenCaptureAccess(): undefined
 export function askForAccessibilityAccess(): undefined
-export function getAuthStatus(authType: AuthType): PermissionType
+export function getAuthStatus(authType: AuthType): PermissionType | 'not determined'
 
 export type AuthType =
+  | 'bluetooth'
   | 'contacts'
   | 'calendar'
   | 'reminders'
@@ -23,8 +24,9 @@ export type AuthType =
   | 'photos'
   | 'speech-recognition'
   | 'microphone'
+  | 'music-library'
   | 'accessibility'
   | 'location'
   | 'screen'
 
-export type PermissionType = 'not determined' | 'denied' | 'authorized' | 'restricted'
+export type PermissionType =  'authorized' | 'denied' | 'restricted'
