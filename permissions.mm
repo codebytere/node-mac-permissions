@@ -676,6 +676,35 @@ Napi::Promise AskForMicrophoneAccess(const Napi::CallbackInfo &info) {
   return deferred.Promise();
 }
 
+// Request Input Monitoring access.
+Napi::Promise AskForInputMonitoringAccess(const Napi::CallbackInfo &info) {
+  Napi::Env env = info.Env();
+  Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
+
+  if (@available(macOS 10.16, *)) {
+    std::string auth_status = InputMonitoringAuthStatus();
+
+    if (auth_status == kNotDetermined) {
+      IOHIDRequestAccess(kIOHIDRequestTypeListenEvent);
+      deferred.Resolve(Napi::String::New(env, kDenied));
+    } else if (auth_status == kDenied) {
+      NSWorkspace *workspace = [[NSWorkspace alloc] init];
+      NSString *pref_string = @"x-apple.systempreferences:com.apple.preference."
+                              @"security?Privacy_ListenEvent";
+
+      [workspace openURL:[NSURL URLWithString:pref_string]];
+
+      deferred.Resolve(Napi::String::New(env, kDenied));
+    } else {
+      deferred.Resolve(Napi::String::New(env, auth_status));
+    }
+  } else {
+    deferred.Resolve(Napi::String::New(env, kAuthorized));
+  }
+
+  return deferred.Promise();
+}
+
 // Request Apple Music Library access.
 Napi::Promise AskForMusicLibraryAccess(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
@@ -790,6 +819,8 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
               Napi::Function::New(env, AskForScreenCaptureAccess));
   exports.Set(Napi::String::New(env, "askForAccessibilityAccess"),
               Napi::Function::New(env, AskForAccessibilityAccess));
+  exports.Set(Napi::String::New(env, "askForInputMonitoringAccess"),
+              Napi::Function::New(env, AskForInputMonitoringAccess));
 
   return exports;
 }

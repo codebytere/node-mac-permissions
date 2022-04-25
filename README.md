@@ -230,6 +230,28 @@ askForCameraAccess().then(status => {
 })
 ```
 
+## `permissions.askForInputMonitoringAccess()`
+
+Returns `Promise<String>` - Current permission status; can be `authorized` or `denied`.
+
+Checks the authorization status for input monitoring access. If the status check returns:
+
+* `not determined` - A dialog will be displayed directing the user to the `Security & Privacy` System Preferences window , where the user can approve your app to monitor keyboard events in the background. The Promise is resolved as `denied`.
+* `denied` - The `Security & Privacy` System Preferences window is opened with the Input Monitoring privacy key highlighted. On open of the `Security & Privacy` window, the Promise is resolved as `denied`.
+
+**Note:**
+
+- `status` will be resolved back as `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
+
+Example:
+```js
+const { askForInputMonitoringAccess } = require('node-mac-permissions')
+
+askForInputMonitoringAccess().then(status => {
+  console.log(`Access to Input Monitoring is ${status}`)
+})
+```
+
 ## `permissions.askForMicrophoneAccess()`
 
 Returns `Promise<String>` - Current permission status; can be `authorized`, `denied`, or `restricted`.

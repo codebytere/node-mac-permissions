@@ -42,6 +42,7 @@ module.exports = {
   askForContactsAccess: permissions.askForContactsAccess,
   askForFoldersAccess,
   askForFullDiskAccess: permissions.askForFullDiskAccess,
+  askForInputMonitoringAccess: permissions.askForInputMonitoringAccess,
   askForRemindersAccess: permissions.askForRemindersAccess,
   askForMicrophoneAccess: permissions.askForMicrophoneAccess,
   askForMusicLibraryAccess: permissions.askForMusicLibraryAccess,
