@@ -9,18 +9,19 @@ $ npm i node-mac-permissions
 
 This native Node.js module allows you to manage an app's access to:
 
+* Accessibility
+* Calendar
+* Camera
 * Contacts
 * Full Disk Access
-* Calendar
-* Reminders
-* Camera
+* Input Monitoring
+* Location
 * Microphone
 * Photos
-* Accessibility
-* Location
+* Protected Folders
+* Reminders
 * Screen Capture
 * Speech Recognition
-* Protected Folders
 
 If you need to ask for permissions, your app must be allowed to ask for permission :
 
@@ -33,7 +34,7 @@ If you're using macOS 12.3 or newer, you'll need to ensure you have Python insta
 
 ## `permissions.getAuthStatus(type)`
 
-* `type` String - The type of system component to which you are requesting access. Can be one of `accessibility`, `bluetooth`, `calendar`, `camera`, `contacts`, `full-disk-access`, `speech-recognition`, `location`, `microphone`, `photos`, `screen`, or `reminders`.
+* `type` String - The type of system component to which you are requesting access. Can be one of `accessibility`, `bluetooth`, `calendar`, `camera`, `contacts`, `full-disk-access`, `input-monitoring`, `location`, `microphone`,`photos`, `reminders`, `screen`, or `speech-recognition`.
 
 Returns `String` - Can be one of `not determined`, `denied`, `authorized`, or `restricted`.
 
@@ -46,13 +47,14 @@ Return Value Descriptions:
 * `authorized` - The application is authorized to access `type` data.
 
 **Notes:**
-  * Access to `contacts` will always return a status of `authorized` prior to macOS 10.11, as the underlying API was not introduced until that version.
-  * Access to `camera` and `microphone` will always return a status of `authorized` prior to macOS 10.14, as the underlying API was not introduced until that version.
-  * Access to `screen` will always return a status of `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
-  * Access to `photos` will always return a status of `authorized` prior to macOS 10.13, as the underlying API was not introduced until that version.
-  * Access to `speech-recognition` will always return a status of `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
   * Access to `bluetooth` will always return a status of `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
+  * Access to `camera` and `microphone` will always return a status of `authorized` prior to macOS 10.14, as the underlying API was not introduced until that version.
+  * Access to `contacts` will always return a status of `authorized` prior to macOS 10.11, as the underlying API was not introduced until that version.
+  * Access to `input-monitoring` will always return a status of `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
   * Access to `music-library` will always return a status of `authorized` prior to macOS 11.0, as the underlying API was not introduced until that version.
+  * Access to `photos` will always return a status of `authorized` prior to macOS 10.13, as the underlying API was not introduced until that version.
+  * Access to `screen` will always return a status of `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
+  * Access to `speech-recognition` will always return a status of `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
 
 Example:
 ```js
@@ -62,14 +64,15 @@ const types = [
   'calendar',
   'camera',
   'contacts',
-  'reminders',
   'full-disk-access',
+  'input-monitoring',
   'location',
   'microphone',
   'music-library',
   'photos',
+  'reminders',
+  'speech-recognition',
   'screen',
-  'speech-recognition'
 ]
 
 for (const type of types) {

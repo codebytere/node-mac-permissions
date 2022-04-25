@@ -9,6 +9,7 @@
 #import <CoreLocation/CoreLocation.h>
 #import <EventKit/EventKit.h>
 #import <Foundation/Foundation.h>
+#import <IOKit/hidsystem/IOHIDLib.h>
 #import <Photos/Photos.h>
 #import <Speech/Speech.h>
 #import <Storekit/Storekit.h>
@@ -128,6 +129,23 @@ std::string BluetoothAuthStatus() {
       return kDenied;
     case CBManagerAuthorizationRestricted:
       return kRestricted;
+    default:
+      return kNotDetermined;
+    }
+  }
+
+  return kAuthorized;
+}
+
+// Returns a status indicating whether the user has authorized
+// input monitoring access.
+std::string InputMonitoringAuthStatus() {
+  if (@available(macOS 10.15, *)) {
+    switch (IOHIDCheckAccess(kIOHIDRequestTypeListenEvent)) {
+    case kIOHIDAccessTypeGranted:
+      return kAuthorized;
+    case kIOHIDAccessTypeDenied:
+      return kDenied;
     default:
       return kNotDetermined;
     }
@@ -361,6 +379,8 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
     auth_status = BluetoothAuthStatus();
   } else if (type == "music-library") {
     auth_status = MusicLibraryAuthStatus();
+  } else if (type == "input-monitoring") {
+    auth_status = InputMonitoringAuthStatus();
   }
 
   return Napi::Value::From(env, auth_status);

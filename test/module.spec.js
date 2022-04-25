@@ -11,17 +11,19 @@ describe('node-mac-permissions', () => {
 
     it('should return a string', () => {
       const types = [
-        'contacts',
+        'accessibility',
+        'bluetooth',
         'calendar',
-        'reminders',
-        'full-disk-access',
         'camera',
-        'photos',
-        'speech-recognition',
+        'contacts',
+        'full-disk-access',
+        'input-monitoring',
+        'location',
         'microphone',
         'music-library',
-        'accessibility',
-        'location',
+        'photos',
+        'reminders',
+        'speech-recognition',
         'screen',
       ]
 

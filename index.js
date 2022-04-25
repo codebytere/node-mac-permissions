@@ -2,19 +2,20 @@ const permissions = require('bindings')('permissions.node')
 
 function getAuthStatus(type) {
   const validTypes = [
-    'contacts',
+    'accessibility',
+    'bluetooth',
     'calendar',
-    'reminders',
-    'full-disk-access',
     'camera',
-    'photos',
-    'speech-recognition',
+    'contacts',
+    'full-disk-access',
+    'input-monitoring',
+    'location',
     'microphone',
     'music-library',
-    'accessibility',
-    'location',
+    'photos',
+    'reminders',
+    'speech-recognition',
     'screen',
-    'bluetooth',
   ]
 
   if (!validTypes.includes(type)) {
@@ -35,17 +36,17 @@ function askForFoldersAccess(folder) {
 }
 
 module.exports = {
+  askForAccessibilityAccess: permissions.askForAccessibilityAccess,
   askForCalendarAccess: permissions.askForCalendarAccess,
+  askForCameraAccess: permissions.askForCameraAccess,
   askForContactsAccess: permissions.askForContactsAccess,
   askForFoldersAccess,
   askForFullDiskAccess: permissions.askForFullDiskAccess,
   askForRemindersAccess: permissions.askForRemindersAccess,
-  askForCameraAccess: permissions.askForCameraAccess,
   askForMicrophoneAccess: permissions.askForMicrophoneAccess,
   askForMusicLibraryAccess: permissions.askForMusicLibraryAccess,
   askForPhotosAccess: permissions.askForPhotosAccess,
   askForSpeechRecognitionAccess: permissions.askForSpeechRecognitionAccess,
   askForScreenCaptureAccess: permissions.askForScreenCaptureAccess,
-  askForAccessibilityAccess: permissions.askForAccessibilityAccess,
   getAuthStatus,
 }
