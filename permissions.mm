@@ -681,7 +681,7 @@ Napi::Promise AskForInputMonitoringAccess(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
 
-  if (@available(macOS 10.16, *)) {
+  if (@available(macOS 10.15, *)) {
     std::string auth_status = InputMonitoringAuthStatus();
 
     if (auth_status == kNotDetermined) {
