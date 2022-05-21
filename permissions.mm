@@ -31,6 +31,49 @@ NSURL *URLForDirectory(NSSearchPathDirectory directory) {
                        error:nil];
 }
 
+std::string StringFromPhotosStatus(PHAuthorizationStatus status) {
+  switch (status) {
+  case PHAuthorizationStatusAuthorized:
+    return kAuthorized;
+  case PHAuthorizationStatusDenied:
+    return kDenied;
+  case PHAuthorizationStatusRestricted:
+    return kRestricted;
+  default:
+    return kNotDetermined;
+  }
+}
+
+std::string
+StringFromMusicLibraryStatus(SKCloudServiceAuthorizationStatus status)
+    API_AVAILABLE(macosx(11)) {
+  switch (status) {
+  case SKCloudServiceAuthorizationStatusAuthorized:
+    return kAuthorized;
+  case SKCloudServiceAuthorizationStatusDenied:
+    return kDenied;
+  case SKCloudServiceAuthorizationStatusRestricted:
+    return kRestricted;
+  default:
+    return kNotDetermined;
+  }
+}
+
+std::string
+StringFromSpeechRecognitionStatus(SFSpeechRecognizerAuthorizationStatus status)
+    API_AVAILABLE(macosx(10.15)) {
+  switch (status) {
+  case SFSpeechRecognizerAuthorizationStatusAuthorized:
+    return kAuthorized;
+  case SFSpeechRecognizerAuthorizationStatusDenied:
+    return kDenied;
+  case SFSpeechRecognizerAuthorizationStatusRestricted:
+    return kRestricted;
+  default:
+    return kNotDetermined;
+  }
+}
+
 // Open a specific pane in System Preferences Security and Privacy.
 void OpenPrefPane(const std::string &pane_string) {
   NSWorkspace *workspace = [[NSWorkspace alloc] init];
@@ -168,16 +211,9 @@ std::string InputMonitoringAuthStatus() {
 // Library access.
 std::string MusicLibraryAuthStatus() {
   if (@available(macOS 11, *)) {
-    switch ([SKCloudServiceController authorizationStatus]) {
-    case SKCloudServiceAuthorizationStatusAuthorized:
-      return kAuthorized;
-    case SKCloudServiceAuthorizationStatusDenied:
-      return kDenied;
-    case SKCloudServiceAuthorizationStatusRestricted:
-      return kRestricted;
-    default:
-      return kNotDetermined;
-    }
+    SKCloudServiceAuthorizationStatus status =
+        [SKCloudServiceController authorizationStatus];
+    return StringFromMusicLibraryStatus(status);
   }
 
   return kAuthorized;
@@ -306,16 +342,9 @@ std::string MediaAuthStatus(const std::string &type) {
 // recognition access.
 std::string SpeechRecognitionAuthStatus() {
   if (@available(macOS 10.15, *)) {
-    switch ([SFSpeechRecognizer authorizationStatus]) {
-    case SFSpeechRecognizerAuthorizationStatusAuthorized:
-      return kAuthorized;
-    case SFSpeechRecognizerAuthorizationStatusDenied:
-      return kDenied;
-    case SFSpeechRecognizerAuthorizationStatusRestricted:
-      return kRestricted;
-    default:
-      return kNotDetermined;
-    }
+    SFSpeechRecognizerAuthorizationStatus status =
+        [SFSpeechRecognizer authorizationStatus];
+    return StringFromSpeechRecognitionStatus(status);
   }
 
   return kAuthorized;
@@ -339,16 +368,8 @@ std::string LocationAuthStatus() {
 // Returns a status indicating whether or not the user has authorized Photos
 // access.
 std::string PhotosAuthStatus() {
-  switch ([PHPhotoLibrary authorizationStatus]) {
-  case PHAuthorizationStatusAuthorized:
-    return kAuthorized;
-  case PHAuthorizationStatusDenied:
-    return kDenied;
-  case PHAuthorizationStatusRestricted:
-    return kRestricted;
-  default:
-    return kNotDetermined;
-  }
+  PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
+  return StringFromPhotosStatus(status);
 }
 
 /***** EXPORTED FUNCTIONS *****/
@@ -554,11 +575,8 @@ Napi::Promise AskForSpeechRecognitionAccess(const Napi::CallbackInfo &info) {
                                 const char *granted) {
               deferred.Resolve(Napi::String::New(env, granted));
             };
-            tsfn.BlockingCall(
-                status == SFSpeechRecognizerAuthorizationStatusAuthorized
-                    ? "authorized"
-                    : "denied",
-                callback);
+            std::string auth_result = StringFromSpeechRecognitionStatus(status);
+            tsfn.BlockingCall(auth_result.c_str(), callback);
             tsfn.Release();
           }];
     } else if (auth_status == kDenied) {
@@ -593,9 +611,8 @@ Napi::Promise AskForPhotosAccess(const Napi::CallbackInfo &info) {
                           const char *granted) {
         deferred.Resolve(Napi::String::New(env, granted));
       };
-      tsfn.BlockingCall(status == PHAuthorizationStatusAuthorized ? "authorized"
-                                                                  : "denied",
-                        callback);
+      std::string auth_result = StringFromPhotosStatus(status);
+      tsfn.BlockingCall(auth_result.c_str(), callback);
       tsfn.Release();
     }];
   } else if (auth_status == kDenied) {
@@ -695,10 +712,8 @@ Napi::Promise AskForMusicLibraryAccess(const Napi::CallbackInfo &info) {
                                 const char *granted) {
               deferred.Resolve(Napi::String::New(env, granted));
             };
-
-            bool granted =
-                status == SKCloudServiceAuthorizationStatusAuthorized;
-            tsfn.BlockingCall(granted ? "authorized" : "denied", callback);
+            std::string auth_result = StringFromMusicLibraryStatus(status);
+            tsfn.BlockingCall(auth_result.c_str(), callback);
             tsfn.Release();
           }];
     } else if (auth_status == kDenied) {

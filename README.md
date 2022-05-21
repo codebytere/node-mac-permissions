@@ -136,12 +136,13 @@ askForCalendarAccess().then(status => {
 
 ### `permissions.askForSpeechRecognitionAccess()`
 
-Returns `Promise<String>` - Whether or not the request succeeded or failed; can be `authorized` or `denied`.
+Returns `Promise<String>` - Whether or not the request succeeded or failed; can be `authorized`, `denied`, or `restricted`.
 
 Checks the authorization status for Speech Recognition access. If the status check returns:
 
 * `not determined` - The Speech Recognition access authorization will prompt the user to authorize or deny. The Promise is resolved after the user selection with either `authorized` or `denied`.
 * `denied` - The `Security & Privacy` System Preferences window is opened with the Speech Recognition privacy key highlighted. On open of the `Security & Privacy` window, the Promise is resolved as `denied`.
+* `restricted` - The Promise is resolved as `restricted`.
 
 Your app must provide an explanation for its use of Speech Recognition using the `NSSpeechRecognitionUsageDescription` `Info.plist` key;
 
@@ -303,7 +304,7 @@ askForMicrophoneAccess().then(status => {
 
 ### `permissions.askForMusicLibraryAccess()`
 
-Returns `Promise<String>` - Whether or not the request succeeded or failed; can be `authorized` or `denied`.
+Returns `Promise<String>` - Whether or not the request succeeded or failed; can be `authorized`, `denied`, or `restricted`.
 
 * `not determined` - The Music Library access authorization will prompt the user to authorize or deny. The Promise is resolved after the user selection with either `authorized` or `denied`.
 * `denied` - The `Security & Privacy` System Preferences window is opened with the Music Library privacy key highlighted. On open of the `Security & Privacy` window, the Promise is resolved as `denied`.
