@@ -21,6 +21,12 @@ const std::string kAuthorized{"authorized"};
 const std::string kDenied{"denied"};
 const std::string kRestricted{"restricted"};
 const std::string kNotDetermined{"not determined"};
+const std::string kLimited{"limited"};
+
+PHAccessLevel GetPHAccessLevel(const std::string &type)
+    API_AVAILABLE(macosx(11.0)) {
+  return type == "read-write" ? PHAccessLevelReadWrite : PHAccessLevelAddOnly;
+}
 
 NSURL *URLForDirectory(NSSearchPathDirectory directory) {
   NSFileManager *fm = [NSFileManager defaultManager];
@@ -367,8 +373,16 @@ std::string LocationAuthStatus() {
 
 // Returns a status indicating whether or not the user has authorized Photos
 // access.
-std::string PhotosAuthStatus() {
-  PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
+std::string PhotosAuthStatus(const std::string &access_level) {
+  PHAuthorizationStatus status = PHAuthorizationStatusNotDetermined;
+
+  if (@available(macOS 11, *)) {
+    PHAccessLevel level = GetPHAccessLevel(access_level);
+    status = [PHPhotoLibrary authorizationStatusForAccessLevel:level];
+  } else {
+    status = [PHPhotoLibrary authorizationStatus];
+  }
+
   return StringFromPhotosStatus(status);
 }
 
@@ -390,8 +404,10 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
     auth_status = FDAAuthStatus();
   } else if (type == "microphone") {
     auth_status = MediaAuthStatus("microphone");
-  } else if (type == "photos") {
-    auth_status = PhotosAuthStatus();
+  } else if (type == "photos-add-only") {
+    auth_status = PhotosAuthStatus("add-only");
+  } else if (type == "photos-read-write") {
+    auth_status = PhotosAuthStatus("read-write");
   } else if (type == "speech-recognition") {
     auth_status = SpeechRecognitionAuthStatus();
   } else if (type == "camera") {
@@ -603,18 +619,40 @@ Napi::Promise AskForPhotosAccess(const Napi::CallbackInfo &info) {
   Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(
       env, Napi::Function::New(env, NoOp), "photosCallback", 0, 1);
 
-  std::string auth_status = PhotosAuthStatus();
+  std::string access_level = info[0].As<Napi::String>().Utf8Value();
+  std::string auth_status = PhotosAuthStatus(access_level);
+
   if (auth_status == kNotDetermined) {
     __block Napi::ThreadSafeFunction tsfn = ts_fn;
-    [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
-      auto callback = [=](Napi::Env env, Napi::Function js_cb,
-                          const char *granted) {
-        deferred.Resolve(Napi::String::New(env, granted));
-      };
-      std::string auth_result = StringFromPhotosStatus(status);
-      tsfn.BlockingCall(auth_result.c_str(), callback);
-      tsfn.Release();
-    }];
+    if (@available(macOS 11, *)) {
+      [PHPhotoLibrary
+          requestAuthorizationForAccessLevel:GetPHAccessLevel(access_level)
+                                     handler:^(PHAuthorizationStatus status) {
+                                       auto callback =
+                                           [=](Napi::Env env,
+                                               Napi::Function js_cb,
+                                               const char *granted) {
+                                             deferred.Resolve(Napi::String::New(
+                                                 env, granted));
+                                           };
+                                       std::string auth_result =
+                                           StringFromPhotosStatus(status);
+                                       tsfn.BlockingCall(auth_result.c_str(),
+                                                         callback);
+                                       tsfn.Release();
+                                     }];
+    } else {
+      __block Napi::ThreadSafeFunction tsfn = ts_fn;
+      [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+        auto callback = [=](Napi::Env env, Napi::Function js_cb,
+                            const char *granted) {
+          deferred.Resolve(Napi::String::New(env, granted));
+        };
+        std::string auth_result = StringFromPhotosStatus(status);
+        tsfn.BlockingCall(auth_result.c_str(), callback);
+        tsfn.Release();
+      }];
+    }
   } else if (auth_status == kDenied) {
     OpenPrefPane("Privacy_Photos");
 
@@ -624,7 +662,6 @@ Napi::Promise AskForPhotosAccess(const Napi::CallbackInfo &info) {
     ts_fn.Release();
     deferred.Resolve(Napi::String::New(env, auth_status));
   }
-
   return deferred.Promise();
 }
 

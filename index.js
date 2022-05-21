@@ -12,7 +12,8 @@ function getAuthStatus(type) {
     'location',
     'microphone',
     'music-library',
-    'photos',
+    'photos-add-only',
+    'photos-read-write',
     'reminders',
     'speech-recognition',
     'screen',
@@ -35,6 +36,14 @@ function askForFoldersAccess(folder) {
   return permissions.askForFoldersAccess.call(this, folder)
 }
 
+function askForPhotosAccess(accessLevel = 'add-only') {
+  if (!['add-only', 'read-write'].includes(accessLevel)) {
+    throw new TypeError(`${accessLevel} must be one of either 'add-only' or 'read-write'`)
+  }
+
+  return permissions.askForPhotosAccess.call(this, accessLevel)
+}
+
 module.exports = {
   askForAccessibilityAccess: permissions.askForAccessibilityAccess,
   askForCalendarAccess: permissions.askForCalendarAccess,
@@ -46,7 +55,7 @@ module.exports = {
   askForRemindersAccess: permissions.askForRemindersAccess,
   askForMicrophoneAccess: permissions.askForMicrophoneAccess,
   askForMusicLibraryAccess: permissions.askForMusicLibraryAccess,
-  askForPhotosAccess: permissions.askForPhotosAccess,
+  askForPhotosAccess,
   askForSpeechRecognitionAccess: permissions.askForSpeechRecognitionAccess,
   askForScreenCaptureAccess: permissions.askForScreenCaptureAccess,
   getAuthStatus,

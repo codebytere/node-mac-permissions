@@ -67,6 +67,7 @@ Return Value Descriptions:
 * `restricted` - The application is not authorized to access `type` data. The user cannot change this application’s status, possibly due to active restrictions such as parental controls being in place.
 * `denied` - The user explicitly denied access to `type` data for the application.
 * `authorized` - The application is authorized to access `type` data.
+* `limited` - The application is authorized for limited access to `type` data. Currently only applicable to the `photos` type.
 
 **Notes:**
   * Access to `bluetooth` will always return a status of `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
@@ -330,7 +331,9 @@ askForMusicLibraryAccess().then(status => {
 })
 ```
 
-### `permissions.askForPhotosAccess()`
+### `permissions.askForPhotosAccess([accessLevel])`
+
+* `accessLevel` String (optional) - The access level being requested of Photos. Can be either `add-only` or `read-write`. Only available on macOS 11 or higher.
 
 Returns `Promise<String>` - Current permission status; can be `authorized`, `denied`, or `restricted`.
 
@@ -346,6 +349,11 @@ Your app must provide an explanation for its use of the photo library using the 
 <key>NSPhotoLibraryUsageDescription</key>
 <string>Your reason for wanting to access Photos</string>
 ```
+
+**Note:**
+
+You should add the `PHPhotoLibraryPreventAutomaticLimitedAccessAlert` key with a Boolean value of `YES` to your app’s `Info.plist` file to prevent the system from automatically presenting the limited library selection prompt. See [`PHAuthorizationStatusLimited`](https://developer.apple.com/documentation/photokit/phauthorizationstatus/phauthorizationstatuslimited?language=objc) for more information.
+
 
 Example:
 
