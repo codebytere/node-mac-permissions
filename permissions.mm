@@ -349,8 +349,6 @@ std::string PhotosAuthStatus() {
   default:
     return kNotDetermined;
   }
-
-  return kAuthorized;
 }
 
 /***** EXPORTED FUNCTIONS *****/
