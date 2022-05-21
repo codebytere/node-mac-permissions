@@ -71,10 +71,8 @@ Return Value Descriptions:
 **Notes:**
   * Access to `bluetooth` will always return a status of `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
   * Access to `camera` and `microphone` will always return a status of `authorized` prior to macOS 10.14, as the underlying API was not introduced until that version.
-  * Access to `contacts` will always return a status of `authorized` prior to macOS 10.11, as the underlying API was not introduced until that version.
   * Access to `input-monitoring` will always return a status of `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
   * Access to `music-library` will always return a status of `authorized` prior to macOS 11.0, as the underlying API was not introduced until that version.
-  * Access to `photos` will always return a status of `authorized` prior to macOS 10.13, as the underlying API was not introduced until that version.
   * Access to `screen` will always return a status of `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
   * Access to `speech-recognition` will always return a status of `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
 
@@ -113,8 +111,6 @@ Your app’s `Info.plist` file must provide a value for the `NSContactsUsageDesc
 <key>NSContactsUsageDescription</key>
 <string>Your reason for wanting to access the Contact store</string>
 ```
-
-**Note:** `status` will be resolved back as `authorized` prior to macOS 10.11, as the underlying API was not introduced until that version.
 
 Example:
 ```js
@@ -349,10 +345,6 @@ Your app must provide an explanation for its use of the photo library using the 
 <key>NSPhotoLibraryUsageDescription</key>
 <string>Your reason for wanting to access Photos</string>
 ```
-
-**Note:**
-
-- `status` will be resolved back as `authorized` prior to macOS 10.13, as the underlying API was not introduced until that version.
 
 Example:
 

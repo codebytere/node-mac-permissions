@@ -339,17 +339,15 @@ std::string LocationAuthStatus() {
 // Returns a status indicating whether or not the user has authorized Photos
 // access.
 std::string PhotosAuthStatus() {
-  if (@available(macOS 10.13, *)) {
-    switch ([PHPhotoLibrary authorizationStatus]) {
-    case PHAuthorizationStatusAuthorized:
-      return kAuthorized;
-    case PHAuthorizationStatusDenied:
-      return kDenied;
-    case PHAuthorizationStatusRestricted:
-      return kRestricted;
-    default:
-      return kNotDetermined;
-    }
+  switch ([PHPhotoLibrary authorizationStatus]) {
+  case PHAuthorizationStatusAuthorized:
+    return kAuthorized;
+  case PHAuthorizationStatusDenied:
+    return kDenied;
+  case PHAuthorizationStatusRestricted:
+    return kRestricted;
+  default:
+    return kNotDetermined;
   }
 
   return kAuthorized;
@@ -431,23 +429,18 @@ Napi::Promise AskForContactsAccess(const Napi::CallbackInfo &info) {
   Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(
       env, Napi::Function::New(env, NoOp), "contactsCallback", 0, 1);
 
-  if (@available(macOS 10.11, *)) {
-    __block Napi::ThreadSafeFunction tsfn = ts_fn;
-    CNContactStore *store = [CNContactStore new];
-    [store requestAccessForEntityType:CNEntityTypeContacts
-                    completionHandler:^(BOOL granted, NSError *error) {
-                      auto callback = [=](Napi::Env env, Napi::Function js_cb,
-                                          const char *granted) {
-                        deferred.Resolve(Napi::String::New(env, granted));
-                      };
-                      tsfn.BlockingCall(granted ? "authorized" : "denied",
-                                        callback);
-                      tsfn.Release();
-                    }];
-  } else {
-    ts_fn.Release();
-    deferred.Resolve(Napi::String::New(env, kAuthorized));
-  }
+  __block Napi::ThreadSafeFunction tsfn = ts_fn;
+  CNContactStore *store = [CNContactStore new];
+  [store
+      requestAccessForEntityType:CNEntityTypeContacts
+               completionHandler:^(BOOL granted, NSError *error) {
+                 auto callback = [=](Napi::Env env, Napi::Function js_cb,
+                                     const char *granted) {
+                   deferred.Resolve(Napi::String::New(env, granted));
+                 };
+                 tsfn.BlockingCall(granted ? "authorized" : "denied", callback);
+                 tsfn.Release();
+               }];
 
   return deferred.Promise();
 }
@@ -594,33 +587,27 @@ Napi::Promise AskForPhotosAccess(const Napi::CallbackInfo &info) {
   Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(
       env, Napi::Function::New(env, NoOp), "photosCallback", 0, 1);
 
-  if (@available(macOS 10.13, *)) {
-    std::string auth_status = PhotosAuthStatus();
+  std::string auth_status = PhotosAuthStatus();
+  if (auth_status == kNotDetermined) {
+    __block Napi::ThreadSafeFunction tsfn = ts_fn;
+    [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+      auto callback = [=](Napi::Env env, Napi::Function js_cb,
+                          const char *granted) {
+        deferred.Resolve(Napi::String::New(env, granted));
+      };
+      tsfn.BlockingCall(status == PHAuthorizationStatusAuthorized ? "authorized"
+                                                                  : "denied",
+                        callback);
+      tsfn.Release();
+    }];
+  } else if (auth_status == kDenied) {
+    OpenPrefPane("Privacy_Photos");
 
-    if (auth_status == kNotDetermined) {
-      __block Napi::ThreadSafeFunction tsfn = ts_fn;
-      [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
-        auto callback = [=](Napi::Env env, Napi::Function js_cb,
-                            const char *granted) {
-          deferred.Resolve(Napi::String::New(env, granted));
-        };
-        tsfn.BlockingCall(
-            status == PHAuthorizationStatusAuthorized ? "authorized" : "denied",
-            callback);
-        tsfn.Release();
-      }];
-    } else if (auth_status == kDenied) {
-      OpenPrefPane("Privacy_Photos");
-
-      ts_fn.Release();
-      deferred.Resolve(Napi::String::New(env, kDenied));
-    } else {
-      ts_fn.Release();
-      deferred.Resolve(Napi::String::New(env, auth_status));
-    }
+    ts_fn.Release();
+    deferred.Resolve(Napi::String::New(env, kDenied));
   } else {
     ts_fn.Release();
-    deferred.Resolve(Napi::String::New(env, kAuthorized));
+    deferred.Resolve(Napi::String::New(env, auth_status));
   }
 
   return deferred.Promise();
