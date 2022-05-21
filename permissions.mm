@@ -167,7 +167,7 @@ std::string InputMonitoringAuthStatus() {
 // Returns a status indicating whether the user has authorized Apple Music
 // Library access.
 std::string MusicLibraryAuthStatus() {
-  if (@available(macOS 10.16, *)) {
+  if (@available(macOS 11, *)) {
     switch ([SKCloudServiceController authorizationStatus]) {
     case SKCloudServiceAuthorizationStatusAuthorized:
       return kAuthorized;
@@ -686,7 +686,7 @@ Napi::Promise AskForMusicLibraryAccess(const Napi::CallbackInfo &info) {
   Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(
       env, Napi::Function::New(env, NoOp), "musicLibraryCallback", 0, 1);
 
-  if (@available(macOS 10.16, *)) {
+  if (@available(macOS 11, *)) {
     std::string auth_status = MusicLibraryAuthStatus();
 
     if (auth_status == kNotDetermined) {
