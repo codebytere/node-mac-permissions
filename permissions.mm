@@ -45,6 +45,8 @@ std::string StringFromPhotosStatus(PHAuthorizationStatus status) {
     return kDenied;
   case PHAuthorizationStatusRestricted:
     return kRestricted;
+  case PHAuthorizationStatusLimited:
+    return kLimited;
   default:
     return kNotDetermined;
   }
