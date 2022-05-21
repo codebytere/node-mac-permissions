@@ -31,6 +31,16 @@ NSURL *URLForDirectory(NSSearchPathDirectory directory) {
                        error:nil];
 }
 
+// Open a specific pane in System Preferences Security and Privacy.
+void OpenPrefPane(const std::string &pane_string) {
+  NSWorkspace *workspace = [[NSWorkspace alloc] init];
+  NSString *pref_string = [NSString
+      stringWithFormat:
+          @"x-apple.systempreferences:com.apple.preference.security?%s",
+          pane_string.c_str()];
+  [workspace openURL:[NSURL URLWithString:pref_string]];
+}
+
 // Dummy value to pass into function parameter for ThreadSafeFunction.
 Napi::Value NoOp(const Napi::CallbackInfo &info) {
   return info.Env().Undefined();
@@ -491,10 +501,7 @@ Napi::Promise AskForRemindersAccess(const Napi::CallbackInfo &info) {
 
 // Request Full Disk Access.
 void AskForFullDiskAccess(const Napi::CallbackInfo &info) {
-  NSWorkspace *workspace = [[NSWorkspace alloc] init];
-  NSString *pref_string = @"x-apple.systempreferences:com.apple.preference."
-                          @"security?Privacy_AllFiles";
-  [workspace openURL:[NSURL URLWithString:pref_string]];
+  OpenPrefPane("Privacy_AllFiles");
 }
 
 // Request Camera access.
@@ -522,11 +529,7 @@ Napi::Promise AskForCameraAccess(const Napi::CallbackInfo &info) {
                     tsfn.Release();
                   }];
     } else if (auth_status == kDenied) {
-      NSWorkspace *workspace = [[NSWorkspace alloc] init];
-      NSString *pref_string = @"x-apple.systempreferences:com.apple.preference."
-                              @"security?Privacy_Camera";
-
-      [workspace openURL:[NSURL URLWithString:pref_string]];
+      OpenPrefPane("Privacy_Camera");
 
       ts_fn.Release();
       deferred.Resolve(Napi::String::New(env, kDenied));
@@ -568,11 +571,7 @@ Napi::Promise AskForSpeechRecognitionAccess(const Napi::CallbackInfo &info) {
             tsfn.Release();
           }];
     } else if (auth_status == kDenied) {
-      NSWorkspace *workspace = [[NSWorkspace alloc] init];
-      NSString *pref_string = @"x-apple.systempreferences:com.apple.preference."
-                              @"security?Privacy_SpeechRecognition";
-
-      [workspace openURL:[NSURL URLWithString:pref_string]];
+      OpenPrefPane("Privacy_SpeechRecognition");
 
       ts_fn.Release();
       deferred.Resolve(Napi::String::New(env, kDenied));
@@ -611,11 +610,7 @@ Napi::Promise AskForPhotosAccess(const Napi::CallbackInfo &info) {
         tsfn.Release();
       }];
     } else if (auth_status == kDenied) {
-      NSWorkspace *workspace = [[NSWorkspace alloc] init];
-      NSString *pref_string = @"x-apple.systempreferences:com.apple.preference."
-                              @"security?Privacy_Photos";
-
-      [workspace openURL:[NSURL URLWithString:pref_string]];
+      OpenPrefPane("Privacy_Photos");
 
       ts_fn.Release();
       deferred.Resolve(Napi::String::New(env, kDenied));
@@ -656,11 +651,7 @@ Napi::Promise AskForMicrophoneAccess(const Napi::CallbackInfo &info) {
                     tsfn.Release();
                   }];
     } else if (auth_status == kDenied) {
-      NSWorkspace *workspace = [[NSWorkspace alloc] init];
-      NSString *pref_string = @"x-apple.systempreferences:com.apple.preference."
-                              @"security?Privacy_Microphone";
-
-      [workspace openURL:[NSURL URLWithString:pref_string]];
+      OpenPrefPane("Privacy_Microphone");
 
       ts_fn.Release();
       deferred.Resolve(Napi::String::New(env, kDenied));
@@ -688,11 +679,7 @@ Napi::Promise AskForInputMonitoringAccess(const Napi::CallbackInfo &info) {
       IOHIDRequestAccess(kIOHIDRequestTypeListenEvent);
       deferred.Resolve(Napi::String::New(env, kDenied));
     } else if (auth_status == kDenied) {
-      NSWorkspace *workspace = [[NSWorkspace alloc] init];
-      NSString *pref_string = @"x-apple.systempreferences:com.apple.preference."
-                              @"security?Privacy_ListenEvent";
-
-      [workspace openURL:[NSURL URLWithString:pref_string]];
+      OpenPrefPane("Privacy_ListenEvent");
 
       deferred.Resolve(Napi::String::New(env, kDenied));
     } else {
@@ -730,11 +717,7 @@ Napi::Promise AskForMusicLibraryAccess(const Napi::CallbackInfo &info) {
             tsfn.Release();
           }];
     } else if (auth_status == kDenied) {
-      NSWorkspace *workspace = [[NSWorkspace alloc] init];
-      NSString *pref_string = @"x-apple.systempreferences:com.apple.preference."
-                              @"security?Privacy_Media";
-
-      [workspace openURL:[NSURL URLWithString:pref_string]];
+      OpenPrefPane("Privacy_Media");
 
       ts_fn.Release();
       deferred.Resolve(Napi::String::New(env, kDenied));
@@ -768,11 +751,7 @@ void AskForScreenCaptureAccess(const Napi::CallbackInfo &info) {
       CFRelease(stream);
     } else {
       if (!HasOpenSystemPreferencesDialog()) {
-        NSWorkspace *workspace = [[NSWorkspace alloc] init];
-        NSString *pref_string =
-            @"x-apple.systempreferences:com.apple.preference."
-            @"security?Privacy_ScreenCapture";
-        [workspace openURL:[NSURL URLWithString:pref_string]];
+        OpenPrefPane("Privacy_ScreenCapture");
       }
     }
   }
@@ -784,10 +763,7 @@ void AskForAccessibilityAccess(const Napi::CallbackInfo &info) {
   bool trusted = AXIsProcessTrustedWithOptions((CFDictionaryRef)options);
 
   if (!trusted) {
-    NSWorkspace *workspace = [[NSWorkspace alloc] init];
-    NSString *pref_string = @"x-apple.systempreferences:com.apple.preference."
-                            @"security?Privacy_Accessibility";
-    [workspace openURL:[NSURL URLWithString:pref_string]];
+    OpenPrefPane("Privacy_Accessibility");
   }
 }
 
