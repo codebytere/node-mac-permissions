@@ -219,6 +219,13 @@ const { askForFullDiskAccess } = require('node-mac-permissions')
 askForFullDiskAccess()
 ```
 
+If you would like your app to pop up a dialog requesting full disk access when your app attempts to access protected resources, you should add the `NSSystemAdministrationUsageDescription` key to your `Info.plist`:
+
+```
+<key>NSSystemAdministrationUsageDescription</key>
+<string>Your reason for wanting Full Disk Access</string>
+```
+
 ### `permissions.askForCameraAccess()`
 
 Returns `Promise<String>` - Current permission status; can be `authorized`, `denied`, or `restricted`.
