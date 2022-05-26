@@ -350,8 +350,15 @@ Checks the authorization status for Photos access. If the status check returns:
 * `denied` - The `Security & Privacy` System Preferences window is opened with the Photos privacy key highlighted. On open of the `Security & Privacy` window, the Promise is resolved as `denied`.
 * `restricted` - The Promise is resolved as `restricted`.
 
-Your app must provide an explanation for its use of the photo library using the `NSPhotoLibraryUsageDescription` `Info.plist` key.
+Your app must provide an explanation for its use of the photo library using either the `NSPhotoLibraryUsageDescription` or the `NSPhotoLibraryAddUsageDescription` `Info.plist` key.
 
+For requesting add-only access to the user’s photo library:
+```
+<key>NSPhotoLibraryAddUsageDescription</key>
+<string>Your reason for wanting to access Photos</string>
+```
+
+For requesting read/write access to the user’s photo library:
 ```
 <key>NSPhotoLibraryUsageDescription</key>
 <string>Your reason for wanting to access Photos</string>
