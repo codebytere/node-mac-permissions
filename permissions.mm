@@ -24,7 +24,7 @@ const std::string kNotDetermined{"not determined"};
 const std::string kLimited{"limited"};
 
 PHAccessLevel GetPHAccessLevel(const std::string &type)
-    API_AVAILABLE(macosx(11.0)) {
+    API_AVAILABLE(macosx(10.16)) {
   return type == "read-write" ? PHAccessLevelReadWrite : PHAccessLevelAddOnly;
 }
 
@@ -37,7 +37,7 @@ NSURL *URLForDirectory(NSSearchPathDirectory directory) {
                        error:nil];
 }
 
-std::string StringFromPhotosStatus(PHAuthorizationStatus status) {
+const std::string &StringFromPhotosStatus(PHAuthorizationStatus status) {
   switch (status) {
   case PHAuthorizationStatusAuthorized:
     return kAuthorized;
@@ -52,9 +52,9 @@ std::string StringFromPhotosStatus(PHAuthorizationStatus status) {
   }
 }
 
-std::string
+const std::string &
 StringFromMusicLibraryStatus(SKCloudServiceAuthorizationStatus status)
-    API_AVAILABLE(macosx(11)) {
+    API_AVAILABLE(macosx(10.16)) {
   switch (status) {
   case SKCloudServiceAuthorizationStatusAuthorized:
     return kAuthorized;
@@ -218,7 +218,7 @@ std::string InputMonitoringAuthStatus() {
 // Returns a status indicating whether the user has authorized Apple Music
 // Library access.
 std::string MusicLibraryAuthStatus() {
-  if (@available(macOS 11, *)) {
+  if (@available(macOS 10.16, *)) {
     SKCloudServiceAuthorizationStatus status =
         [SKCloudServiceController authorizationStatus];
     return StringFromMusicLibraryStatus(status);
@@ -275,7 +275,7 @@ std::string FDAAuthStatus() {
 // Screen Capture access.
 std::string ScreenAuthStatus() {
   std::string auth_status = kNotDetermined;
-  if (@available(macOS 11, *)) {
+  if (@available(macOS 10.16, *)) {
     if (CGPreflightScreenCaptureAccess()) {
       auth_status = kAuthorized;
     } else {
@@ -378,7 +378,7 @@ std::string LocationAuthStatus() {
 std::string PhotosAuthStatus(const std::string &access_level) {
   PHAuthorizationStatus status = PHAuthorizationStatusNotDetermined;
 
-  if (@available(macOS 11, *)) {
+  if (@available(macOS 10.16, *)) {
     PHAccessLevel level = GetPHAccessLevel(access_level);
     status = [PHPhotoLibrary authorizationStatusForAccessLevel:level];
   } else {
@@ -626,7 +626,7 @@ Napi::Promise AskForPhotosAccess(const Napi::CallbackInfo &info) {
 
   if (auth_status == kNotDetermined) {
     __block Napi::ThreadSafeFunction tsfn = ts_fn;
-    if (@available(macOS 11, *)) {
+    if (@available(macOS 10.16, *)) {
       [PHPhotoLibrary
           requestAuthorizationForAccessLevel:GetPHAccessLevel(access_level)
                                      handler:^(PHAuthorizationStatus status) {
@@ -637,21 +637,19 @@ Napi::Promise AskForPhotosAccess(const Napi::CallbackInfo &info) {
                                              deferred.Resolve(Napi::String::New(
                                                  env, granted));
                                            };
-                                       std::string auth_result =
-                                           StringFromPhotosStatus(status);
-                                       tsfn.BlockingCall(auth_result.c_str(),
-                                                         callback);
+                                       tsfn.BlockingCall(
+                                           StringFromPhotosStatus(status)
+                                               .c_str(),
+                                           callback);
                                        tsfn.Release();
                                      }];
     } else {
-      __block Napi::ThreadSafeFunction tsfn = ts_fn;
       [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
         auto callback = [=](Napi::Env env, Napi::Function js_cb,
                             const char *granted) {
           deferred.Resolve(Napi::String::New(env, granted));
         };
-        std::string auth_result = StringFromPhotosStatus(status);
-        tsfn.BlockingCall(auth_result.c_str(), callback);
+        tsfn.BlockingCall(StringFromPhotosStatus(status).c_str(), callback);
         tsfn.Release();
       }];
     }
@@ -740,7 +738,7 @@ Napi::Promise AskForMusicLibraryAccess(const Napi::CallbackInfo &info) {
   Napi::ThreadSafeFunction ts_fn = Napi::ThreadSafeFunction::New(
       env, Napi::Function::New(env, NoOp), "musicLibraryCallback", 0, 1);
 
-  if (@available(macOS 11, *)) {
+  if (@available(macOS 10.16, *)) {
     std::string auth_status = MusicLibraryAuthStatus();
 
     if (auth_status == kNotDetermined) {
@@ -751,8 +749,8 @@ Napi::Promise AskForMusicLibraryAccess(const Napi::CallbackInfo &info) {
                                 const char *granted) {
               deferred.Resolve(Napi::String::New(env, granted));
             };
-            std::string auth_result = StringFromMusicLibraryStatus(status);
-            tsfn.BlockingCall(auth_result.c_str(), callback);
+            tsfn.BlockingCall(StringFromMusicLibraryStatus(status).c_str(),
+                              callback);
             tsfn.Release();
           }];
     } else if (auth_status == kDenied) {
@@ -774,7 +772,7 @@ Napi::Promise AskForMusicLibraryAccess(const Napi::CallbackInfo &info) {
 
 // Request Screen Capture Access.
 void AskForScreenCaptureAccess(const Napi::CallbackInfo &info) {
-  if (@available(macOS 11, *)) {
+  if (@available(macOS 10.16, *)) {
     CGRequestScreenCaptureAccess();
   } else if (@available(macOS 10.15, *)) {
     // Tries to create a capture stream. This is necessary to add the app back
