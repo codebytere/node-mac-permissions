@@ -10,13 +10,13 @@ on:
 
 jobs:
   build:
-    runs-on: macos-11
+    runs-on: macos-latest
     steps:
-    - uses: actions/checkout@master
-    - name: Use Node.js 16.x
-      uses: actions/setup-node@v1
+    - uses: actions/checkout@v3
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v3
       with:
-        version: 16.x
+        node-version: 18.x
     - name: npm install, build, and test
       run: |
         npm install
