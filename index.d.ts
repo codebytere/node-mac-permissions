@@ -9,7 +9,7 @@ export function askForFoldersAccess(): Promise<Omit<PermissionType, 'restricted'
 export function askForFullDiskAccess(): undefined
 export function askForInputMonitoringAccess(): Promise<Omit<PermissionType, 'restricted'>>
 export function askForMicrophoneAccess(): Promise<PermissionType>
-export function askForPhotosAccess(): Promise<PermissionType>
+export function askForPhotosAccess(accessType?: 'add-only' | 'read-write'): Promise<PermissionType>
 export function askForRemindersAccess(): Promise<Omit<PermissionType, 'restricted'>>
 export function askForSpeechRecognitionAccess(): Promise<Omit<PermissionType, 'restricted'>>
 export function askForScreenCaptureAccess(): undefined
@@ -26,7 +26,8 @@ export type AuthType =
   | 'location'
   | 'microphone'
   | 'music-library'
-  | 'photos'
+  | 'photos-add-only'
+  | 'photos-read-write'
   | 'reminders'
   | 'speech-recognition'
   | 'screen'
