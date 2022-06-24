@@ -23,6 +23,22 @@ const std::string kRestricted{"restricted"};
 const std::string kNotDetermined{"not determined"};
 const std::string kLimited{"limited"};
 
+std::string CheckFileAccessLevel(NSString *path) {
+  int fd = open([path cStringUsingEncoding:kCFStringEncodingUTF8], O_RDONLY);
+  if (fd != -1) {
+    close(fd);
+    return kAuthorized;
+  }
+
+  if (errno == ENOENT)
+    return kNotDetermined;
+
+  if (errno == EPERM || errno == EACCES)
+    return kDenied;
+
+  return kNotDetermined;
+}
+
 PHAccessLevel GetPHAccessLevel(const std::string &type)
     API_AVAILABLE(macosx(10.16)) {
   return type == "read-write" ? PHAccessLevelReadWrite : PHAccessLevelAddOnly;
@@ -247,25 +263,27 @@ std::string EventAuthStatus(const std::string &type) {
 
 // Returns a status indicating whether the user has Full Disk Access.
 std::string FDAAuthStatus() {
-  std::string auth_status = kNotDetermined;
-  NSString *path;
   NSString *home_folder = GetUserHomeFolderPath();
+  NSMutableArray<NSString *> *files = [[NSMutableArray alloc]
+      initWithObjects:[home_folder stringByAppendingPathComponent:
+                                       @"Library/Safari/Bookmarks.plist"],
+                      @"/Library/Application Support/com.apple.TCC/TCC.db",
+                      @"/Library/Preferences/com.apple.TimeMachine.plist", nil];
 
   if (@available(macOS 10.15, *)) {
-    path = [home_folder
-        stringByAppendingPathComponent:@"Library/Safari/CloudTabs.db"];
-  } else {
-    path = [home_folder
-        stringByAppendingPathComponent:@"Library/Safari/Bookmarks.plist"];
+    [files addObject:[home_folder stringByAppendingPathComponent:
+                                      @"Library/Safari/CloudTabs.db"]];
   }
 
-  NSFileManager *manager = [NSFileManager defaultManager];
-  BOOL file_exists = [manager fileExistsAtPath:path];
-  NSData *data = [NSData dataWithContentsOfFile:path];
-  if (data == nil && file_exists) {
-    auth_status = kDenied;
-  } else if (file_exists) {
-    auth_status = kAuthorized;
+  std::string auth_status = kNotDetermined;
+  for (NSString *file in files) {
+    const std::string can_read = CheckFileAccessLevel(file);
+    if (can_read == kAuthorized) {
+      break;
+      auth_status = kAuthorized;
+    } else if (can_read == kDenied) {
+      auth_status = kDenied;
+    }
   }
 
   return auth_status;
