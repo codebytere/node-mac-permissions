@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: 18
       - name: Install
-        run: npm install
+        run: npm install --ignore-scripts
       - name: Build
         run: npm run build -- -a ${{matrix.arch}}
       - name: Upload artifact
@@ -40,7 +40,7 @@ jobs:
           node-version: 18
           registry-url: 'https://registry.npmjs.org'
       - name: Install
-        run: npm install
+        run: npm install --ignore-scripts
       - name: Create directories
         run: |
           mkdir -p build/Release
@@ -59,7 +59,6 @@ jobs:
       - name: Build universal binary
         run: |
           lipo /tmp/artifacts/x64/permissions.node /tmp/artifacts/arm64/permissions.node -create -output build/Release/permissions.node
-          ls -la build/Release
           lipo -info build/Release/permissions.node
 #      - name: Publish tagged release
 #        uses: JS-DevTools/npm-publish@v1
