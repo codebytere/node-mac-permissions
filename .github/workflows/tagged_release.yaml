@@ -60,7 +60,7 @@ jobs:
         run: |
           lipo /tmp/artifacts/x64/permissions.node /tmp/artifacts/arm64/permissions.node -create -output build/Release/permissions.node
           lipo -info build/Release/permissions.node
-#      - name: Publish tagged release
-#        uses: JS-DevTools/npm-publish@v1
-#        with:
-#          token: ${{ secrets.NPM_TOKEN }}
+      - name: Publish tagged release
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
