@@ -279,8 +279,8 @@ std::string FDAAuthStatus() {
   for (NSString *file in files) {
     const std::string can_read = CheckFileAccessLevel(file);
     if (can_read == kAuthorized) {
-      break;
       auth_status = kAuthorized;
+      break;
     } else if (can_read == kDenied) {
       auth_status = kDenied;
     }
@@ -294,11 +294,7 @@ std::string FDAAuthStatus() {
 std::string ScreenAuthStatus() {
   std::string auth_status = kNotDetermined;
   if (@available(macOS 10.16, *)) {
-    if (CGPreflightScreenCaptureAccess()) {
-      auth_status = kAuthorized;
-    } else {
-      auth_status = kDenied;
-    }
+    auth_status = CGPreflightScreenCaptureAccess() ? kAuthorized : kDenied;
   } else if (@available(macOS 10.15, *)) {
     auth_status = kDenied;
     NSRunningApplication *runningApplication =
