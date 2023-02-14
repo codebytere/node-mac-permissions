@@ -1,6 +1,6 @@
 {
   "name": "node-mac-permissions",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "description": "A native node module to manage system permissions on macOS",
   "main": "index.js",
   "types": "index.d.ts",
