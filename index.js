@@ -36,6 +36,14 @@ function askForFoldersAccess(folder) {
   return permissions.askForFoldersAccess.call(this, folder)
 }
 
+function askForScreenCaptureAccess(openPreferences = false) {
+  if (typeof openPreferences !== 'boolean') {
+    throw new TypeError('openPreferences must be a boolean')
+  }
+
+  return permissions.askForScreenCaptureAccess.call(this, openPreferences)
+}
+
 function askForPhotosAccess(accessLevel = 'add-only') {
   if (!['add-only', 'read-write'].includes(accessLevel)) {
     throw new TypeError(`${accessLevel} must be one of either 'add-only' or 'read-write'`)
@@ -57,6 +65,6 @@ module.exports = {
   askForMusicLibraryAccess: permissions.askForMusicLibraryAccess,
   askForPhotosAccess,
   askForSpeechRecognitionAccess: permissions.askForSpeechRecognitionAccess,
-  askForScreenCaptureAccess: permissions.askForScreenCaptureAccess,
+  askForScreenCaptureAccess,
   getAuthStatus,
 }
