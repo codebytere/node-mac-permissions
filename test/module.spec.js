@@ -1,5 +1,5 @@
 const { expect } = require('chai')
-const { askForFoldersAccess, getAuthStatus } = require('../index')
+const { askForFoldersAccess, getAuthStatus, askForScreenCaptureAccess } = require('../index')
 
 describe('node-mac-permissions', () => {
   describe('getAuthStatus()', () => {
@@ -41,6 +41,14 @@ describe('node-mac-permissions', () => {
       expect(() => {
         askForFoldersAccess('bad-type')
       }).to.throw(/bad-type is not a valid protected folder/)
+    })
+  })
+
+  describe('askForScreenCaptureAccess()', () => {
+    it('should throw on invalid openPreferences type', () => {
+      expect(() => {
+        askForScreenCaptureAccess('bad-type')
+      }).to.throw(/openPreferences must be a boolean/)
     })
   })
 })

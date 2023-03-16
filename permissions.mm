@@ -293,7 +293,7 @@ std::string FDAAuthStatus() {
 // Screen Capture access.
 std::string ScreenAuthStatus() {
   std::string auth_status = kNotDetermined;
-  if (@available(macOS 10.16, *)) {
+  if (@available(macOS 11.0, *)) {
     auth_status = CGPreflightScreenCaptureAccess() ? kAuthorized : kDenied;
   } else if (@available(macOS 10.15, *)) {
     auth_status = kDenied;
@@ -786,8 +786,14 @@ Napi::Promise AskForMusicLibraryAccess(const Napi::CallbackInfo &info) {
 
 // Request Screen Capture Access.
 void AskForScreenCaptureAccess(const Napi::CallbackInfo &info) {
-  if (@available(macOS 10.16, *)) {
-    CGRequestScreenCaptureAccess();
+  if (@available(macOS 11.0, *)) {
+    if (CGPreflightScreenCaptureAccess() || CGRequestScreenCaptureAccess())
+      return;
+
+    bool should_force_prefs = info[0].As<Napi::Boolean>().Value();
+    if (should_force_prefs && !HasOpenSystemPreferencesDialog()) {
+      OpenPrefPane("Privacy_ScreenCapture");
+    }
   } else if (@available(macOS 10.15, *)) {
     // Tries to create a capture stream. This is necessary to add the app back
     // to the list in sysprefs if the user previously denied.
@@ -801,9 +807,8 @@ void AskForScreenCaptureAccess(const Napi::CallbackInfo &info) {
     if (stream) {
       CFRelease(stream);
     } else {
-      if (!HasOpenSystemPreferencesDialog()) {
+      if (!HasOpenSystemPreferencesDialog())
         OpenPrefPane("Privacy_ScreenCapture");
-      }
     }
   }
 }

@@ -380,9 +380,11 @@ askForPhotosAccess().then(status => {
 })
 ```
 
-### `permissions.askForScreenCaptureAccess()`
+### `permissions.askForScreenCaptureAccess([openPreferences])`
 
-There is no API for programmatically requesting Screen Capture on macOS at this time, and so calling this method will trigger opening of System Preferences at the Screen Capture pane of Security and Privacy.
+* `openPreferences` Boolean (optional) - Whether to open System Preferences if the request to authorize Screen Capture fails or is denied by the user.
+
+Calling this method for the first time within an app session will trigger a permission modal. If this modal is denied, there is no  API for programmatically requesting Screen Capture on macOS at this time. Calling this method after denial with `openPreferences = true` will trigger opening of System Preferences at the Screen Capture pane of Security and Privacy.
 
 Example:
 
