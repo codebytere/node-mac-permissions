@@ -12,7 +12,7 @@
 #import <IOKit/hidsystem/IOHIDLib.h>
 #import <Photos/Photos.h>
 #import <Speech/Speech.h>
-#import <Storekit/Storekit.h>
+#import <StoreKit/StoreKit.h>
 #import <pwd.h>
 
 /***** HELPER FUNCTIONS *****/
