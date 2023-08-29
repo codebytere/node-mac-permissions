@@ -52,6 +52,14 @@ function askForPhotosAccess(accessLevel = 'add-only') {
   return permissions.askForPhotosAccess.call(this, accessLevel)
 }
 
+function askForInputMonitoringAccess(accessLevel = 'listen') {
+  if (!['listen', 'post'].includes(accessLevel)) {
+    throw new TypeError(`${accessLevel} must be one of either 'listen' or 'post'`)
+  }
+
+  return permissions.askForInputMonitoringAccess.call(this, accessLevel)
+}
+
 module.exports = {
   askForAccessibilityAccess: permissions.askForAccessibilityAccess,
   askForCalendarAccess: permissions.askForCalendarAccess,
@@ -59,7 +67,7 @@ module.exports = {
   askForContactsAccess: permissions.askForContactsAccess,
   askForFoldersAccess,
   askForFullDiskAccess: permissions.askForFullDiskAccess,
-  askForInputMonitoringAccess: permissions.askForInputMonitoringAccess,
+  askForInputMonitoringAccess,
   askForRemindersAccess: permissions.askForRemindersAccess,
   askForMicrophoneAccess: permissions.askForMicrophoneAccess,
   askForMusicLibraryAccess: permissions.askForMusicLibraryAccess,

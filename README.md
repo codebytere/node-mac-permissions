@@ -258,7 +258,9 @@ askForCameraAccess().then(status => {
 })
 ```
 
-### `permissions.askForInputMonitoringAccess()`
+### `permissions.askForInputMonitoringAccess(accessLevel)`
+
+* `accessLevel` String (optional) - The access level being requested of Input Monitoring. Can be either `post` or `listen`. Default is `listen` Only available on macOS 10.15 or higher.
 
 Returns `Promise<String>` - Current permission status; can be `authorized` or `denied`.
 
@@ -341,7 +343,7 @@ askForMusicLibraryAccess().then(status => {
 
 ### `permissions.askForPhotosAccess([accessLevel])`
 
-* `accessLevel` String (optional) - The access level being requested of Photos. Can be either `add-only` or `read-write`. Only available on macOS 11 or higher.
+* `accessLevel` String (optional) - The access level being requested of Photos. Can be either `add-only` or `read-write`. Default is `add-only`. Only available on macOS 11 or higher.
 
 Returns `Promise<String>` - Current permission status; can be `authorized`, `denied`, or `restricted`.
 
@@ -467,4 +469,7 @@ $ tccutil reset SystemPolicyDocumentsFolder <bundleID>
 
 # Reset Downloads folder access
 $ tccutil reset SystemPolicyDownloadsFolder <bundleID>
+
+# Reset Removable Volumes access
+$ tccutil reset SystemPolicyRemovableVolumes <bundleID>
 ```

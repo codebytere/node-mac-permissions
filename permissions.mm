@@ -44,6 +44,12 @@ PHAccessLevel GetPHAccessLevel(const std::string &type)
   return type == "read-write" ? PHAccessLevelReadWrite : PHAccessLevelAddOnly;
 }
 
+IOHIDRequestType GetInputMonitoringAccessType(const std::string &type)
+    API_AVAILABLE(macosx(10.15)) {
+  return type == "post" ? kIOHIDRequestTypePostEvent
+                        : kIOHIDRequestTypeListenEvent;
+}
+
 NSURL *URLForDirectory(NSSearchPathDirectory directory) {
   NSFileManager *fm = [NSFileManager defaultManager];
   return [fm URLForDirectory:directory
@@ -726,10 +732,11 @@ Napi::Promise AskForInputMonitoringAccess(const Napi::CallbackInfo &info) {
   Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
 
   if (@available(macOS 10.15, *)) {
+    std::string access_level = info[0].As<Napi::String>().Utf8Value();
     std::string auth_status = InputMonitoringAuthStatus();
 
     if (auth_status == kNotDetermined) {
-      IOHIDRequestAccess(kIOHIDRequestTypeListenEvent);
+      IOHIDRequestAccess(GetInputMonitoringAccessType(access_level));
       deferred.Resolve(Napi::String::New(env, kDenied));
     } else if (auth_status == kDenied) {
       OpenPrefPane("Privacy_ListenEvent");
