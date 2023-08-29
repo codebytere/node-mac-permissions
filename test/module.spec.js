@@ -1,5 +1,11 @@
 const { expect } = require('chai')
-const { askForFoldersAccess, getAuthStatus, askForScreenCaptureAccess } = require('../index')
+const {
+  askForFoldersAccess,
+  getAuthStatus,
+  askForPhotosAccess,
+  askForScreenCaptureAccess,
+  askForInputMonitoringAccess,
+} = require('../index')
 
 describe('node-mac-permissions', () => {
   describe('getAuthStatus()', () => {
@@ -41,6 +47,22 @@ describe('node-mac-permissions', () => {
       expect(() => {
         askForFoldersAccess('bad-type')
       }).to.throw(/bad-type is not a valid protected folder/)
+    })
+  })
+
+  describe('askForInputMonitoringAccess()', () => {
+    it('should throw on invalid types', () => {
+      expect(() => {
+        askForInputMonitoringAccess('bad-type')
+      }).to.throw(/bad-type must be one of either 'listen' or 'post'/)
+    })
+  })
+
+  describe('askForPhotosAccess()', () => {
+    it('should throw on invalid types', () => {
+      expect(() => {
+        askForPhotosAccess('bad-type')
+      }).to.throw(/bad-type must be one of either 'add-only' or 'read-write'/)
     })
   })
 
