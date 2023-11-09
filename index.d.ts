@@ -12,7 +12,7 @@ export function askForMicrophoneAccess(): Promise<PermissionType>
 export function askForPhotosAccess(accessType?: 'add-only' | 'read-write'): Promise<PermissionType>
 export function askForRemindersAccess(): Promise<Omit<PermissionType, 'restricted'>>
 export function askForSpeechRecognitionAccess(): Promise<Omit<PermissionType, 'restricted'>>
-export function askForScreenCaptureAccess(): undefined
+export function askForScreenCaptureAccess(openPreferences?: boolean): undefined
 export function getAuthStatus(authType: AuthType): PermissionType | 'not determined'
 
 export type AuthType =
