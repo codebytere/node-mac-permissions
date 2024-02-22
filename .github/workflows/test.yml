@@ -8,16 +8,19 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # tag: v4.1.1
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8  # tag: v4.0.1
       with:
-        node-version: current
-    - name: npm install, build, and test
-      run: |
-        npm install
-        npm test
+        node-version: lts/-1
+    - name: Install Dependencies
+      run: npm ci
+    - name: Run Tests
+      run: npm test
