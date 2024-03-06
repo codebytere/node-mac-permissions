@@ -510,17 +510,38 @@ Napi::Promise AskForCalendarAccess(const Napi::CallbackInfo &info) {
       env, Napi::Function::New(env, NoOp), "calendarCallback", 0, 1);
 
   __block Napi::ThreadSafeFunction tsfn = ts_fn;
-  [[EKEventStore new]
-      requestAccessToEntityType:EKEntityTypeEvent
-                     completion:^(BOOL granted, NSError *error) {
-                       auto callback = [=](Napi::Env env, Napi::Function js_cb,
-                                           const char *granted) {
-                         deferred.Resolve(Napi::String::New(env, granted));
-                       };
-                       tsfn.BlockingCall(granted ? "authorized" : "denied",
-                                         callback);
-                       tsfn.Release();
-                     }];
+  if (@available(macOS 14.0, *)) {
+    const std::string type = info[0].As<Napi::String>().Utf8Value();
+
+    EKEventStoreRequestAccessCompletionHandler handler =
+        ^(BOOL granted, NSError *error) {
+          auto callback = [=](Napi::Env env, Napi::Function js_cb,
+                              const char *granted) {
+            deferred.Resolve(Napi::String::New(env, granted));
+          };
+          tsfn.BlockingCall(granted ? "authorized" : "denied", callback);
+          tsfn.Release();
+        };
+
+    if (type == "full") {
+      [[EKEventStore new] requestFullAccessToEventsWithCompletion:handler];
+    } else {
+      [[EKEventStore new] requestWriteOnlyAccessToEventsWithCompletion:handler];
+    }
+  } else {
+    [[EKEventStore new]
+        requestAccessToEntityType:EKEntityTypeEvent
+                       completion:^(BOOL granted, NSError *error) {
+                         auto callback = [=](Napi::Env env,
+                                             Napi::Function js_cb,
+                                             const char *granted) {
+                           deferred.Resolve(Napi::String::New(env, granted));
+                         };
+                         tsfn.BlockingCall(granted ? "authorized" : "denied",
+                                           callback);
+                         tsfn.Release();
+                       }];
+  }
 
   return deferred.Promise();
 }
@@ -533,18 +554,23 @@ Napi::Promise AskForRemindersAccess(const Napi::CallbackInfo &info) {
       env, Napi::Function::New(env, NoOp), "remindersCallback", 0, 1);
 
   __block Napi::ThreadSafeFunction tsfn = ts_fn;
-  [[EKEventStore new]
-      requestAccessToEntityType:EKEntityTypeReminder
-                     completion:^(BOOL granted, NSError *error) {
-                       auto callback = [=](Napi::Env env,
-                                           Napi::Function prom_cb,
-                                           const char *granted) {
-                         deferred.Resolve(Napi::String::New(env, granted));
-                       };
-                       tsfn.BlockingCall(granted ? "authorized" : "denied",
-                                         callback);
-                       tsfn.Release();
-                     }];
+
+  EKEventStoreRequestAccessCompletionHandler handler =
+      ^(BOOL granted, NSError *error) {
+        auto callback = [=](Napi::Env env, Napi::Function prom_cb,
+                            const char *granted) {
+          deferred.Resolve(Napi::String::New(env, granted));
+        };
+        tsfn.BlockingCall(granted ? "authorized" : "denied", callback);
+        tsfn.Release();
+      };
+
+  if (@available(macOS 14.0, *)) {
+    [[EKEventStore new] requestFullAccessToRemindersWithCompletion:handler];
+  } else {
+    [[EKEventStore new] requestAccessToEntityType:EKEntityTypeReminder
+                                       completion:handler];
+  }
 
   return deferred.Promise();
 }

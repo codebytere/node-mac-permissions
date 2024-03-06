@@ -36,6 +36,14 @@ function askForFoldersAccess(folder) {
   return permissions.askForFoldersAccess.call(this, folder)
 }
 
+function askForCalendarAccess(type) {
+  if (!['write-only', 'full'].includes(type)) {
+    throw new TypeError(`${type} must be one of either 'write-only' or 'full'`)
+  }
+
+  return permissions.askForCalendarAccess.call(this, type)
+}
+
 function askForScreenCaptureAccess(openPreferences = false) {
   if (typeof openPreferences !== 'boolean') {
     throw new TypeError('openPreferences must be a boolean')
@@ -62,7 +70,7 @@ function askForInputMonitoringAccess(accessLevel = 'listen') {
 
 module.exports = {
   askForAccessibilityAccess: permissions.askForAccessibilityAccess,
-  askForCalendarAccess: permissions.askForCalendarAccess,
+  askForCalendarAccess: askForCalendarAccess,
   askForCameraAccess: permissions.askForCameraAccess,
   askForContactsAccess: permissions.askForContactsAccess,
   askForFoldersAccess,
