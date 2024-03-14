@@ -123,7 +123,9 @@ askForContactsAccess().then(status => {
 })
 ```
 
-### `permissions.askForCalendarAccess()`
+### `permissions.askForCalendarAccess([accessLevel])`
+
+* `accessLevel` String (optional) - The access level being requested of Photos. Can be either `write-only` or `full`. Default is `write-only`. Only available on macOS 14 or higher.
 
 Returns `Promise<String>` - Whether or not the request succeeded or failed; can be `authorized` or `denied`.
 
@@ -135,6 +137,19 @@ askForCalendarAccess().then(status => {
   console.log(`Access to Calendar is ${status}`)
 })
 ```
+
+On macOS 14 and newer, your app’s `Info.plist` file must provide a value for either the `NSCalendarsWriteOnlyAccessUsageDescription` key or the `NSCalendarsFullAccessUsageDescription` key that explains to the user why your app is requesting Calendar access.
+
+```
+<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
+<string>Your reason for wanting write-only Calendar access</string>
+```
+
+```
+<key>NSCalendarsFullAccessUsageDescription</key>
+<string>Your reason for wanting full Calendar access</string>
+```
+
 
 ### `permissions.askForSpeechRecognitionAccess()`
 
