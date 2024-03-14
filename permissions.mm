@@ -511,7 +511,7 @@ Napi::Promise AskForCalendarAccess(const Napi::CallbackInfo &info) {
 
   __block Napi::ThreadSafeFunction tsfn = ts_fn;
   if (@available(macOS 14.0, *)) {
-    const std::string type = info[0].As<Napi::String>().Utf8Value();
+    const std::string access_level = info[0].As<Napi::String>().Utf8Value();
 
     EKEventStoreRequestAccessCompletionHandler handler =
         ^(BOOL granted, NSError *error) {
@@ -523,7 +523,7 @@ Napi::Promise AskForCalendarAccess(const Napi::CallbackInfo &info) {
           tsfn.Release();
         };
 
-    if (type == "full") {
+    if (access_level == "full") {
       [[EKEventStore new] requestFullAccessToEventsWithCompletion:handler];
     } else {
       [[EKEventStore new] requestWriteOnlyAccessToEventsWithCompletion:handler];

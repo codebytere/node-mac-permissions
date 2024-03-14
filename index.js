@@ -36,12 +36,12 @@ function askForFoldersAccess(folder) {
   return permissions.askForFoldersAccess.call(this, folder)
 }
 
-function askForCalendarAccess(type) {
-  if (!['write-only', 'full'].includes(type)) {
-    throw new TypeError(`${type} must be one of either 'write-only' or 'full'`)
+function askForCalendarAccess(accessLevel = 'write-only') {
+  if (!['write-only', 'full'].includes(accessLevel)) {
+    throw new TypeError(`${accessLevel} must be one of either 'write-only' or 'full'`)
   }
 
-  return permissions.askForCalendarAccess.call(this, type)
+  return permissions.askForCalendarAccess.call(this, accessLevel)
 }
 
 function askForScreenCaptureAccess(openPreferences = false) {
