@@ -1,6 +1,7 @@
 const { expect } = require('chai')
 const {
   askForFoldersAccess,
+  askForCalendarAccess,
   getAuthStatus,
   askForPhotosAccess,
   askForScreenCaptureAccess,
@@ -47,6 +48,14 @@ describe('node-mac-permissions', () => {
       expect(() => {
         askForFoldersAccess('bad-type')
       }).to.throw(/bad-type is not a valid protected folder/)
+    })
+  })
+
+  describe('askForCalendarAccess([accessLevel])', () => {
+    it('should throw on invalid accessLevel', () => {
+      expect(() => {
+        askForCalendarAccess('bad-type')
+      }).to.throw(/bad-type must be one of either 'write-only' or 'full'/)
     })
   })
 
