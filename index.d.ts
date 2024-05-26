@@ -2,7 +2,7 @@
 // Project: node-mac-permissions
 
 export function askForAccessibilityAccess(): undefined
-export function askForCalendarAccess(): Promise<Omit<PermissionType, 'restricted'>>
+export function askForCalendarAccess(accessType?: 'write-only' | 'full'): Promise<Omit<PermissionType, 'restricted'>>
 export function askForCameraAccess(): Promise<PermissionType>
 export function askForContactsAccess(): Promise<Omit<PermissionType, 'restricted'>>
 export function askForFoldersAccess(): Promise<Omit<PermissionType, 'restricted'>>
