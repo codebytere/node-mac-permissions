@@ -1,4 +1,5 @@
 const permissions = require('bindings')('permissions.node')
+const isMac = process.platform === 'darwin'
 
 function getAuthStatus(type) {
   const validTypes = [
@@ -68,19 +69,23 @@ function askForInputMonitoringAccess(accessLevel = 'listen') {
   return permissions.askForInputMonitoringAccess.call(this, accessLevel)
 }
 
+function notOnMacPlatform() {
+  return false
+}
+
 module.exports = {
-  askForAccessibilityAccess: permissions.askForAccessibilityAccess,
-  askForCalendarAccess: askForCalendarAccess,
-  askForCameraAccess: permissions.askForCameraAccess,
-  askForContactsAccess: permissions.askForContactsAccess,
-  askForFoldersAccess,
-  askForFullDiskAccess: permissions.askForFullDiskAccess,
-  askForInputMonitoringAccess,
-  askForRemindersAccess: permissions.askForRemindersAccess,
-  askForMicrophoneAccess: permissions.askForMicrophoneAccess,
-  askForMusicLibraryAccess: permissions.askForMusicLibraryAccess,
-  askForPhotosAccess,
-  askForSpeechRecognitionAccess: permissions.askForSpeechRecognitionAccess,
-  askForScreenCaptureAccess,
-  getAuthStatus,
+  askForAccessibilityAccess: isMac ? permissions.askForAccessibilityAccess : notOnMacPlatform,
+  askForCalendarAccess: isMac ? askForCalendarAccess : notOnMacPlatform,
+  askForCameraAccess: isMac ? permissions.askForCameraAccess : notOnMacPlatform,
+  askForContactsAccess: isMac ? permissions.askForContactsAccess : notOnMacPlatform,
+  askForFoldersAccess: isMac ? askForFoldersAccess : notOnMacPlatform,
+  askForFullDiskAccess: isMac ? permissions.askForFullDiskAccess : notOnMacPlatform,
+  askForInputMonitoringAccess: isMac ? askForInputMonitoringAccess : notOnMacPlatform,
+  askForRemindersAccess: isMac ? permissions.askForRemindersAccess : notOnMacPlatform,
+  askForMicrophoneAccess: isMac ? permissions.askForMicrophoneAccess : notOnMacPlatform,
+  askForMusicLibraryAccess: isMac ? permissions.askForMusicLibraryAccess : notOnMacPlatform,
+  askForPhotosAccess: isMac ? askForPhotosAccess : notOnMacPlatform,
+  askForSpeechRecognitionAccess: isMac ? permissions.askForSpeechRecognitionAccess : notOnMacPlatform,
+  askForScreenCaptureAccess: isMac ? askForScreenCaptureAccess : notOnMacPlatform,
+  getAuthStatus: isMac ? getAuthStatus : notOnMacPlatform,
 }
