@@ -1,7 +1,16 @@
-const permissions = require('bindings')('permissions.node')
 const isMac = process.platform === 'darwin'
 
+function getPermissionsHandler() {
+  const permissions = require('bindings')('permissions.node')
+
+  return permissions
+}
+
 function getAuthStatus(type) {
+  if (!isMac) {
+    return
+  }
+
   const validTypes = [
     'accessibility',
     'bluetooth',
@@ -24,68 +33,148 @@ function getAuthStatus(type) {
     throw new TypeError(`${type} is not a valid type`)
   }
 
-  return permissions.getAuthStatus.call(this, type)
+  return getPermissionsHandler().getAuthStatus.call(this, type)
+}
+
+function askForAccessibilityAccess() {
+  if (!isMac) {
+    return
+  }
+
+  return getPermissionsHandler().askForAccessibilityAccess.call(this)
 }
 
 function askForFoldersAccess(folder) {
+  if (!isMac) {
+    return
+  }
+
   const validFolders = ['desktop', 'documents', 'downloads']
 
   if (!validFolders.includes(folder)) {
     throw new TypeError(`${folder} is not a valid protected folder`)
   }
 
-  return permissions.askForFoldersAccess.call(this, folder)
+  return getPermissionsHandler().askForFoldersAccess.call(this, folder)
 }
 
 function askForCalendarAccess(accessLevel = 'write-only') {
+  if (!isMac) {
+    return
+  }
+
   if (!['write-only', 'full'].includes(accessLevel)) {
     throw new TypeError(`${accessLevel} must be one of either 'write-only' or 'full'`)
   }
 
-  return permissions.askForCalendarAccess.call(this, accessLevel)
+  return getPermissionsHandler().askForCalendarAccess.call(this, accessLevel)
+}
+
+function askForCameraAccess() {
+  if (!isMac) {
+    return
+  }
+
+  return getPermissionsHandler().askForCameraAccess.call(this)
 }
 
 function askForScreenCaptureAccess(openPreferences = false) {
+  if (!isMac) {
+    return
+  }
+
   if (typeof openPreferences !== 'boolean') {
     throw new TypeError('openPreferences must be a boolean')
   }
 
-  return permissions.askForScreenCaptureAccess.call(this, openPreferences)
+  return getPermissionsHandler().askForScreenCaptureAccess.call(this, openPreferences)
 }
 
 function askForPhotosAccess(accessLevel = 'add-only') {
+  if (!isMac) {
+    return
+  }
+
   if (!['add-only', 'read-write'].includes(accessLevel)) {
     throw new TypeError(`${accessLevel} must be one of either 'add-only' or 'read-write'`)
   }
 
-  return permissions.askForPhotosAccess.call(this, accessLevel)
+  return getPermissionsHandler().askForPhotosAccess.call(this, accessLevel)
 }
 
 function askForInputMonitoringAccess(accessLevel = 'listen') {
+  if (!isMac) {
+    return
+  }
+
   if (!['listen', 'post'].includes(accessLevel)) {
     throw new TypeError(`${accessLevel} must be one of either 'listen' or 'post'`)
   }
 
-  return permissions.askForInputMonitoringAccess.call(this, accessLevel)
+  return getPermissionsHandler().askForInputMonitoringAccess.call(this, accessLevel)
 }
 
-function notOnMacPlatform() {
-  return false
+function askForContactsAccess() {
+  if (!isMac) {
+    return
+  }
+
+  return getPermissionsHandler().askForContactsAccess.call(this)
+}
+
+function askForFullDiskAccess() {
+  if (!isMac) {
+    return
+  }
+
+  return getPermissionsHandler().askForFullDiskAccess.call(this)
+}
+
+function askForRemindersAccess() {
+  if (!isMac) {
+    return
+  }
+
+  return getPermissionsHandler().askForRemindersAccess.call(this)
+}
+
+function askForMicrophoneAccess() {
+  if (!isMac) {
+    return
+  }
+
+  return getPermissionsHandler().askForMicrophoneAccess.call(this)
+}
+
+function askForMusicLibraryAccess() {
+  if (!isMac) {
+    return
+  }
+
+  return getPermissionsHandler().askForMusicLibraryAccess.call(this)
+}
+
+function askForSpeechRecognitionAccess() {
+  if (!isMac) {
+    return
+  }
+
+  return getPermissionsHandler().askForSpeechRecognitionAccess.call(this)
 }
 
 module.exports = {
-  askForAccessibilityAccess: isMac ? permissions.askForAccessibilityAccess : notOnMacPlatform,
-  askForCalendarAccess: isMac ? askForCalendarAccess : notOnMacPlatform,
-  askForCameraAccess: isMac ? permissions.askForCameraAccess : notOnMacPlatform,
-  askForContactsAccess: isMac ? permissions.askForContactsAccess : notOnMacPlatform,
-  askForFoldersAccess: isMac ? askForFoldersAccess : notOnMacPlatform,
-  askForFullDiskAccess: isMac ? permissions.askForFullDiskAccess : notOnMacPlatform,
-  askForInputMonitoringAccess: isMac ? askForInputMonitoringAccess : notOnMacPlatform,
-  askForRemindersAccess: isMac ? permissions.askForRemindersAccess : notOnMacPlatform,
-  askForMicrophoneAccess: isMac ? permissions.askForMicrophoneAccess : notOnMacPlatform,
-  askForMusicLibraryAccess: isMac ? permissions.askForMusicLibraryAccess : notOnMacPlatform,
-  askForPhotosAccess: isMac ? askForPhotosAccess : notOnMacPlatform,
-  askForSpeechRecognitionAccess: isMac ? permissions.askForSpeechRecognitionAccess : notOnMacPlatform,
-  askForScreenCaptureAccess: isMac ? askForScreenCaptureAccess : notOnMacPlatform,
-  getAuthStatus: isMac ? getAuthStatus : notOnMacPlatform,
+  askForAccessibilityAccess: askForAccessibilityAccess,
+  askForCalendarAccess: askForCalendarAccess,
+  askForCameraAccess: askForCameraAccess,
+  askForContactsAccess: askForContactsAccess,
+  askForFoldersAccess: askForFoldersAccess,
+  askForFullDiskAccess: askForFullDiskAccess,
+  askForInputMonitoringAccess: askForInputMonitoringAccess,
+  askForRemindersAccess: askForRemindersAccess,
+  askForMicrophoneAccess: askForMicrophoneAccess,
+  askForMusicLibraryAccess: askForMusicLibraryAccess,
+  askForPhotosAccess: askForPhotosAccess,
+  askForSpeechRecognitionAccess: askForSpeechRecognitionAccess,
+  askForScreenCaptureAccess: askForScreenCaptureAccess,
+  getAuthStatus: getAuthStatus,
 }

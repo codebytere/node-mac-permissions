@@ -54,7 +54,7 @@ If you're using macOS 12.3 or newer, you'll need to ensure you have Python insta
 
 ## API
 
-If you use this API on other platforms than macOS, it will return `false` in any case.
+If you use this API on other platforms than macOS, it will return `undefined` in any case.
 
 ### `permissions.getAuthStatus(type)`
 
