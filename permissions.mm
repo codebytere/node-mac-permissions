@@ -846,6 +846,25 @@ void AskForScreenCaptureAccess(const Napi::CallbackInfo &info) {
   }
 }
 
+// Request Location access.
+void AskForLocationAccess(const Napi::CallbackInfo &info) {
+  if (@available(macOS 10.15, *)) {
+    std::string auth_status = LocationAuthStatus();
+
+    if (auth_status == kNotDetermined) {
+      CLLocationManager *location_manager = [[CLLocationManager alloc] init];
+      const std::string access_level = info[0].As<Napi::String>().Utf8Value();
+      if (access_level == "always") {
+        [location_manager requestAlwaysAuthorization];
+      } else if (access_level == "when-in-use") {
+        [location_manager requestWhenInUseAuthorization];
+      }
+    } else if (auth_status == kDenied) {
+      OpenPrefPane("Privacy_Location");
+    }
+  }
+}
+
 // Request Accessibility Access.
 void AskForAccessibilityAccess(const Napi::CallbackInfo &info) {
   NSDictionary *options = @{(id)kAXTrustedCheckOptionPrompt : @(NO)};
@@ -872,6 +891,8 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
               Napi::Function::New(env, AskForFullDiskAccess));
   exports.Set(Napi::String::New(env, "askForCameraAccess"),
               Napi::Function::New(env, AskForCameraAccess));
+  exports.Set(Napi::String::New(env, "askForLocationAccess"),
+              Napi::Function::New(env, AskForLocationAccess));
   exports.Set(Napi::String::New(env, "askForMicrophoneAccess"),
               Napi::Function::New(env, AskForMicrophoneAccess));
   exports.Set(Napi::String::New(env, "askForMusicLibraryAccess"),

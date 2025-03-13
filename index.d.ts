@@ -8,6 +8,7 @@ export function askForContactsAccess(): Promise<Omit<PermissionType, 'restricted
 export function askForFoldersAccess(): Promise<Omit<PermissionType, 'restricted'>>
 export function askForFullDiskAccess(): undefined
 export function askForInputMonitoringAccess(accessType?: 'listen' | 'post'): Promise<Omit<PermissionType, 'restricted'>>
+export function askForLocationAccess(accessType?: 'when-in-use' | 'always'): Promise<Omit<PermissionType, 'restricted'>>
 export function askForMicrophoneAccess(): Promise<PermissionType>
 export function askForPhotosAccess(accessType?: 'add-only' | 'read-write'): Promise<PermissionType>
 export function askForRemindersAccess(): Promise<Omit<PermissionType, 'restricted'>>

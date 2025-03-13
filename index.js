@@ -44,6 +44,14 @@ function askForCalendarAccess(accessLevel = 'write-only') {
   return permissions.askForCalendarAccess.call(this, accessLevel)
 }
 
+function askForLocationAccess(accessLevel = 'when-in-use') {
+  if (!['when-in-use', 'always'].includes(accessLevel)) {
+    throw new TypeError(`${accessLevel} must be one of either 'when-in-use' or 'always'`)
+  }
+
+  return permissions.askForLocationAccess.call(this, accessLevel)
+}
+
 function askForScreenCaptureAccess(openPreferences = false) {
   if (typeof openPreferences !== 'boolean') {
     throw new TypeError('openPreferences must be a boolean')
@@ -71,6 +79,7 @@ function askForInputMonitoringAccess(accessLevel = 'listen') {
 module.exports = {
   askForAccessibilityAccess: permissions.askForAccessibilityAccess,
   askForCalendarAccess: askForCalendarAccess,
+  askForLocationAccess: askForLocationAccess,
   askForCameraAccess: permissions.askForCameraAccess,
   askForContactsAccess: permissions.askForContactsAccess,
   askForFoldersAccess,
