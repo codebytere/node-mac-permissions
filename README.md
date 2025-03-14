@@ -199,6 +199,14 @@ askForRemindersAccess().then(status => {
 })
 ```
 
+On macOS 14 and newer, your app’s `Info.plist` file must provide a value for the `NSRemindersFullAccessUsageDescription` key that explains to the user why your app is
+requesting Reminders access.
+
+```plist
+<key>NSRemindersFullAccessUsageDescription</key>
+<string>Your reason for wanting access to read and write Reminders data.</string>
+```
+
 ### `permissions.askForFoldersAccess(folder)`
 
 - `type` String - The folder to which you are requesting access. Can be one of `desktop`, `documents`, or `downloads`.
@@ -291,7 +299,7 @@ Checks the authorization status for input monitoring access. If the status check
 - `not determined` - A dialog will be displayed directing the user to the `Locatiojn` System Preferences window , where the user can approve your app to access location events in the background.
 - `denied` - The `Location` System Preferences window is opened with the Location privacy key highlighted.
 
-Your app must provide an explanation for its use of capture devices using the `NSLocationUsageDescription` `Info.plist` key; Calling this method or attempting to access location without a usage description raises an exception.
+Your app must provide an explanation for its use of location using either the `NSLocationUsageDescription` `Info.plist` key; Calling this method or attempting to access location without a usage description raises an exception.
 
 ```plist
 <key>NSLocationUsageDescription</key>
