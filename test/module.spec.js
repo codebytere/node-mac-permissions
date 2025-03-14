@@ -6,6 +6,7 @@ const {
   askForPhotosAccess,
   askForScreenCaptureAccess,
   askForInputMonitoringAccess,
+  askForLocationAccess,
 } = require('../index')
 
 describe('node-mac-permissions', () => {
@@ -80,6 +81,14 @@ describe('node-mac-permissions', () => {
       expect(() => {
         askForScreenCaptureAccess('bad-type')
       }).to.throw(/openPreferences must be a boolean/)
+    })
+  })
+
+  describe('askForLocationAccess()', () => {
+    it('should throw on invalid accessLevel type', () => {
+      expect(() => {
+        askForLocationAccess('bad-type')
+      }).to.throw(/bad-type must be one of either 'when-in-use' or 'always'/)
     })
   })
 })
