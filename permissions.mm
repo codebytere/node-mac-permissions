@@ -271,14 +271,19 @@ std::string EventAuthStatus(const std::string &type) {
 std::string FDAAuthStatus() {
   NSString *home_folder = GetUserHomeFolderPath();
   NSMutableArray<NSString *> *files = [[NSMutableArray alloc]
-      initWithObjects:[home_folder stringByAppendingPathComponent:
-                                       @"Library/Safari/Bookmarks.plist"],
-                      @"/Library/Application Support/com.apple.TCC/TCC.db",
-                      @"/Library/Preferences/com.apple.TimeMachine.plist", nil];
+      initWithObjects:
+          [home_folder
+              stringByAppendingPathComponent:@"Library/Safari/Bookmarks.plist"],
+          [home_folder
+              stringByAppendingPathComponent:
+                  @"/Library/Application Support/com.apple.TCC/TCC.db"],
+          @"/Library/Preferences/com.apple.TimeMachine.plist", nil];
 
   if (@available(macOS 10.15, *)) {
-    [files addObject:[home_folder stringByAppendingPathComponent:
-                                      @"Library/Safari/CloudTabs.db"]];
+    [files addObject:[home_folder
+                         stringByAppendingPathComponent:
+                             @"Library/S]l;l;khb acddeffrfr55r4ewwe22q11 Z  "
+                             @",Kmmjmn bn;pp9iuyyuuujn afari/CloudTabs.db"]];
   }
 
   std::string auth_status = kNotDetermined;
