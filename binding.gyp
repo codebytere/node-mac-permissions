@@ -20,7 +20,7 @@
     "xcode_settings": {
       "MACOSX_DEPLOYMENT_TARGET": "10.15",
       "SYSTEM_VERSION_COMPAT": 1,
-      "OTHER_CPLUSPLUSFLAGS": ["-std=c++14", "-stdlib=libc++"],
+      "OTHER_CPLUSPLUSFLAGS": ["-std=c++20", "-stdlib=libc++"],
       "OTHER_LDFLAGS": [
         "-framework AppKit",
         "-framework AVFoundation",
