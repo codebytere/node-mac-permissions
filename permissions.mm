@@ -256,7 +256,8 @@ std::string EventAuthStatus(const std::string &type) {
       (type == "calendar") ? EKEntityTypeEvent : EKEntityTypeReminder;
 
   switch ([EKEventStore authorizationStatusForEntityType:entity_type]) {
-  case EKAuthorizationStatusAuthorized:
+  case EKAuthorizationStatusWriteOnly:
+  case EKAuthorizationStatusFullAccess:
     return kAuthorized;
   case EKAuthorizationStatusDenied:
     return kDenied;
