@@ -1,7 +1,7 @@
 // Type definitions for node-mac-permissions
 // Project: node-mac-permissions
 
-export function askForAppleEventsAccess(): Promise<Omit<PermissionType, 'restricted'>>
+export function askForAppleEventsAccess(targetAppBundleId: string, shouldPrompt?: boolean): Promise<Omit<PermissionType, 'restricted'>>
 export function askForAccessibilityAccess(): undefined
 export function askForCalendarAccess(accessType?: 'write-only' | 'full'): Promise<Omit<PermissionType, 'restricted'>>
 export function askForCameraAccess(): Promise<PermissionType>
@@ -19,7 +19,6 @@ export function getAuthStatus(authType: AuthType): PermissionType | 'not determi
 
 export type AuthType =
   | 'accessibility'
-  | 'apple-events'
   | 'bluetooth'
   | 'calendar'
   | 'camera'
