@@ -18,6 +18,7 @@ export function getAuthStatus(authType: AuthType): PermissionType | 'not determi
 
 export type AuthType =
   | 'accessibility'
+  | 'apple-events'
   | 'bluetooth'
   | 'calendar'
   | 'camera'
