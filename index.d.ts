@@ -1,6 +1,7 @@
 // Type definitions for node-mac-permissions
 // Project: node-mac-permissions
 
+export function askForAppleEventsAccess(): Promise<Omit<PermissionType, 'restricted'>>
 export function askForAccessibilityAccess(): undefined
 export function askForCalendarAccess(accessType?: 'write-only' | 'full'): Promise<Omit<PermissionType, 'restricted'>>
 export function askForCameraAccess(): Promise<PermissionType>

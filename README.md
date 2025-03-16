@@ -8,6 +8,8 @@
 - [Overview](#overview)
 - [API](#api)
   - [`permissions.getAuthStatus(type)`](#permissionsgetauthstatustype)
+  - [`permissions.askForAccessibilityAccess()`](#permissionsaskforaccessibilityaccess)
+  - [`permissions.askForAppleEventsAccess()`](#permissionsaskforappleeventsaccesstargetappbundleid)
   - [`permissions.askForContactsAccess()`](#permissionsaskforcontactsaccess)
   - [`permissions.askForCalendarAccess([accessLevel])`](#permissionsaskforcalendaraccessaccesslevel)
   - [`permissions.askForSpeechRecognitionAccess()`](#permissionsaskforspeechrecognitionaccess)
@@ -21,7 +23,6 @@
   - [`permissions.askForMusicLibraryAccess()`](#permissionsaskformusiclibraryaccess)
   - [`permissions.askForPhotosAccess([accessLevel])`](#permissionsaskforphotosaccessaccesslevel)
   - [`permissions.askForScreenCaptureAccess([openPreferences])`](#permissionsaskforscreencaptureaccessopenpreferences)
-  - [`permissions.askForAccessibilityAccess()`](#permissionsaskforaccessibilityaccess)
 - [FAQ](#faq)
 
 ## Overview
@@ -32,19 +33,20 @@ npm i node-mac-permissions
 
 This native Node.js module allows you to manage an app's access to:
 
-* Accessibility
-* Calendar
-* Camera
-* Contacts
-* Full Disk Access
-* Input Monitoring
-* Location
-* Microphone
-* Photos
-* Protected Folders
-* Reminders
-* Screen Capture
-* Speech Recognition
+- Apple Events
+- Accessibility
+- Calendar
+- Camera
+- Contacts
+- Full Disk Access
+- Input Monitoring
+- Location
+- Microphone
+- Photos
+- Protected Folders
+- Reminders
+- Screen Capture
+- Speech Recognition
 
 If you need to ask for permissions, your app must be allowed to ask for permission :
 
@@ -57,7 +59,7 @@ If you're using macOS 12.3 or newer, you'll need to ensure you have Python insta
 
 ### `permissions.getAuthStatus(type)`
 
-- `type` String - The type of system component to which you are requesting access. Can be one of `accessibility`, `apple-events`, `bluetooth`, `calendar`, `camera`, `contacts`, `full-disk-access`, `input-monitoring`, `location`, `microphone`,`photos`, `reminders`, `screen`, or `speech-recognition`.
+- `type` String - The type of system component to which you are requesting access. Can be one of `accessibility`, `bluetooth`, `calendar`, `camera`, `contacts`, `full-disk-access`, `input-monitoring`, `location`, `microphone`,`photos`, `reminders`, `screen`, or `speech-recognition`.
 
 Returns `String` - Can be one of `not determined`, `denied`, `authorized`, or `restricted`.
 
@@ -105,6 +107,42 @@ for (const type of types) {
   const status = getAuthStatus(type)
   console.log(`Access to ${type} is ${status}`)
 }
+```
+
+### `permissions.askForAccessibilityAccess()`
+
+There is no API for programmatically requesting Accessibility access on macOS at this time, and so calling this method will trigger opening of System Preferences at the Accessibility pane of Security and Privacy.
+
+Example:
+
+```js
+const { askForAccessibilityAccess } = require('node-mac-permissions')
+
+askForAccessibilityAccess()
+```
+
+### `permissions.askForAppleEventsAccess(targetAppBundleId[, shouldPrompt])`
+
+- `targetAppBundleId` String - The bundle identifier for the app you're targeting to send Apple Events to.
+- `shouldPrompt` Boolean (optional) - If this is `false`, the current authorization status will be returned for the provided `targetAppBundleId`. Default is true.
+
+Returns `Promise<String>` - Whether or not the request succeeded or failed; can be `authorized`, `denied`, or `not determined`.
+
+Your app’s `Info.plist` file must provide a value for the `NSAppleEventsUsageDescription` key that explains to the user why your app is requesting the ability to send Apple Events.
+
+```plist
+<key>NSAppleEventsUsageDescription</key>
+<string>Your reason for wanting the ability to send Apple Events</string>
+```
+
+Example:
+
+```js
+const { askForAppleEventsAccess } = require('node-mac-permissions')
+
+askForAppleEventsAccess('com.apple.finder').then(status => {
+  console.log(`Access to send Apple Events is ${status}`)
+})
 ```
 
 ### `permissions.askForContactsAccess()`
@@ -445,18 +483,6 @@ Example:
 const { askForScreenCaptureAccess } = require('node-mac-permissions')
 
 askForScreenCaptureAccess()
-```
-
-### `permissions.askForAccessibilityAccess()`
-
-There is no API for programmatically requesting Accessibility access on macOS at this time, and so calling this method will trigger opening of System Preferences at the Accessibility pane of Security and Privacy.
-
-Example:
-
-```js
-const { askForAccessibilityAccess } = require('node-mac-permissions')
-
-askForAccessibilityAccess()
 ```
 
 ## FAQ

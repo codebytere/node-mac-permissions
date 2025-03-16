@@ -23,6 +23,22 @@ const std::string kRestricted{"restricted"};
 const std::string kNotDetermined{"not determined"};
 const std::string kLimited{"limited"};
 
+// Check if a bundle ID is valid (i.e., corresponds to an installed app)
+bool IsValidBundleID(NSString *bundleID) {
+  if (!bundleID)
+    return false;
+
+  CFArrayRef appURLs = LSCopyApplicationURLsForBundleIdentifier(
+      (__bridge CFStringRef)bundleID, NULL);
+
+  if (appURLs) {
+    CFRelease(appURLs);
+    return true;
+  }
+
+  return false;
+}
+
 std::string CheckFileAccessLevel(NSString *path) {
   int fd = open([path cStringUsingEncoding:kCFStringEncodingUTF8], O_RDONLY);
   if (fd != -1) {
@@ -227,30 +243,6 @@ std::string InputMonitoringAuthStatus() {
   }
 }
 
-// Returns a status indicating whether the user has authorized Apple Events.
-std::string AppleEventsAuthStatus(Napi::Env env) {
-  AEDesc target_app = {typeNull, NULL};
-  OSStatus status = AECreateDesc(typeApplicationBundleID, "com.apple.finder",
-                                 strlen("com.apple.finder"), &target_app);
-  if (status != noErr) {
-    std::string err_msg = "Failed to query for Apple Events access";
-    Napi::Error::New(env, err_msg).ThrowAsJavaScriptException();
-    return kNotDetermined;
-  }
-
-  status = AEDeterminePermissionToAutomateTarget(&target_app, kCoreEventClass,
-                                                 kAEOpenDocuments, false);
-
-  AEDisposeDesc(&target_app);
-
-  // User prompt has not yet been shown.
-  if (status == errAEEventWouldRequireUserConsent) {
-    return kNotDetermined;
-  }
-
-  return status == noErr ? kAuthorized : kDenied;
-}
-
 // Returns a status indicating whether the user has authorized Apple Music
 // Library access.
 std::string MusicLibraryAuthStatus() {
@@ -452,11 +444,49 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
     auth_status = MusicLibraryAuthStatus();
   } else if (type == "input-monitoring") {
     auth_status = InputMonitoringAuthStatus();
-  } else if (type == "apple-events") {
-    auth_status = AppleEventsAuthStatus(env);
   }
 
   return Napi::Value::From(env, auth_status);
+}
+
+// Request Apple Events access.
+Napi::Promise AskForAppleEventsAccess(const Napi::CallbackInfo &info) {
+  Napi::Env env = info.Env();
+  Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
+
+  std::string bundle_id = info[0].As<Napi::String>().Utf8Value();
+  bool should_prompt = info[1].As<Napi::Boolean>().Value() ? true : false;
+
+  if (IsValidBundleID([NSString stringWithUTF8String:bundle_id.c_str()])) {
+    std::string err_msg = "Bundle identifier: " + bundle_id + " is not valid";
+    deferred.Reject(Napi::String::New(env, err_msg));
+    return deferred.Promise();
+  }
+
+  AEDesc target_app = {typeNull, NULL};
+  OSStatus status = AECreateDesc(typeApplicationBundleID, bundle_id.c_str(),
+                                 bundle_id.length(), &target_app);
+  if (status != noErr) {
+    std::string err_msg = "Failed to query for Apple Events access";
+    deferred.Reject(Napi::String::New(env, err_msg));
+    return deferred.Promise();
+  }
+
+  status = AEDeterminePermissionToAutomateTarget(
+      &target_app, kCoreEventClass, kAEOpenDocuments, should_prompt);
+
+  AEDisposeDesc(&target_app);
+
+  // User prompt has not yet been shown or it was cancelled.
+  if (status == errAEEventWouldRequireUserConsent ||
+      status == userCanceledErr) {
+    deferred.Resolve(Napi::String::New(env, kNotDetermined));
+  } else {
+    deferred.Resolve(
+        Napi::String::New(env, status == noErr ? kAuthorized : kDenied));
+  }
+
+  return deferred.Promise();
 }
 
 // Request access to various protected folders on the system.
@@ -821,37 +851,38 @@ void AskForAccessibilityAccess(const Napi::CallbackInfo &info) {
 
 // Initializes all functions exposed to JS
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
-  exports.Set(Napi::String::New(env, "getAuthStatus"),
-              Napi::Function::New(env, GetAuthStatus));
-  exports.Set(Napi::String::New(env, "askForContactsAccess"),
-              Napi::Function::New(env, AskForContactsAccess));
+  exports.Set(Napi::String::New(env, "askForAccessibilityAccess"),
+              Napi::Function::New(env, AskForAccessibilityAccess));
+  exports.Set(Napi::String::New(env, "askForAppleEventsAccess"),
+              Napi::Function::New(env, AskForAppleEventsAccess));
   exports.Set(Napi::String::New(env, "askForCalendarAccess"),
               Napi::Function::New(env, AskForCalendarAccess));
-  exports.Set(Napi::String::New(env, "askForRemindersAccess"),
-              Napi::Function::New(env, AskForRemindersAccess));
+  exports.Set(Napi::String::New(env, "askForCameraAccess"),
+              Napi::Function::New(env, AskForCameraAccess));
+  exports.Set(Napi::String::New(env, "askForContactsAccess"),
+              Napi::Function::New(env, AskForContactsAccess));
   exports.Set(Napi::String::New(env, "askForFoldersAccess"),
               Napi::Function::New(env, AskForFoldersAccess));
   exports.Set(Napi::String::New(env, "askForFullDiskAccess"),
               Napi::Function::New(env, AskForFullDiskAccess));
-  exports.Set(Napi::String::New(env, "askForCameraAccess"),
-              Napi::Function::New(env, AskForCameraAccess));
+  exports.Set(Napi::String::New(env, "askForInputMonitoringAccess"),
+              Napi::Function::New(env, AskForInputMonitoringAccess));
   exports.Set(Napi::String::New(env, "askForLocationAccess"),
               Napi::Function::New(env, AskForLocationAccess));
   exports.Set(Napi::String::New(env, "askForMicrophoneAccess"),
               Napi::Function::New(env, AskForMicrophoneAccess));
   exports.Set(Napi::String::New(env, "askForMusicLibraryAccess"),
               Napi::Function::New(env, AskForMusicLibraryAccess));
-  exports.Set(Napi::String::New(env, "askForSpeechRecognitionAccess"),
-              Napi::Function::New(env, AskForSpeechRecognitionAccess));
   exports.Set(Napi::String::New(env, "askForPhotosAccess"),
               Napi::Function::New(env, AskForPhotosAccess));
+  exports.Set(Napi::String::New(env, "askForRemindersAccess"),
+              Napi::Function::New(env, AskForRemindersAccess));
   exports.Set(Napi::String::New(env, "askForScreenCaptureAccess"),
               Napi::Function::New(env, AskForScreenCaptureAccess));
-  exports.Set(Napi::String::New(env, "askForAccessibilityAccess"),
-              Napi::Function::New(env, AskForAccessibilityAccess));
-  exports.Set(Napi::String::New(env, "askForInputMonitoringAccess"),
-              Napi::Function::New(env, AskForInputMonitoringAccess));
-
+  exports.Set(Napi::String::New(env, "askForSpeechRecognitionAccess"),
+              Napi::Function::New(env, AskForSpeechRecognitionAccess));
+  exports.Set(Napi::String::New(env, "getAuthStatus"),
+              Napi::Function::New(env, GetAuthStatus));
   return exports;
 }
 

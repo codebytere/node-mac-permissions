@@ -77,7 +77,20 @@ function askForInputMonitoringAccess(accessLevel = 'listen') {
   return permissions.askForInputMonitoringAccess.call(this, accessLevel)
 }
 
+function askForAppleEventsAccess(targetAppBundleId, shouldPrompt = true) {
+  if (typeof targetAppBundleId !== 'string') {
+    throw new TypeError('targetAppBundleId must be a string')
+  }
+
+  if (typeof shouldPrompt !== 'boolean') {
+    throw new TypeError('shouldPrompt must be a boolean')
+  }
+
+  return permissions.askForAppleEventsAccess.call(this, targetAppBundleId, shouldPrompt)
+}
+
 module.exports = {
+  askForAppleEventsAccess: askForAppleEventsAccess,
   askForAccessibilityAccess: permissions.askForAccessibilityAccess,
   askForCalendarAccess: askForCalendarAccess,
   askForLocationAccess: askForLocationAccess,
