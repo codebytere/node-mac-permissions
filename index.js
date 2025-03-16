@@ -3,6 +3,7 @@ const permissions = require('bindings')('permissions.node')
 function getAuthStatus(type) {
   const validTypes = [
     'accessibility',
+    'apple-events',
     'bluetooth',
     'calendar',
     'camera',

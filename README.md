@@ -57,7 +57,7 @@ If you're using macOS 12.3 or newer, you'll need to ensure you have Python insta
 
 ### `permissions.getAuthStatus(type)`
 
-- `type` String - The type of system component to which you are requesting access. Can be one of `accessibility`, `bluetooth`, `calendar`, `camera`, `contacts`, `full-disk-access`, `input-monitoring`, `location`, `microphone`,`photos`, `reminders`, `screen`, or `speech-recognition`.
+- `type` String - The type of system component to which you are requesting access. Can be one of `accessibility`, `apple-events`, `bluetooth`, `calendar`, `camera`, `contacts`, `full-disk-access`, `input-monitoring`, `location`, `microphone`,`photos`, `reminders`, `screen`, or `speech-recognition`.
 
 Returns `String` - Can be one of `not determined`, `denied`, `authorized`, or `restricted`.
 

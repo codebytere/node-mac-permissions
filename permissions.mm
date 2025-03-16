@@ -237,6 +237,34 @@ std::string InputMonitoringAuthStatus() {
   return kAuthorized;
 }
 
+// Returns a status indicating whether the user has authorized Apple Events.
+std::string AppleEventsAuthStatus(Napi::Env env) {
+  if (@available(macOS 10.14, *)) {
+    AEDesc target_app = {typeNull, NULL};
+    OSStatus status = AECreateDesc(typeApplicationBundleID, "com.apple.finder",
+                                   strlen("com.apple.finder"), &target_app);
+    if (status != noErr) {
+      std::string err_msg = "Failed to query for Apple Events access";
+      Napi::Error::New(env, err_msg).ThrowAsJavaScriptException();
+      return kNotDetermined;
+    }
+
+    status = AEDeterminePermissionToAutomateTarget(&target_app, kCoreEventClass,
+                                                   kAEOpenDocuments, false);
+
+    AEDisposeDesc(&target_app);
+
+    // User prompt has not yet been shown.
+    if (status == errAEEventWouldRequireUserConsent) {
+      return kNotDetermined;
+    }
+
+    return status == noErr ? kAuthorized : kDenied;
+  }
+
+  return kAuthorized;
+}
+
 // Returns a status indicating whether the user has authorized Apple Music
 // Library access.
 std::string MusicLibraryAuthStatus() {
@@ -452,6 +480,8 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
     auth_status = MusicLibraryAuthStatus();
   } else if (type == "input-monitoring") {
     auth_status = InputMonitoringAuthStatus();
+  } else if (type == "apple-events") {
+    auth_status = AppleEventsAuthStatus(env);
   }
 
   return Napi::Value::From(env, auth_status);
