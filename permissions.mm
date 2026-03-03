@@ -498,7 +498,7 @@ Napi::Promise AskForAppleEventsAccess(const Napi::CallbackInfo &info) {
   std::string bundle_id = info[0].As<Napi::String>().Utf8Value();
   bool should_prompt = info[1].As<Napi::Boolean>().Value() ? true : false;
 
-  if (IsValidBundleID([NSString stringWithUTF8String:bundle_id.c_str()])) {
+  if (!IsValidBundleID([NSString stringWithUTF8String:bundle_id.c_str()])) {
     std::string err_msg = "Bundle identifier: " + bundle_id + " is not valid";
     deferred.Reject(Napi::String::New(env, err_msg));
     return deferred.Promise();
