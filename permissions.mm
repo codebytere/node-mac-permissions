@@ -394,8 +394,8 @@ std::string SpeechRecognitionAuthStatus() {
 // Returns a status indicating whether the user has authorized
 // Notifications access.
 std::string NotificationAuthStatus() {
-  NSURL *bundle_url = [[NSBundle mainBundle] bundleURL];
-  if (!IsValidBundleID([bundle_url path])) {
+  NSString *bundle_id = [[NSBundle mainBundle] bundleIdentifier];
+  if (!IsValidBundleID(bundle_id)) {
     return kNotDetermined;
   }
 
