@@ -424,7 +424,7 @@ std::string LocationAuthStatus() {
   case kCLAuthorizationStatusDenied:
     return kDenied;
   case kCLAuthorizationStatusRestricted:
-    return kDenied;
+    return kRestricted;
   default:
     return kDenied;
   }

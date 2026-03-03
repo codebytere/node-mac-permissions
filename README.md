@@ -517,6 +517,9 @@ $ tccutil reset All
 # Reset Accessibility access permissions
 $ tccutil reset Accessibility
 
+# Reset Audio Capture permissions
+$ tccutil reset AudioCapture
+
 # Reset Reminders access permissions
 $ tccutil reset Reminders
 
