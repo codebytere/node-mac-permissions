@@ -371,7 +371,8 @@ std::string NotificationAuthStatus() {
 // Returns a status indicating whether the user has authorized location
 // access.
 std::string LocationAuthStatus() {
-  switch ([CLLocationManager authorizationStatus]) {
+  CLLocationManager *manager = [[CLLocationManager alloc] init];
+  switch (manager.authorizationStatus) {
   case kCLAuthorizationStatusAuthorized:
     return kAuthorized;
   case kCLAuthorizationStatusDenied:
@@ -379,7 +380,7 @@ std::string LocationAuthStatus() {
   case kCLAuthorizationStatusRestricted:
     return kRestricted;
   default:
-    return kDenied;
+    return kNotDetermined;
   }
 }
 
