@@ -14,6 +14,7 @@
   - [`permissions.askForCalendarAccess([accessLevel])`](#permissionsaskforcalendaraccessaccesslevel)
   - [`permissions.askForSpeechRecognitionAccess()`](#permissionsaskforspeechrecognitionaccess)
   - [`permissions.askForRemindersAccess()`](#permissionsaskforremindersaccess)
+  - [`permissions.askForExternalStorageAccess()`](#permissionsaskforexternalstorageaccess)
   - [`permissions.askForFocusStatusAccess()`](#permissionsaskforfocusstatusaccess)
   - [`permissions.askForFoldersAccess(folder)`](#permissionsaskforfoldersaccessfolder)
   - [`permissions.askForFullDiskAccess()`](#permissionsaskforfulldiskaccess)
@@ -39,6 +40,7 @@ This native Node.js module allows you to manage an app's access to:
 - Calendar
 - Camera
 - Contacts
+- External Storage Devices
 - Focus Status
 - Full Disk Access
 - Input Monitoring
@@ -62,7 +64,7 @@ If you're using macOS 12.3 or newer, you'll need to ensure you have Python insta
 
 ### `permissions.getAuthStatus(type)`
 
-- `type` String - The type of system component to which you are requesting access. Can be one of `accessibility`, `bluetooth`, `calendar`, `camera`, `contacts`, `focus-status`, `full-disk-access`, `input-monitoring`, `location`, `microphone`, `notifications`, `photos`, `reminders`, `screen`, or `speech-recognition`.
+- `type` String - The type of system component to which you are requesting access. Can be one of `accessibility`, `bluetooth`, `calendar`, `camera`, `contacts`, `external-storage`, `focus-status`, `full-disk-access`, `input-monitoring`, `location`, `microphone`, `notifications`, `photos`, `reminders`, `screen`, or `speech-recognition`.
 
 Returns `String` - Can be one of `not determined`, `denied`, `authorized`, `limited`, `provisional`, or `restricted`.
 
@@ -86,6 +88,7 @@ const types = [
   'calendar',
   'camera',
   'contacts',
+  'external-storage',
   'focus-status',
   'full-disk-access',
   'input-monitoring',
@@ -238,6 +241,27 @@ requesting Reminders access.
 ```plist
 <key>NSRemindersFullAccessUsageDescription</key>
 <string>Your reason for wanting access to read and write Reminders data.</string>
+```
+
+### `permissions.askForExternalStorageAccess()`
+
+Returns `Promise<String>` - Whether or not the request succeeded or failed; can be `authorized`, `denied`, or `not determined`.
+
+Checks the authorization status for capturing onto an external storage device. If the status check returns:
+
+- `not determined` - The external storage access authorization will prompt the user to authorize or deny. The Promise is resolved after the user selection with either `authorized` or `denied`.
+- `denied` - The Promise is resolved as `denied`.
+
+**Note:** Requires macOS 14.0 or higher. On older versions, the Promise resolves as `not determined`.
+
+Example:
+
+```js
+const { askForExternalStorageAccess } = require('node-mac-permissions')
+
+askForExternalStorageAccess().then(status => {
+  console.log(`Access to External Storage is ${status}`)
+})
 ```
 
 ### `permissions.askForFocusStatusAccess()`

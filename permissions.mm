@@ -422,6 +422,25 @@ std::string FocusStatusAuthStatus() {
   return kNotDetermined;
 }
 
+// Returns a status indicating whether the user has authorized External Storage
+// Device access.
+std::string ExternalStorageAuthStatus() {
+  if (@available(macOS 14.0, *)) {
+    switch ([AVExternalStorageDevice authorizationStatus]) {
+    case AVAuthorizationStatusAuthorized:
+      return kAuthorized;
+    case AVAuthorizationStatusDenied:
+      return kDenied;
+    case AVAuthorizationStatusRestricted:
+      return kRestricted;
+    default:
+      return kNotDetermined;
+    }
+  }
+
+  return kNotDetermined;
+}
+
 /***** EXPORTED FUNCTIONS *****/
 
 // Returns the user's access consent status as a string.
@@ -464,6 +483,8 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
     auth_status = NotificationAuthStatus();
   } else if (type == "focus-status") {
     auth_status = FocusStatusAuthStatus();
+  } else if (type == "external-storage") {
+    auth_status = ExternalStorageAuthStatus();
   }
 
   return Napi::Value::From(env, auth_status);
@@ -837,6 +858,39 @@ void AskForAccessibilityAccess(const Napi::CallbackInfo &info) {
   }
 }
 
+// Request External Storage Device access.
+Napi::Promise AskForExternalStorageAccess(const Napi::CallbackInfo &info) {
+  Napi::Env env = info.Env();
+  Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
+
+  if (@available(macOS 14.0, *)) {
+    Napi::ThreadSafeFunction tsfn = Napi::ThreadSafeFunction::New(
+        env, Napi::Function::New(env, NoOp), "externalStorageCallback", 0, 1);
+
+    auto callback = [=](Napi::Env env, Napi::Function js_cb,
+                        const char *status) {
+      deferred.Resolve(Napi::String::New(env, status));
+    };
+
+    std::string auth_status = ExternalStorageAuthStatus();
+
+    if (auth_status == kNotDetermined) {
+      [AVExternalStorageDevice
+          requestAccessWithCompletionHandler:^(BOOL granted) {
+            tsfn.BlockingCall(granted ? "authorized" : "denied", callback);
+            tsfn.Release();
+          }];
+    } else {
+      tsfn.Release();
+      deferred.Resolve(Napi::String::New(env, auth_status));
+    }
+  } else {
+    deferred.Resolve(Napi::String::New(env, kNotDetermined));
+  }
+
+  return deferred.Promise();
+}
+
 // Request Focus Status access.
 Napi::Promise AskForFocusStatusAccess(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
@@ -898,6 +952,8 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
               Napi::Function::New(env, AskForCameraAccess));
   exports.Set(Napi::String::New(env, "askForContactsAccess"),
               Napi::Function::New(env, AskForContactsAccess));
+  exports.Set(Napi::String::New(env, "askForExternalStorageAccess"),
+              Napi::Function::New(env, AskForExternalStorageAccess));
   exports.Set(Napi::String::New(env, "askForFocusStatusAccess"),
               Napi::Function::New(env, AskForFocusStatusAccess));
   exports.Set(Napi::String::New(env, "askForFoldersAccess"),

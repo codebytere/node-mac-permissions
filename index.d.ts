@@ -6,6 +6,7 @@ export function askForAccessibilityAccess(): undefined
 export function askForCalendarAccess(accessType?: 'write-only' | 'full'): Promise<Omit<PermissionType, 'restricted'>>
 export function askForCameraAccess(): Promise<PermissionType>
 export function askForContactsAccess(): Promise<Omit<PermissionType, 'restricted'>>
+export function askForExternalStorageAccess(): Promise<PermissionType>
 export function askForFocusStatusAccess(): Promise<PermissionType>
 export function askForFoldersAccess(): Promise<Omit<PermissionType, 'restricted'>>
 export function askForFullDiskAccess(): undefined
@@ -24,6 +25,7 @@ export type AuthType =
   | 'calendar'
   | 'camera'
   | 'contacts'
+  | 'external-storage'
   | 'focus-status'
   | 'full-disk-access'
   | 'input-monitoring'
