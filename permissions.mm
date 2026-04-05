@@ -192,9 +192,18 @@ bool HasOpenSystemPreferencesDialog() {
             runningApplicationWithProcessIdentifier:[windowOwnerPID
                                                         integerValue]];
 
-        [NSRunningApplication.currentApplication
-            activateWithOptions:NSApplicationActivateAllWindows];
-        [authApplication activateWithOptions:NSApplicationActivateAllWindows];
+        if (@available(macOS 14.0, *)) {
+          [NSRunningApplication.currentApplication
+              activateFromApplication:NSRunningApplication.currentApplication
+                              options:NSApplicationActivateAllWindows];
+          [authApplication
+              activateFromApplication:NSRunningApplication.currentApplication
+                              options:NSApplicationActivateAllWindows];
+        } else {
+          [NSRunningApplication.currentApplication
+              activateWithOptions:NSApplicationActivateAllWindows];
+          [authApplication activateWithOptions:NSApplicationActivateAllWindows];
+        }
 
         isDialogOpen = true;
         break;
