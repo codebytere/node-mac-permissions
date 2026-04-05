@@ -75,15 +75,6 @@ Return Value Descriptions:
 - `limited` - The application is authorized for limited access to `type` data. Currently only applicable to the `photos` type.
 - 'provisional' - The application is provisionally authorized to access `type` data. Currently only applicable to the `notifications` type.
 
-**Notes:**
-
-- Access to `bluetooth` will always return a status of `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
-- Access to `camera` and `microphone` will always return a status of `authorized` prior to macOS 10.14, as the underlying API was not introduced until that version.
-- Access to `input-monitoring` will always return a status of `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
-- Access to `music-library` will always return a status of `authorized` prior to macOS 11.0, as the underlying API was not introduced until that version.
-- Access to `screen` will always return a status of `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
-- Access to `speech-recognition` will always return a status of `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
-
 Example:
 
 ```js
@@ -224,8 +215,6 @@ askForSpeechRecognitionAccess().then(status => {
 })
 ```
 
-**Note:** `status` will be resolved back as `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
-
 ### `permissions.askForRemindersAccess()`
 
 Returns `Promise<String>` - Whether or not the request succeeded or failed; can be `authorized` or `denied`.
@@ -315,10 +304,6 @@ Your app must provide an explanation for its use of capture devices using the `N
 <string>Your reason for wanting to access the Camera</string>
 ```
 
-**Note:**
-
-- `status` will be resolved back as `authorized` prior to macOS 10.14, as the underlying API was not introduced until that version.
-
 Example:
 
 ```js
@@ -358,10 +343,6 @@ Checks the authorization status for input monitoring access. If the status check
 - `not determined` - A dialog will be displayed directing the user to the `Security & Privacy` System Preferences window , where the user can approve your app to monitor keyboard events in the background. The Promise is resolved as `denied`.
 - `denied` - The `Security & Privacy` System Preferences window is opened with the Input Monitoring privacy key highlighted. On open of the `Security & Privacy` window, the Promise is resolved as `denied`.
 
-**Note:**
-
-- `status` will be resolved back as `authorized` prior to macOS 10.15, as the underlying API was not introduced until that version.
-
 Example:
 
 ```js
@@ -389,10 +370,6 @@ Your app must provide an explanation for its use of capture devices using the `N
 <string>Your reason for wanting to access the Microphone</string>
 ```
 
-**Note:**
-
-- `status` will be resolved back as `authorized` prior to macOS 10.14, as the underlying API was not introduced until that version.
-
 Example:
 
 ```js
@@ -417,10 +394,6 @@ Your app must provide an explanation for its use of the music library using the 
 <key>NSAppleMusicUsageDescription</key>
 <string>Your reason for wanting to access the user’s media library.</string>
 ```
-
-**Note:**
-
-- `status` will be resolved back as `authorized` prior to macOS 11.0, as the underlying API was not introduced until that version.
 
 Example:
 

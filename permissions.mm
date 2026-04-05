@@ -57,8 +57,7 @@ std::string CheckFileAccessLevel(NSString *path) {
   return kNotDetermined;
 }
 
-PHAccessLevel GetPHAccessLevel(const std::string &type)
-    API_AVAILABLE(macosx(10.16)) {
+PHAccessLevel GetPHAccessLevel(const std::string &type) {
   return type == "read-write" ? PHAccessLevelReadWrite : PHAccessLevelAddOnly;
 }
 
@@ -92,8 +91,7 @@ const std::string &StringFromPhotosStatus(PHAuthorizationStatus status) {
 }
 
 const std::string &
-StringFromMusicLibraryStatus(SKCloudServiceAuthorizationStatus status)
-    API_AVAILABLE(macosx(10.16)) {
+StringFromMusicLibraryStatus(SKCloudServiceAuthorizationStatus status) {
   switch (status) {
   case SKCloudServiceAuthorizationStatusAuthorized:
     return kAuthorized;
@@ -261,13 +259,9 @@ std::string InputMonitoringAuthStatus() {
 // Returns a status indicating whether the user has authorized Apple Music
 // Library access.
 std::string MusicLibraryAuthStatus() {
-  if (@available(macOS 10.16, *)) {
-    SKCloudServiceAuthorizationStatus status =
-        [SKCloudServiceController authorizationStatus];
-    return StringFromMusicLibraryStatus(status);
-  }
-
-  return kAuthorized;
+  SKCloudServiceAuthorizationStatus status =
+      [SKCloudServiceController authorizationStatus];
+  return StringFromMusicLibraryStatus(status);
 }
 
 // Returns a status indicating whether the user has authorized
@@ -321,48 +315,7 @@ std::string FDAAuthStatus() {
 // Returns a status indicating whether the user has authorized
 // Screen Capture access.
 std::string ScreenAuthStatus() {
-  std::string auth_status = kNotDetermined;
-  if (@available(macOS 11.0, *)) {
-    auth_status = CGPreflightScreenCaptureAccess() ? kAuthorized : kDenied;
-  } else {
-    auth_status = kDenied;
-    NSRunningApplication *runningApplication =
-        NSRunningApplication.currentApplication;
-    NSNumber *ourProcessIdentifier =
-        [NSNumber numberWithInteger:runningApplication.processIdentifier];
-
-    CFArrayRef windowList =
-        CGWindowListCopyWindowInfo(kCGWindowListOptionAll, kCGNullWindowID);
-    int numberOfWindows = CFArrayGetCount(windowList);
-    for (int index = 0; index < numberOfWindows; index++) {
-      // Get information for each window.
-      NSDictionary *windowInfo =
-          (NSDictionary *)CFArrayGetValueAtIndex(windowList, index);
-      NSString *windowName = windowInfo[(id)kCGWindowName];
-      NSNumber *processIdentifier = windowInfo[(id)kCGWindowOwnerPID];
-
-      // Don't check windows owned by the current process.
-      if (![processIdentifier isEqual:ourProcessIdentifier]) {
-        // Get process information for each window.
-        pid_t pid = processIdentifier.intValue;
-        NSRunningApplication *windowRunningApplication =
-            [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
-        if (windowRunningApplication) {
-          NSString *windowExecutableName =
-              windowRunningApplication.executableURL.lastPathComponent;
-          if (windowName) {
-            if (![windowExecutableName isEqual:@"Dock"]) {
-              auth_status = kAuthorized;
-              break;
-            }
-          }
-        }
-      }
-    }
-    CFRelease(windowList);
-  }
-
-  return auth_status;
+  return CGPreflightScreenCaptureAccess() ? kAuthorized : kDenied;
 }
 
 // Returns a status indicating whether the user has authorized
@@ -433,15 +386,9 @@ std::string LocationAuthStatus() {
 // Returns a status indicating whether or not the user has authorized Photos
 // access.
 std::string PhotosAuthStatus(const std::string &access_level) {
-  PHAuthorizationStatus status = PHAuthorizationStatusNotDetermined;
-
-  if (@available(macOS 10.16, *)) {
-    PHAccessLevel level = GetPHAccessLevel(access_level);
-    status = [PHPhotoLibrary authorizationStatusForAccessLevel:level];
-  } else {
-    status = [PHPhotoLibrary authorizationStatus];
-  }
-
+  PHAccessLevel level = GetPHAccessLevel(access_level);
+  PHAuthorizationStatus status =
+      [PHPhotoLibrary authorizationStatusForAccessLevel:level];
   return StringFromPhotosStatus(status);
 }
 
@@ -720,22 +667,14 @@ Napi::Promise AskForPhotosAccess(const Napi::CallbackInfo &info) {
   };
 
   if (auth_status == kNotDetermined) {
-    if (@available(macOS 10.16, *)) {
-      [PHPhotoLibrary
-          requestAuthorizationForAccessLevel:GetPHAccessLevel(access_level)
-                                     handler:^(PHAuthorizationStatus status) {
-                                       tsfn.BlockingCall(
-                                           StringFromPhotosStatus(status)
-                                               .c_str(),
-                                           callback);
-                                       tsfn.Release();
-                                     }];
-    } else {
-      [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
-        tsfn.BlockingCall(StringFromPhotosStatus(status).c_str(), callback);
-        tsfn.Release();
-      }];
-    }
+    [PHPhotoLibrary
+        requestAuthorizationForAccessLevel:GetPHAccessLevel(access_level)
+                                   handler:^(PHAuthorizationStatus status) {
+                                     tsfn.BlockingCall(
+                                         StringFromPhotosStatus(status).c_str(),
+                                         callback);
+                                     tsfn.Release();
+                                   }];
   } else {
     if (auth_status == kDenied)
       OpenPrefPane("Privacy_Photos");
@@ -809,26 +748,20 @@ Napi::Promise AskForMusicLibraryAccess(const Napi::CallbackInfo &info) {
     deferred.Resolve(Napi::String::New(env, status));
   };
 
-  if (@available(macOS 10.16, *)) {
-    std::string auth_status = MusicLibraryAuthStatus();
+  std::string auth_status = MusicLibraryAuthStatus();
 
-    if (auth_status == kNotDetermined) {
-      [SKCloudServiceController
-          requestAuthorization:^(SKCloudServiceAuthorizationStatus status) {
-            tsfn.BlockingCall(StringFromMusicLibraryStatus(status).c_str(),
-                              callback);
-            tsfn.Release();
-          }];
-    } else {
-      if (auth_status == kDenied)
-        OpenPrefPane("Privacy_Media");
-
+  if (auth_status == kNotDetermined) {
+    [SKCloudServiceController requestAuthorization:^(
+                                  SKCloudServiceAuthorizationStatus status) {
+      tsfn.BlockingCall(StringFromMusicLibraryStatus(status).c_str(), callback);
       tsfn.Release();
-      deferred.Resolve(Napi::String::New(env, auth_status));
-    }
+    }];
   } else {
+    if (auth_status == kDenied)
+      OpenPrefPane("Privacy_Media");
+
     tsfn.Release();
-    deferred.Resolve(Napi::String::New(env, kAuthorized));
+    deferred.Resolve(Napi::String::New(env, auth_status));
   }
 
   return deferred.Promise();
@@ -836,30 +769,12 @@ Napi::Promise AskForMusicLibraryAccess(const Napi::CallbackInfo &info) {
 
 // Request Screen Capture Access.
 void AskForScreenCaptureAccess(const Napi::CallbackInfo &info) {
-  if (@available(macOS 11.0, *)) {
-    if (CGPreflightScreenCaptureAccess() || CGRequestScreenCaptureAccess())
-      return;
+  if (CGPreflightScreenCaptureAccess() || CGRequestScreenCaptureAccess())
+    return;
 
-    bool should_force_prefs = info[0].As<Napi::Boolean>().Value();
-    if (should_force_prefs && !HasOpenSystemPreferencesDialog()) {
-      OpenPrefPane("Privacy_ScreenCapture");
-    }
-  } else {
-    // Tries to create a capture stream. This is necessary to add the app back
-    // to the list in sysprefs if the user previously denied.
-    // https://stackoverflow.com/questions/56597221/detecting-screen-recording-settings-on-macos-catalina
-    CGDisplayStreamRef stream = CGDisplayStreamCreate(
-        CGMainDisplayID(), 1, 1, kCVPixelFormatType_32BGRA, NULL,
-        ^(CGDisplayStreamFrameStatus status, uint64_t displayTime,
-          IOSurfaceRef frameSurface, CGDisplayStreamUpdateRef updateRef){
-        });
-
-    if (stream) {
-      CFRelease(stream);
-    } else {
-      if (!HasOpenSystemPreferencesDialog())
-        OpenPrefPane("Privacy_ScreenCapture");
-    }
+  bool should_force_prefs = info[0].As<Napi::Boolean>().Value();
+  if (should_force_prefs && !HasOpenSystemPreferencesDialog()) {
+    OpenPrefPane("Privacy_ScreenCapture");
   }
 }
 
