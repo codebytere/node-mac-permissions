@@ -24,6 +24,7 @@ describe('node-mac-permissions', () => {
         'calendar',
         'camera',
         'contacts',
+        'focus-status',
         'full-disk-access',
         'input-monitoring',
         'location',

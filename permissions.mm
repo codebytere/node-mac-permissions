@@ -10,6 +10,7 @@
 #import <EventKit/EventKit.h>
 #import <Foundation/Foundation.h>
 #import <IOKit/hidsystem/IOHIDLib.h>
+#import <Intents/INFocusStatusCenter.h>
 #import <Photos/Photos.h>
 #import <Speech/Speech.h>
 #import <StoreKit/StoreKit.h>
@@ -402,6 +403,25 @@ std::string PhotosAuthStatus(const std::string &access_level) {
   return StringFromPhotosStatus(status);
 }
 
+// Returns a status indicating whether the user has authorized Focus Status
+// access.
+std::string FocusStatusAuthStatus() {
+  if (@available(macOS 12.0, *)) {
+    switch ([INFocusStatusCenter defaultCenter].authorizationStatus) {
+    case INFocusStatusAuthorizationStatusAuthorized:
+      return kAuthorized;
+    case INFocusStatusAuthorizationStatusDenied:
+      return kDenied;
+    case INFocusStatusAuthorizationStatusRestricted:
+      return kRestricted;
+    default:
+      return kNotDetermined;
+    }
+  }
+
+  return kNotDetermined;
+}
+
 /***** EXPORTED FUNCTIONS *****/
 
 // Returns the user's access consent status as a string.
@@ -442,6 +462,8 @@ Napi::Value GetAuthStatus(const Napi::CallbackInfo &info) {
     auth_status = InputMonitoringAuthStatus();
   } else if (type == "notifications") {
     auth_status = NotificationAuthStatus();
+  } else if (type == "focus-status") {
+    auth_status = FocusStatusAuthStatus();
   }
 
   return Napi::Value::From(env, auth_status);
@@ -815,6 +837,55 @@ void AskForAccessibilityAccess(const Napi::CallbackInfo &info) {
   }
 }
 
+// Request Focus Status access.
+Napi::Promise AskForFocusStatusAccess(const Napi::CallbackInfo &info) {
+  Napi::Env env = info.Env();
+  Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(env);
+
+  if (@available(macOS 12.0, *)) {
+    Napi::ThreadSafeFunction tsfn = Napi::ThreadSafeFunction::New(
+        env, Napi::Function::New(env, NoOp), "focusStatusCallback", 0, 1);
+
+    auto callback = [=](Napi::Env env, Napi::Function js_cb,
+                        const char *status) {
+      deferred.Resolve(Napi::String::New(env, status));
+    };
+
+    std::string auth_status = FocusStatusAuthStatus();
+
+    if (auth_status == kNotDetermined) {
+      [[INFocusStatusCenter defaultCenter]
+          requestAuthorizationWithCompletionHandler:^(
+              INFocusStatusAuthorizationStatus status) {
+            const char *result;
+            switch (status) {
+            case INFocusStatusAuthorizationStatusAuthorized:
+              result = "authorized";
+              break;
+            case INFocusStatusAuthorizationStatusDenied:
+              result = "denied";
+              break;
+            case INFocusStatusAuthorizationStatusRestricted:
+              result = "restricted";
+              break;
+            default:
+              result = "not determined";
+              break;
+            }
+            tsfn.BlockingCall(result, callback);
+            tsfn.Release();
+          }];
+    } else {
+      tsfn.Release();
+      deferred.Resolve(Napi::String::New(env, auth_status));
+    }
+  } else {
+    deferred.Resolve(Napi::String::New(env, kNotDetermined));
+  }
+
+  return deferred.Promise();
+}
+
 // Initializes all functions exposed to JS
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
   exports.Set(Napi::String::New(env, "askForAccessibilityAccess"),
@@ -827,6 +898,8 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
               Napi::Function::New(env, AskForCameraAccess));
   exports.Set(Napi::String::New(env, "askForContactsAccess"),
               Napi::Function::New(env, AskForContactsAccess));
+  exports.Set(Napi::String::New(env, "askForFocusStatusAccess"),
+              Napi::Function::New(env, AskForFocusStatusAccess));
   exports.Set(Napi::String::New(env, "askForFoldersAccess"),
               Napi::Function::New(env, AskForFoldersAccess));
   exports.Set(Napi::String::New(env, "askForFullDiskAccess"),

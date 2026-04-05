@@ -29,6 +29,7 @@
         "-framework CoreGraphics",
         "-framework Contacts",
         "-framework EventKit",
+        "-framework Intents",
         "-framework IOKit",
         "-framework Photos",
         "-framework Speech",

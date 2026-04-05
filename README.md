@@ -14,6 +14,7 @@
   - [`permissions.askForCalendarAccess([accessLevel])`](#permissionsaskforcalendaraccessaccesslevel)
   - [`permissions.askForSpeechRecognitionAccess()`](#permissionsaskforspeechrecognitionaccess)
   - [`permissions.askForRemindersAccess()`](#permissionsaskforremindersaccess)
+  - [`permissions.askForFocusStatusAccess()`](#permissionsaskforfocusstatusaccess)
   - [`permissions.askForFoldersAccess(folder)`](#permissionsaskforfoldersaccessfolder)
   - [`permissions.askForFullDiskAccess()`](#permissionsaskforfulldiskaccess)
   - [`permissions.askForCameraAccess()`](#permissionsaskforcameraaccess)
@@ -38,6 +39,7 @@ This native Node.js module allows you to manage an app's access to:
 - Calendar
 - Camera
 - Contacts
+- Focus Status
 - Full Disk Access
 - Input Monitoring
 - Location
@@ -60,7 +62,7 @@ If you're using macOS 12.3 or newer, you'll need to ensure you have Python insta
 
 ### `permissions.getAuthStatus(type)`
 
-- `type` String - The type of system component to which you are requesting access. Can be one of `accessibility`, `bluetooth`, `calendar`, `camera`, `contacts`, `full-disk-access`, `input-monitoring`, `location`, `microphone`,`notifications`, `photos`, `reminders`, `screen`, or `speech-recognition`.
+- `type` String - The type of system component to which you are requesting access. Can be one of `accessibility`, `bluetooth`, `calendar`, `camera`, `contacts`, `focus-status`, `full-disk-access`, `input-monitoring`, `location`, `microphone`, `notifications`, `photos`, `reminders`, `screen`, or `speech-recognition`.
 
 Returns `String` - Can be one of `not determined`, `denied`, `authorized`, `limited`, `provisional`, or `restricted`.
 
@@ -84,6 +86,7 @@ const types = [
   'calendar',
   'camera',
   'contacts',
+  'focus-status',
   'full-disk-access',
   'input-monitoring',
   'location',
@@ -235,6 +238,28 @@ requesting Reminders access.
 ```plist
 <key>NSRemindersFullAccessUsageDescription</key>
 <string>Your reason for wanting access to read and write Reminders data.</string>
+```
+
+### `permissions.askForFocusStatusAccess()`
+
+Returns `Promise<String>` - Whether or not the request succeeded or failed; can be `authorized`, `denied`, `restricted`, or `not determined`.
+
+Checks the authorization status for Focus Status access. If the status check returns:
+
+- `not determined` - The Focus Status access authorization will prompt the user to authorize or deny. The Promise is resolved after the user selection.
+- `denied` - The Promise is resolved as `denied`.
+- `restricted` - The Promise is resolved as `restricted`.
+
+**Note:** Requires macOS 12.0 or higher. On older versions, the Promise resolves as `not determined`.
+
+Example:
+
+```js
+const { askForFocusStatusAccess } = require('node-mac-permissions')
+
+askForFocusStatusAccess().then(status => {
+  console.log(`Access to Focus Status is ${status}`)
+})
 ```
 
 ### `permissions.askForFoldersAccess(folder)`
